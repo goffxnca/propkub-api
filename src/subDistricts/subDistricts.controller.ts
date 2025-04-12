@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
 import { SubDistrictsService } from './subDistricts.service';
 import { SubDistrict } from './subDistricts.schema';
 
@@ -12,8 +12,12 @@ export class SubDistrictsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<SubDistrict | null> {
-    return this.subDistrictsService.findOne(id);
+  async findOne(@Param('id') id: string): Promise<SubDistrict> {
+    const subdistrict = await this.subDistrictsService.findOne(id);
+    if (!subdistrict) {
+      throw new NotFoundException(`SubDistrict with ID ${id} not found`);
+    }
+    return subdistrict;
   }
 
   @Get('district/:districtId')
