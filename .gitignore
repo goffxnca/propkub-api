@@ -12,3 +12,5 @@ yarn-error.log*
 # IDE
 .vscode/
 .DS_Store
+
+temp/
