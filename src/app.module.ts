@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProvincesModule } from './provinces/provinces.module';
 import { DistrictsModule } from './districts/districts.module';
+import { SubDistrictsModule } from './subDistricts/subDistricts.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { DistrictsModule } from './districts/districts.module';
     MongooseModule.forRoot(process.env.MONGODB_URI || ''),
     ProvincesModule,
     DistrictsModule,
+    SubDistrictsModule,
   ],
 })
 export class AppModule {}
