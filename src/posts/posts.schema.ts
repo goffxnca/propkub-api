@@ -258,7 +258,7 @@ export class Post {
   updatedAt: Date;
 
   @Prop({ type: Object })
-  __createdAt: FirebaseTimestamp;
+  __createdAt?: FirebaseTimestamp;
 
   @Prop({ type: Object })
   __updatedAt?: FirebaseTimestamp;

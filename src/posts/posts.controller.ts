@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post, NotFoundException } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post as PostType } from './posts.schema';
 
@@ -12,8 +12,12 @@ export class PostsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<PostType | null> {
-    return this.postsService.findOne(id);
+  async findOne(@Param('id') id: string): Promise<PostType> {
+    const post = await this.postsService.findOne(id);
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${id} not found`);
+    }
+    return post;
   }
 
   @Get('province/:provinceId')
@@ -42,7 +46,11 @@ export class PostsController {
   }
 
   @Post(':id/view')
-  incrementViews(@Param('id') id: string): Promise<PostType | null> {
-    return this.postsService.incrementViews(id);
+  async incrementViews(@Param('id') id: string): Promise<PostType> {
+    const post = await this.postsService.incrementViews(id);
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${id} not found`);
+    }
+    return post;
   }
 } 
