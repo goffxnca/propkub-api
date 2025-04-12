@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProvincesController } from '../src/provinces/provinces.controller';
-import { ProvincesService } from '../src/provinces/provinces.service';
+import { ProvincesController } from '../../src/provinces/provinces.controller';
+import { ProvincesService } from '../../src/provinces/provinces.service';
 import * as request from 'supertest';
 import { INestApplication } from '@nestjs/common';
-import { Province } from '../src/provinces/provinces.schema';
+import { Province } from '../../src/provinces/provinces.schema';
 
 describe('Provinces (e2e)', () => {
   let app: INestApplication;
