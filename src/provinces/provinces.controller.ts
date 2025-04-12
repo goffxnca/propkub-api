@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
 import { ProvincesService } from './provinces.service';
 import { Province } from './provinces.schema';
 
@@ -12,7 +12,11 @@ export class ProvincesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Province | null> {
-    return this.provincesService.findOne(id);
+  async findOne(@Param('id') id: string): Promise<Province> {
+    const province = await this.provincesService.findOne(id);
+    if (!province) {
+      throw new NotFoundException(`Province with ID ${id} not found`);
+    }
+    return province;
   }
 }
