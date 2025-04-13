@@ -1,43 +1,20 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
-
 import { PostsController } from '../../src/posts/posts.controller';
-import { Post } from '../../src/posts/posts.schema';
 import { PostsService } from '../../src/posts/posts.service';
-import { PostStatus, PostSubStatus, PostType, AssetType, AreaUnit, TimeUnit, Condition } from '../../src/posts/posts.schema';
+import { Post } from '../../src/posts/posts.schema';
+import { PostType, AssetType } from '../../src/posts/posts.schema';
+import { createPost } from '../factory/postFactory';
 
 describe('Posts (e2e)', () => {
   let app: INestApplication;
   let service: PostsService;
-
-  const now = new Date();
+  
   const mockPosts: Post[] = [
-    {
-      id: '1',
+    createPost({ 
+      id: '1', 
       title: 'Luxury Condo in Bangkok',
-      slug: 'luxury-condo-bangkok',
-      desc: 'Beautiful condo in prime location',
-      assetType: AssetType.CONDO,
-      postType: PostType.SALE,
-      price: 5000000,
-      priceUnit: AreaUnit.SQM,
-      area: 100,
-      areaUnit: AreaUnit.SQM,
-      status: PostStatus.ACTIVE,
-      subStatus: PostSubStatus.CREATED,
-      isMember: true,
-      isStudio: false,
-      thumbnail: 'https://example.com/thumb1.jpg',
-      images: ['https://example.com/img1.jpg', 'https://example.com/img2.jpg'],
-      facilities: [
-        { id: 'pool', label: 'Swimming Pool' },
-        { id: 'gym', label: 'Gym' }
-      ],
-      specs: [
-        { id: '1', label: 'Bedrooms', value: 2 },
-        { id: '2', label: 'Bathrooms', value: 2 }
-      ],
       address: {
         provinceId: '1',
         provinceLabel: 'Bangkok',
@@ -46,66 +23,45 @@ describe('Posts (e2e)', () => {
         subDistrictId: '1',
         subDistrictLabel: 'Phra Borom Maha Ratchawang',
         regionId: '1',
-        location: {
-          lat: 13.7563,
-          lng: 100.5018
-        }
-      },
-      createdAt: now,
-      updatedAt: now,
-      postViews: 0,
-      phoneViews: 0,
-      lineViews: 0,
-      cid: 1,
-      postNumber: 'P001',
-      land: 0,
-      landUnit: AreaUnit.SQM,
-      condition: Condition.NEW,
-      contact: {
-        name: 'John Doe',
-        phone: '0812345678',
-        line: 'johndoe'
-      },
-      createdBy: {
-        userId: '1',
-        name: 'John Doe',
-        email: 'john@example.com',
-        phone: '0812345678',
-        role: 'agent'
-      },
-      updatedBy: {
-        userId: '1',
-        name: 'John Doe',
-        email: 'john@example.com',
-        phone: '0812345678',
-        role: 'agent'
+        location: { lat: 13.7563, lng: 100.5018 }
       }
-    },
-    {
-      id: '2',
+    }),
+    createPost({ 
+      id: '2', 
       title: 'Modern House for Rent',
-      slug: 'modern-house-rent',
-      desc: 'Spacious house in quiet neighborhood',
       assetType: AssetType.HOUSE,
       postType: PostType.RENT,
-      price: 30000,
-      priceUnit: TimeUnit.MONTH,
-      area: 200,
-      areaUnit: AreaUnit.SQM,
-      status: PostStatus.ACTIVE,
-      subStatus: PostSubStatus.CREATED,
-      isMember: false,
-      isStudio: false,
-      thumbnail: 'https://example.com/thumb2.jpg',
-      images: ['https://example.com/img3.jpg', 'https://example.com/img4.jpg'],
-      facilities: [
-        { id: 'parking', label: 'Parking' },
-        { id: 'garden', label: 'Garden' }
-      ],
-      specs: [
-        { id: '1', label: 'Bedrooms', value: 3 },
-        { id: '2', label: 'Bathrooms', value: 2 }
-      ],
+      address: {
+        provinceId: '1',
+        provinceLabel: 'Bangkok',
+        districtId: '1',
+        districtLabel: 'Phra Nakhon',
+        subDistrictId: '1',
+        subDistrictLabel: 'Phra Borom Maha Ratchawang',
+        regionId: '1',
+        location: { lat: 13.7563, lng: 100.5018 }
+      }
+    }),
+    createPost({ 
+      id: '3', 
+      title: 'Luxury Villa in Bangkok',
+      assetType: AssetType.HOUSE,
+      address: {
+        provinceId: '1',
+        provinceLabel: 'Bangkok',
+        districtId: '1',
+        districtLabel: 'Phra Nakhon',
+        subDistrictId: '1',
+        subDistrictLabel: 'Phra Borom Maha Ratchawang',
+        regionId: '1',
+        location: { lat: 13.7563, lng: 100.5018 }
+      }
+    }),
+    createPost({ 
+      id: '4', 
+      title: 'Studio Apartment for Rent',
+      assetType: AssetType.CONDO,
+      postType: PostType.RENT,
       address: {
         provinceId: '1',
         provinceLabel: 'Bangkok',
@@ -114,109 +70,100 @@ describe('Posts (e2e)', () => {
         subDistrictId: '2',
         subDistrictLabel: 'Dusit',
         regionId: '1',
-        location: {
-          lat: 13.7563,
-          lng: 100.5018
-        }
-      },
-      createdAt: now,
-      updatedAt: now,
-      postViews: 0,
-      phoneViews: 0,
-      lineViews: 0,
-      cid: 2,
-      postNumber: 'P002',
-      land: 0,
-      landUnit: AreaUnit.SQM,
-      condition: Condition.USED,
-      contact: {
-        name: 'Jane Smith',
-        phone: '0898765432',
-        line: 'janesmith'
-      },
-      createdBy: {
-        userId: '2',
-        name: 'Jane Smith',
-        email: 'jane@example.com',
-        phone: '0898765432',
-        role: 'owner'
-      },
-      updatedBy: {
-        userId: '2',
-        name: 'Jane Smith',
-        email: 'jane@example.com',
-        phone: '0898765432',
-        role: 'owner'
+        location: { lat: 13.7763, lng: 100.5168 }
       }
-    },
-    {
-      id: '3',
-      title: 'Luxury Villa in Bangkok',
-      slug: 'luxury-villa-bangkok',
-      desc: 'Exclusive villa with private pool',
-      assetType: AssetType.HOUSE,
-      postType: PostType.SALE,
-      price: 15000000,
-      priceUnit: AreaUnit.SQM,
-      area: 300,
-      areaUnit: AreaUnit.SQM,
-      status: PostStatus.ACTIVE,
-      subStatus: PostSubStatus.CREATED,
-      isMember: true,
-      isStudio: false,
-      thumbnail: 'https://example.com/thumb3.jpg',
-      images: ['https://example.com/img5.jpg', 'https://example.com/img6.jpg'],
-      facilities: [
-        { id: 'pool', label: 'Swimming Pool' },
-        { id: 'garden', label: 'Garden' }
-      ],
-      specs: [
-        { id: '1', label: 'Bedrooms', value: 4 },
-        { id: '2', label: 'Bathrooms', value: 3 }
-      ],
+    }),
+    createPost({ 
+      id: '5', 
+      title: 'Townhome in CBD',
+      assetType: AssetType.TOWNHOME,
       address: {
         provinceId: '1',
         provinceLabel: 'Bangkok',
-        districtId: '1',
-        districtLabel: 'Phra Nakhon',
-        subDistrictId: '1',
-        subDistrictLabel: 'Phra Borom Maha Ratchawang',
+        districtId: '2',
+        districtLabel: 'Dusit',
+        subDistrictId: '2',
+        subDistrictLabel: 'Dusit',
         regionId: '1',
-        location: {
-          lat: 13.7563,
-          lng: 100.5018
-        }
-      },
-      createdAt: now,
-      updatedAt: now,
-      postViews: 0,
-      phoneViews: 0,
-      lineViews: 0,
-      cid: 3,
-      postNumber: 'P003',
-      land: 0,
-      landUnit: AreaUnit.SQM,
-      condition: Condition.NEW,
-      contact: {
-        name: 'Mike Johnson',
-        phone: '0876543210',
-        line: 'mikejohnson'
-      },
-      createdBy: {
-        userId: '3',
-        name: 'Mike Johnson',
-        email: 'mike@example.com',
-        phone: '0876543210',
-        role: 'agent'
-      },
-      updatedBy: {
-        userId: '3',
-        name: 'Mike Johnson',
-        email: 'mike@example.com',
-        phone: '0876543210',
-        role: 'agent'
+        location: { lat: 13.7763, lng: 100.5168 }
       }
-    }
+    }),
+    createPost({ 
+      id: '6', 
+      title: 'Townhome for Sale',
+      assetType: AssetType.TOWNHOME,
+      address: {
+        provinceId: '2',
+        provinceLabel: 'Nonthaburi',
+        districtId: '3',
+        districtLabel: 'Mueang Nonthaburi',
+        subDistrictId: '3',
+        subDistrictLabel: 'Suan Yai',
+        regionId: '1',
+        location: { lat: 13.8625, lng: 100.5144 }
+      }
+    }),
+    createPost({ 
+      id: '7', 
+      title: 'Land Plot in Suburb',
+      assetType: AssetType.LAND,
+      address: {
+        provinceId: '2',
+        provinceLabel: 'Nonthaburi',
+        districtId: '3',
+        districtLabel: 'Mueang Nonthaburi',
+        subDistrictId: '3',
+        subDistrictLabel: 'Suan Yai',
+        regionId: '1',
+        location: { lat: 13.8625, lng: 100.5144 }
+      }
+    }),
+    createPost({ 
+      id: '8', 
+      title: 'Penthouse with City View',
+      assetType: AssetType.CONDO,
+      address: {
+        provinceId: '2',
+        provinceLabel: 'Nonthaburi',
+        districtId: '4',
+        districtLabel: 'Bang Kruai',
+        subDistrictId: '4',
+        subDistrictLabel: 'Bang Kruai',
+        regionId: '1',
+        location: { lat: 13.8050, lng: 100.4722 }
+      }
+    }),
+    createPost({ 
+      id: '9', 
+      title: 'Family House with Garden',
+      assetType: AssetType.HOUSE,
+      address: {
+        provinceId: '2',
+        provinceLabel: 'Nonthaburi',
+        districtId: '4',
+        districtLabel: 'Bang Kruai',
+        subDistrictId: '4',
+        subDistrictLabel: 'Bang Kruai',
+        regionId: '1',
+        location: { lat: 13.8050, lng: 100.4722 }
+      }
+    }),
+    createPost({ 
+      id: '10', 
+      title: 'Luxury Condo for Rent',
+      assetType: AssetType.CONDO,
+      postType: PostType.RENT,
+      address: {
+        provinceId: '2',
+        provinceLabel: 'Nonthaburi',
+        districtId: '4',
+        districtLabel: 'Bang Kruai',
+        subDistrictId: '4',
+        subDistrictLabel: 'Bang Kruai',
+        regionId: '1',
+        location: { lat: 13.8050, lng: 100.4722 }
+      }
+    })
   ];
 
   beforeEach(async () => {
@@ -226,25 +173,33 @@ describe('Posts (e2e)', () => {
         {
           provide: PostsService,
           useValue: {
-            findAll: jest.fn().mockResolvedValue(mockPosts),
+            findAll: jest.fn().mockImplementation((limit: number, offset: number) => {
+              const paginatedPosts = mockPosts.slice(offset, offset + limit);
+              return Promise.resolve(paginatedPosts);
+            }),
             findOne: jest.fn().mockImplementation((id) => {
               const post = mockPosts.find(p => p.id === id);
               return Promise.resolve(post || null);
             }),
             findByProvinceId: jest.fn().mockImplementation((provinceId) => {
-              return Promise.resolve(mockPosts.filter(p => p.address.provinceId === provinceId));
+              const filteredPosts = mockPosts.filter(p => p.address.provinceId === provinceId);
+              return Promise.resolve(filteredPosts);
             }),
             findByDistrictId: jest.fn().mockImplementation((districtId) => {
-              return Promise.resolve(mockPosts.filter(p => p.address.districtId === districtId));
+              const filteredPosts = mockPosts.filter(p => p.address.districtId === districtId);
+              return Promise.resolve(filteredPosts);
             }),
             findBySubDistrictId: jest.fn().mockImplementation((subDistrictId) => {
-              return Promise.resolve(mockPosts.filter(p => p.address.subDistrictId === subDistrictId));
+              const filteredPosts = mockPosts.filter(p => p.address.subDistrictId === subDistrictId);
+              return Promise.resolve(filteredPosts);
             }),
             findByAssetType: jest.fn().mockImplementation((assetType) => {
-              return Promise.resolve(mockPosts.filter(p => p.assetType === assetType));
+              const filteredPosts = mockPosts.filter(p => p.assetType === assetType);
+              return Promise.resolve(filteredPosts);
             }),
             findByPostType: jest.fn().mockImplementation((postType) => {
-              return Promise.resolve(mockPosts.filter(p => p.postType === postType));
+              const filteredPosts = mockPosts.filter(p => p.postType === postType);
+              return Promise.resolve(filteredPosts);
             }),
             incrementViews: jest.fn().mockImplementation((id) => {
               const post = mockPosts.find(p => p.id === id);
@@ -260,6 +215,7 @@ describe('Posts (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ transform: true }));
     service = moduleFixture.get<PostsService>(PostsService);
     await app.init();
   });
@@ -269,16 +225,127 @@ describe('Posts (e2e)', () => {
   });
 
   describe('GET /posts', () => {
-    it('should return an array of posts', () => {
-      return request(app.getHttpServer())
-        .get('/posts')
-        .expect(200)
-        .expect((res) => {
-          expect(res.body).toHaveLength(3);
-          expect(res.body[0].id).toBe('1');
-          expect(res.body[1].id).toBe('2');
-          expect(res.body[2].id).toBe('3');
-        });
+    describe('Pagination Functionalities', () => {
+      it('should return first 4 items when limit=4, offset=0', () => {
+        return request(app.getHttpServer())
+          .get('/posts?limit=4&offset=0')
+          .expect(200)
+          .expect((res) => {
+            expect(Array.isArray(res.body)).toBe(true);
+            expect(res.body).toHaveLength(4);
+            expect(res.body[0].title).toBe(mockPosts[0].title);
+            expect(res.body[3].title).toBe(mockPosts[3].title);
+          });
+      });
+
+      it('should return second page (items 5-8) when limit=4, offset=4', () => {
+        return request(app.getHttpServer())
+          .get('/posts?limit=4&offset=4')
+          .expect(200)
+          .expect((res) => {
+            expect(Array.isArray(res.body)).toBe(true);
+            expect(res.body).toHaveLength(4);
+            expect(res.body[0].title).toBe(mockPosts[4].title);
+            expect(res.body[3].title).toBe(mockPosts[7].title);
+          });
+      });
+
+      it('should return partial page (items 9-10) when limit=4, offset=8', () => {
+        return request(app.getHttpServer())
+          .get('/posts?limit=4&offset=8')
+          .expect(200)
+          .expect((res) => {
+            expect(Array.isArray(res.body)).toBe(true);
+            expect(res.body).toHaveLength(2);
+            expect(res.body[0].title).toBe(mockPosts[8].title);
+            expect(res.body[1].title).toBe(mockPosts[9].title);
+          });
+      });
+
+      it('should return empty array when offset is beyond available items (limit=4, offset=999)', () => {
+        return request(app.getHttpServer())
+          .get('/posts?limit=4&offset=999')
+          .expect(200)
+          .expect((res) => {
+            expect(Array.isArray(res.body)).toBe(true);
+            expect(res.body).toHaveLength(0);
+          });
+      });
+    });
+
+    describe('Pagination Validations', () => {
+      it('should return 400 when both limit and offset are missing', () => {
+        return request(app.getHttpServer())
+          .get('/posts')
+          .expect(400)
+          .expect((res) => {
+            expect(res.body.message).toContain('limit should not be empty');
+            expect(res.body.message).toContain('offset should not be empty');
+          });
+      });
+
+      it('should return 400 when limit is missing', () => {
+        return request(app.getHttpServer())
+          .get('/posts?offset=0')
+          .expect(400)
+          .expect((res) => {
+            expect(res.body.message).toContain('limit should not be empty');
+          });
+      });
+
+      it('should return 400 when offset is missing', () => {
+        return request(app.getHttpServer())
+          .get('/posts?limit=10')
+          .expect(400)
+          .expect((res) => {
+            expect(res.body.message).toContain('offset should not be empty');
+          });
+      });
+
+      it('should return 400 when limit is not a number', () => {
+        return request(app.getHttpServer())
+          .get('/posts?limit=abc&offset=0')
+          .expect(400)
+          .expect((res) => {
+            expect(res.body.message).toContain('limit must be an integer number');
+          });
+      });
+
+      it('should return 400 when offset is not a number', () => {
+        return request(app.getHttpServer())
+          .get('/posts?limit=10&offset=abc')
+          .expect(400)
+          .expect((res) => {
+            expect(res.body.message).toContain('offset must be an integer number');
+          });
+      });
+
+      it('should return 400 when limit is less than 1', () => {
+        return request(app.getHttpServer())
+          .get('/posts?limit=0&offset=0')
+          .expect(400)
+          .expect((res) => {
+            expect(res.body.message).toContain('limit must not be less than 1');
+          });
+      });
+
+      it('should return 400 when limit is greater than 50', () => {
+        return request(app.getHttpServer())
+          .get('/posts?limit=51&offset=0')
+          .expect(400)
+          .expect((res) => {
+            expect(res.body.message).toContain('limit must not be greater than 50');
+          });
+      });
+
+      it('should return 400 when offset is negative', () => {
+        return request(app.getHttpServer())
+          .get('/posts?limit=10&offset=-1')
+          .expect(400)
+          .expect((res) => {
+            expect(res.body.message).toContain('offset must not be less than 0');
+          });
+      });
     });
   });
 
@@ -312,7 +379,7 @@ describe('Posts (e2e)', () => {
         .get(`/posts/province/${provinceId}`)
         .expect(200)
         .expect((res) => {
-          expect(res.body.length).toBe(3);
+          expect(res.body.length).toBe(5);
           expect(res.body.every(p => p.address.provinceId === provinceId)).toBe(true);
         });
     });
@@ -332,7 +399,7 @@ describe('Posts (e2e)', () => {
         .get(`/posts/district/${districtId}`)
         .expect(200)
         .expect((res) => {
-          expect(res.body.length).toBe(2);
+          expect(res.body.length).toBe(3);
           expect(res.body.every(p => p.address.districtId === districtId)).toBe(true);
         });
     });
@@ -352,7 +419,7 @@ describe('Posts (e2e)', () => {
         .get(`/posts/subdistrict/${subDistrictId}`)
         .expect(200)
         .expect((res) => {
-          expect(res.body.length).toBe(2);
+          expect(res.body.length).toBe(3);
           expect(res.body.every(p => p.address.subDistrictId === subDistrictId)).toBe(true);
         });
     });
@@ -372,7 +439,7 @@ describe('Posts (e2e)', () => {
         .get(`/posts/asset-type/${assetType}`)
         .expect(200)
         .expect((res) => {
-          expect(res.body.length).toBe(2);
+          expect(res.body.length).toBe(3);
           expect(res.body.every(p => p.assetType === assetType)).toBe(true);
         });
     });
@@ -380,12 +447,12 @@ describe('Posts (e2e)', () => {
 
   describe('GET /posts/post-type/:postType', () => {
     it('should return posts for a post type', () => {
-      const postType = PostType.SALE;
+      const postType = PostType.RENT;
       return request(app.getHttpServer())
         .get(`/posts/post-type/${postType}`)
         .expect(200)
         .expect((res) => {
-          expect(res.body.length).toBe(2);
+          expect(res.body.length).toBe(3);
           expect(res.body.every(p => p.postType === postType)).toBe(true);
         });
     });

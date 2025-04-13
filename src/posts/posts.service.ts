@@ -52,8 +52,11 @@ export class PostsService implements OnModuleInit {
     }
   }
 
-  async findAll(): Promise<Post[]> {
-    return this.postModel.find().exec();
+  async findAll(limit: number, offset: number): Promise<Post[]> {
+    return this.postModel.find()
+      .skip(offset)
+      .limit(limit)
+      .exec();
   }
 
   async findOne(id: string): Promise<Post | null> {
