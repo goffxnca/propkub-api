@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Post as HttpPost, NotFoundException, Query } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post } from './posts.schema';
-import { PaginationDto } from './dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('posts')
 export class PostsController {

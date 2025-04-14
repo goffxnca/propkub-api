@@ -5,6 +5,8 @@ import { ProvincesModule } from './provinces/provinces.module';
 import { DistrictsModule } from './districts/districts.module';
 import { SubDistrictsModule } from './subDistricts/subDistricts.module';
 import { PostsModule } from './posts/posts.module';
+import { UsersModule } from './users/users.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { PostsModule } from './posts/posts.module';
     DistrictsModule,
     SubDistrictsModule,
     PostsModule,
+    UsersModule,
+    AdminModule,
   ],
 })
 export class AppModule {}
