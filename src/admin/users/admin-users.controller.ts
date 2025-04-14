@@ -14,9 +14,9 @@ import {
 import { AdminUsersService } from './admin-users.service';
 import { User } from '../../users/users.schema';
 import { PaginationDto } from '../../common/dto/pagination.dto';
-import { CreateUserDto, UpdateUserDto } from '../../users/dto/user.dto';
 import { MongoIdValidationPipe } from '../../common/pipes/mongo-id.pipe';
 import { ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 
 @Controller('admin/users')
 export class AdminUsersController {
@@ -62,6 +62,24 @@ export class AdminUsersController {
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update a user' })
+  @ApiResponse({ status: 200, description: 'User successfully updated' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid input data',
+  })
+  @ApiBody({
+    type: UpdateUserDto,
+    description: 'User update data',
+    examples: {
+      user: {
+        value: {
+          name: 'John Doe Updated',
+        },
+      },
+    },
+  })
   async update(
     @Param('id', MongoIdValidationPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -74,6 +92,9 @@ export class AdminUsersController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a user' })
+  @ApiResponse({ status: 200, description: 'User successfully deleted' })
+  @ApiResponse({ status: 404, description: 'User not found' })
   async remove(@Param('id', MongoIdValidationPipe) id: string): Promise<User> {
     const user = await this.adminUsersService.remove(id);
     if (!user) {

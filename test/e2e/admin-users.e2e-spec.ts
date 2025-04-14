@@ -2,15 +2,16 @@ import {
   INestApplication,
   ValidationPipe,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AdminUsersController } from '../../src/admin/users/admin-users.controller';
 import { AdminUsersService } from '../../src/admin/users/admin-users.service';
 import { User, UserRole } from '../../src/users/users.schema';
-import { CreateUserDto, UpdateUserDto } from '../../src/users/dto/user.dto';
 import { createUser } from '../factory/userFactory';
 import { PaginationDto } from '../../src/common/dto/pagination.dto';
+import { CreateUserDto, UpdateUserDto } from 'src/admin/users/dto/user.dto';
 
 describe('AdminUsers (e2e)', () => {
   let app: INestApplication;
@@ -224,7 +225,7 @@ describe('AdminUsers (e2e)', () => {
   });
 
   describe('PUT /admin/users/:id', () => {
-    it('should update a user', () => {
+    it('should update a user name', () => {
       const userId = mockUsers[0]._id;
       const updateUserDto: UpdateUserDto = {
         name: 'Updated Name',
@@ -237,7 +238,21 @@ describe('AdminUsers (e2e)', () => {
         .expect((res) => {
           expect(res.body).toBeDefined();
           expect(res.body.name).toBe(updateUserDto.name);
+          expect(res.body.email).toBe(mockUsers[0].email);
           expect(service.update).toHaveBeenCalledWith(userId, updateUserDto);
+        });
+    });
+
+    it('should return 400 when name is empty', () => {
+      const userId = mockUsers[0]._id;
+      const emptyUpdate = {};
+
+      return request(app.getHttpServer())
+        .put(`/admin/users/${userId}`)
+        .send(emptyUpdate)
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('name must be a string');
         });
     });
 

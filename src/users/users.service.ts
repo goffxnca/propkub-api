@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './users.schema';
 import * as usersData from './data/users.json';
-import { UpdateUserDto } from './dto/user.dto';
+import { UpdateProfileDto } from './dto/user.dto';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -32,12 +32,12 @@ export class UsersService implements OnModuleInit {
     return firstUser;
   }
 
-  async updateMe(updateData: UpdateUserDto): Promise<User | null> {
+  async updateMe(profileDto: UpdateProfileDto): Promise<User | null> {
     const firstUser = await this.userModel.findOne().exec();
     if (!firstUser) return null;
 
     const allowedUpdates = {
-      name: updateData.name,
+      name: profileDto.name,
     };
 
     return this.userModel

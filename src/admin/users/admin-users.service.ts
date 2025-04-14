@@ -1,8 +1,8 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { User, UserDocument } from '../../users/users.schema';
-import { CreateUserDto, UpdateUserDto } from '../../users/dto/user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 
 @Injectable()
 export class AdminUsersService {

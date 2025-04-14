@@ -103,6 +103,19 @@ describe('Users (e2e)', () => {
         });
     });
 
+    it('should return 400 when name is empty', () => {
+      const userId = mockUsers[0]._id;
+      const emptyUpdate = {};
+
+      return request(app.getHttpServer())
+        .put('/users/me')
+        .send(emptyUpdate)
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('name must be a string');
+        });
+    });
+
     it('should return 404 when user not found during update', async () => {
       jest.spyOn(service, 'updateMe').mockResolvedValueOnce(null);
 
