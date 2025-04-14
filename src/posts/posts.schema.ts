@@ -189,7 +189,7 @@ export interface FirebaseTimestamp {
 @Schema({ timestamps: false })
 export class Post {
   @Prop({ required: true, unique: true })
-  id: string;
+  ___id: string;
 
   @Prop({ required: true })
   title: string;
@@ -251,17 +251,11 @@ export class Post {
   @Prop()
   legal?: Legal;
 
-  @Prop({ type: Date })
-  createdAt: Date;
-
-  @Prop({ type: Date })
-  updatedAt: Date;
+  @Prop({ type: Object })
+  ___createdAt?: FirebaseTimestamp;
 
   @Prop({ type: Object })
-  __createdAt?: FirebaseTimestamp;
-
-  @Prop({ type: Object })
-  __updatedAt?: FirebaseTimestamp;
+  ___updatedAt?: FirebaseTimestamp;
 
   @Prop({ required: true, default: 0 })
   postViews: number;
@@ -272,8 +266,7 @@ export class Post {
   @Prop({ required: true, default: 0 })
   lineViews: number;
 
-
-  @Prop({ required: true})
+  @Prop({ required: true })
   cid: number;
 
   @Prop()
@@ -294,6 +287,12 @@ export class Post {
   @Prop()
   contact: Contact;
 
+  @Prop({ type: Date })
+  createdAt: Date;
+
+  @Prop({ type: Date })
+  updatedAt: Date;
+
   @Prop({ required: true })
   createdBy: CreatedBy;
 
@@ -302,16 +301,3 @@ export class Post {
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);
-
-// // Add toJSON transform to ensure proper date serialization
-// PostSchema.set('toJSON', {
-//   transform: function(doc, ret) {
-//     if (ret.createdAt instanceof Date) {
-//       ret.createdAt = ret.createdAt.toISOString();
-//     }
-//     if (ret.updatedAt instanceof Date) {
-//       ret.updatedAt = ret.updatedAt.toISOString();
-//     }
-//     return ret;
-//   }
-// });

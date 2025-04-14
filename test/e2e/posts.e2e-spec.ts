@@ -10,10 +10,10 @@ import { createPost } from '../factory/postFactory';
 describe('Posts (e2e)', () => {
   let app: INestApplication;
   let service: PostsService;
-  
+
   const mockPosts: Post[] = [
-    createPost({ 
-      id: '1', 
+    createPost({
+      ___id: '1',
       title: 'Luxury Condo in Bangkok',
       address: {
         provinceId: '1',
@@ -23,11 +23,11 @@ describe('Posts (e2e)', () => {
         subDistrictId: '1',
         subDistrictLabel: 'Phra Borom Maha Ratchawang',
         regionId: '1',
-        location: { lat: 13.7563, lng: 100.5018 }
-      }
+        location: { lat: 13.7563, lng: 100.5018 },
+      },
     }),
-    createPost({ 
-      id: '2', 
+    createPost({
+      ___id: '2',
       title: 'Modern House for Rent',
       assetType: AssetType.HOUSE,
       postType: PostType.RENT,
@@ -39,11 +39,11 @@ describe('Posts (e2e)', () => {
         subDistrictId: '1',
         subDistrictLabel: 'Phra Borom Maha Ratchawang',
         regionId: '1',
-        location: { lat: 13.7563, lng: 100.5018 }
-      }
+        location: { lat: 13.7563, lng: 100.5018 },
+      },
     }),
-    createPost({ 
-      id: '3', 
+    createPost({
+      ___id: '3',
       title: 'Luxury Villa in Bangkok',
       assetType: AssetType.HOUSE,
       address: {
@@ -54,11 +54,11 @@ describe('Posts (e2e)', () => {
         subDistrictId: '1',
         subDistrictLabel: 'Phra Borom Maha Ratchawang',
         regionId: '1',
-        location: { lat: 13.7563, lng: 100.5018 }
-      }
+        location: { lat: 13.7563, lng: 100.5018 },
+      },
     }),
-    createPost({ 
-      id: '4', 
+    createPost({
+      ___id: '4',
       title: 'Studio Apartment for Rent',
       assetType: AssetType.CONDO,
       postType: PostType.RENT,
@@ -70,11 +70,11 @@ describe('Posts (e2e)', () => {
         subDistrictId: '2',
         subDistrictLabel: 'Dusit',
         regionId: '1',
-        location: { lat: 13.7763, lng: 100.5168 }
-      }
+        location: { lat: 13.7763, lng: 100.5168 },
+      },
     }),
-    createPost({ 
-      id: '5', 
+    createPost({
+      ___id: '5',
       title: 'Townhome in CBD',
       assetType: AssetType.TOWNHOME,
       address: {
@@ -85,11 +85,11 @@ describe('Posts (e2e)', () => {
         subDistrictId: '2',
         subDistrictLabel: 'Dusit',
         regionId: '1',
-        location: { lat: 13.7763, lng: 100.5168 }
-      }
+        location: { lat: 13.7763, lng: 100.5168 },
+      },
     }),
-    createPost({ 
-      id: '6', 
+    createPost({
+      ___id: '6',
       title: 'Townhome for Sale',
       assetType: AssetType.TOWNHOME,
       address: {
@@ -100,11 +100,11 @@ describe('Posts (e2e)', () => {
         subDistrictId: '3',
         subDistrictLabel: 'Suan Yai',
         regionId: '1',
-        location: { lat: 13.8625, lng: 100.5144 }
-      }
+        location: { lat: 13.8625, lng: 100.5144 },
+      },
     }),
-    createPost({ 
-      id: '7', 
+    createPost({
+      ___id: '7',
       title: 'Land Plot in Suburb',
       assetType: AssetType.LAND,
       address: {
@@ -115,11 +115,11 @@ describe('Posts (e2e)', () => {
         subDistrictId: '3',
         subDistrictLabel: 'Suan Yai',
         regionId: '1',
-        location: { lat: 13.8625, lng: 100.5144 }
-      }
+        location: { lat: 13.8625, lng: 100.5144 },
+      },
     }),
-    createPost({ 
-      id: '8', 
+    createPost({
+      ___id: '8',
       title: 'Penthouse with City View',
       assetType: AssetType.CONDO,
       address: {
@@ -130,11 +130,11 @@ describe('Posts (e2e)', () => {
         subDistrictId: '4',
         subDistrictLabel: 'Bang Kruai',
         regionId: '1',
-        location: { lat: 13.8050, lng: 100.4722 }
-      }
+        location: { lat: 13.805, lng: 100.4722 },
+      },
     }),
-    createPost({ 
-      id: '9', 
+    createPost({
+      ___id: '9',
       title: 'Family House with Garden',
       assetType: AssetType.HOUSE,
       address: {
@@ -145,11 +145,11 @@ describe('Posts (e2e)', () => {
         subDistrictId: '4',
         subDistrictLabel: 'Bang Kruai',
         regionId: '1',
-        location: { lat: 13.8050, lng: 100.4722 }
-      }
+        location: { lat: 13.805, lng: 100.4722 },
+      },
     }),
-    createPost({ 
-      id: '10', 
+    createPost({
+      ___id: '10',
       title: 'Luxury Condo for Rent',
       assetType: AssetType.CONDO,
       postType: PostType.RENT,
@@ -161,9 +161,9 @@ describe('Posts (e2e)', () => {
         subDistrictId: '4',
         subDistrictLabel: 'Bang Kruai',
         regionId: '1',
-        location: { lat: 13.8050, lng: 100.4722 }
-      }
-    })
+        location: { lat: 13.805, lng: 100.4722 },
+      },
+    }),
   ];
 
   beforeEach(async () => {
@@ -173,36 +173,50 @@ describe('Posts (e2e)', () => {
         {
           provide: PostsService,
           useValue: {
-            findAll: jest.fn().mockImplementation((limit: number, offset: number) => {
-              const paginatedPosts = mockPosts.slice(offset, offset + limit);
-              return Promise.resolve(paginatedPosts);
-            }),
+            findAll: jest
+              .fn()
+              .mockImplementation((limit: number, offset: number) => {
+                const paginatedPosts = mockPosts.slice(offset, offset + limit);
+                return Promise.resolve(paginatedPosts);
+              }),
             findOne: jest.fn().mockImplementation((id) => {
-              const post = mockPosts.find(p => p.id === id);
+              const post = mockPosts.find((p) => p.___id === id);
               return Promise.resolve(post || null);
             }),
             findByProvinceId: jest.fn().mockImplementation((provinceId) => {
-              const filteredPosts = mockPosts.filter(p => p.address.provinceId === provinceId);
+              const filteredPosts = mockPosts.filter(
+                (p) => p.address.provinceId === provinceId,
+              );
               return Promise.resolve(filteredPosts);
             }),
             findByDistrictId: jest.fn().mockImplementation((districtId) => {
-              const filteredPosts = mockPosts.filter(p => p.address.districtId === districtId);
+              const filteredPosts = mockPosts.filter(
+                (p) => p.address.districtId === districtId,
+              );
               return Promise.resolve(filteredPosts);
             }),
-            findBySubDistrictId: jest.fn().mockImplementation((subDistrictId) => {
-              const filteredPosts = mockPosts.filter(p => p.address.subDistrictId === subDistrictId);
-              return Promise.resolve(filteredPosts);
-            }),
+            findBySubDistrictId: jest
+              .fn()
+              .mockImplementation((subDistrictId) => {
+                const filteredPosts = mockPosts.filter(
+                  (p) => p.address.subDistrictId === subDistrictId,
+                );
+                return Promise.resolve(filteredPosts);
+              }),
             findByAssetType: jest.fn().mockImplementation((assetType) => {
-              const filteredPosts = mockPosts.filter(p => p.assetType === assetType);
+              const filteredPosts = mockPosts.filter(
+                (p) => p.assetType === assetType,
+              );
               return Promise.resolve(filteredPosts);
             }),
             findByPostType: jest.fn().mockImplementation((postType) => {
-              const filteredPosts = mockPosts.filter(p => p.postType === postType);
+              const filteredPosts = mockPosts.filter(
+                (p) => p.postType === postType,
+              );
               return Promise.resolve(filteredPosts);
             }),
             incrementViews: jest.fn().mockImplementation((id) => {
-              const post = mockPosts.find(p => p.id === id);
+              const post = mockPosts.find((p) => p.___id === id);
               if (post) {
                 post.postViews += 1;
                 return Promise.resolve(post);
@@ -307,7 +321,9 @@ describe('Posts (e2e)', () => {
           .get('/posts?limit=abc&offset=0')
           .expect(400)
           .expect((res) => {
-            expect(res.body.message).toContain('limit must be an integer number');
+            expect(res.body.message).toContain(
+              'limit must be an integer number',
+            );
           });
       });
 
@@ -316,7 +332,9 @@ describe('Posts (e2e)', () => {
           .get('/posts?limit=10&offset=abc')
           .expect(400)
           .expect((res) => {
-            expect(res.body.message).toContain('offset must be an integer number');
+            expect(res.body.message).toContain(
+              'offset must be an integer number',
+            );
           });
       });
 
@@ -334,7 +352,9 @@ describe('Posts (e2e)', () => {
           .get('/posts?limit=51&offset=0')
           .expect(400)
           .expect((res) => {
-            expect(res.body.message).toContain('limit must not be greater than 50');
+            expect(res.body.message).toContain(
+              'limit must not be greater than 50',
+            );
           });
       });
 
@@ -343,7 +363,9 @@ describe('Posts (e2e)', () => {
           .get('/posts?limit=10&offset=-1')
           .expect(400)
           .expect((res) => {
-            expect(res.body.message).toContain('offset must not be less than 0');
+            expect(res.body.message).toContain(
+              'offset must not be less than 0',
+            );
           });
       });
     });
@@ -355,20 +377,17 @@ describe('Posts (e2e)', () => {
         .get('/posts/1')
         .expect(200)
         .expect((res) => {
-          expect(res.body.id).toBe('1');
+          expect(res.body.___id).toBe('1');
           expect(res.body.title).toBe('Luxury Condo in Bangkok');
         });
     });
 
     it('should return 404 when post is not found', () => {
-      return request(app.getHttpServer())
-        .get('/posts/999')
-        .expect(404)
-        .expect({
-          statusCode: 404,
-          message: 'Post with ID 999 not found',
-          error: 'Not Found'
-        });
+      return request(app.getHttpServer()).get('/posts/999').expect(404).expect({
+        statusCode: 404,
+        message: 'Post with ID 999 not found',
+        error: 'Not Found',
+      });
     });
   });
 
@@ -380,7 +399,9 @@ describe('Posts (e2e)', () => {
         .expect(200)
         .expect((res) => {
           expect(res.body.length).toBe(5);
-          expect(res.body.every(p => p.address.provinceId === provinceId)).toBe(true);
+          expect(
+            res.body.every((p) => p.address.provinceId === provinceId),
+          ).toBe(true);
         });
     });
 
@@ -400,7 +421,9 @@ describe('Posts (e2e)', () => {
         .expect(200)
         .expect((res) => {
           expect(res.body.length).toBe(3);
-          expect(res.body.every(p => p.address.districtId === districtId)).toBe(true);
+          expect(
+            res.body.every((p) => p.address.districtId === districtId),
+          ).toBe(true);
         });
     });
 
@@ -420,7 +443,9 @@ describe('Posts (e2e)', () => {
         .expect(200)
         .expect((res) => {
           expect(res.body.length).toBe(3);
-          expect(res.body.every(p => p.address.subDistrictId === subDistrictId)).toBe(true);
+          expect(
+            res.body.every((p) => p.address.subDistrictId === subDistrictId),
+          ).toBe(true);
         });
     });
 
@@ -440,7 +465,7 @@ describe('Posts (e2e)', () => {
         .expect(200)
         .expect((res) => {
           expect(res.body.length).toBe(3);
-          expect(res.body.every(p => p.assetType === assetType)).toBe(true);
+          expect(res.body.every((p) => p.assetType === assetType)).toBe(true);
         });
     });
   });
@@ -453,7 +478,7 @@ describe('Posts (e2e)', () => {
         .expect(200)
         .expect((res) => {
           expect(res.body.length).toBe(3);
-          expect(res.body.every(p => p.postType === postType)).toBe(true);
+          expect(res.body.every((p) => p.postType === postType)).toBe(true);
         });
     });
   });
@@ -476,8 +501,8 @@ describe('Posts (e2e)', () => {
         .expect({
           statusCode: 404,
           message: 'Post with ID 999 not found',
-          error: 'Not Found'
+          error: 'Not Found',
         });
     });
   });
-}); 
+});
