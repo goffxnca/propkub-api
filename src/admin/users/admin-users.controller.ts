@@ -13,6 +13,7 @@ import { AdminUsersService } from './admin-users.service';
 import { User } from '../../users/users.schema';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { CreateUserDto, UpdateUserDto } from '../../users/dto/user.dto';
+import { MongoIdValidationPipe } from '../../common/pipes/mongo-id.pipe';
 
 @Controller('admin/users')
 export class AdminUsersController {
@@ -24,7 +25,7 @@ export class AdminUsersController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<User> {
+  async findOne(@Param('id', MongoIdValidationPipe) id: string): Promise<User> {
     const user = await this.adminUsersService.findOne(id);
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -36,14 +37,14 @@ export class AdminUsersController {
   create(@Body() createUserDto: CreateUserDto): Promise<User> {
     const userData = {
       ...createUserDto,
-      createdBy: 'admin'
+      createdBy: 'admin',
     };
     return this.adminUsersService.create(userData);
   }
 
   @Put(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', MongoIdValidationPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
     const user = await this.adminUsersService.update(id, updateUserDto);
@@ -54,7 +55,7 @@ export class AdminUsersController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<User> {
+  async remove(@Param('id', MongoIdValidationPipe) id: string): Promise<User> {
     const user = await this.adminUsersService.remove(id);
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);

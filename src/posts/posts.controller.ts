@@ -1,7 +1,15 @@
-import { Controller, Get, Param, Post as HttpPost, NotFoundException, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post as HttpPost,
+  NotFoundException,
+  Query,
+} from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post } from './posts.schema';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { MongoIdValidationPipe } from '../common/pipes/mongo-id.pipe';
 
 @Controller('posts')
 export class PostsController {
@@ -13,7 +21,7 @@ export class PostsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Post> {
+  async findOne(@Param('id', MongoIdValidationPipe) id: string): Promise<Post> {
     const post = await this.postsService.findOne(id);
     if (!post) {
       throw new NotFoundException(`Post with ID ${id} not found`);
@@ -32,7 +40,9 @@ export class PostsController {
   }
 
   @Get('subdistrict/:subDistrictId')
-  findBySubDistrictId(@Param('subDistrictId') subDistrictId: string): Promise<Post[]> {
+  findBySubDistrictId(
+    @Param('subDistrictId') subDistrictId: string,
+  ): Promise<Post[]> {
     return this.postsService.findBySubDistrictId(subDistrictId);
   }
 
@@ -47,11 +57,13 @@ export class PostsController {
   }
 
   @HttpPost(':id/view')
-  async incrementViews(@Param('id') id: string): Promise<Post> {
+  async incrementViews(
+    @Param('id', MongoIdValidationPipe) id: string,
+  ): Promise<Post> {
     const post = await this.postsService.incrementViews(id);
     if (!post) {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
     return post;
   }
-} 
+}

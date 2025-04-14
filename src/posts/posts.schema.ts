@@ -188,7 +188,6 @@ export interface FirebaseTimestamp {
 
 @Schema({ timestamps: false })
 export class Post {
-  @Prop()
   _id: string;
 
   @Prop({ required: true })
