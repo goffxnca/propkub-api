@@ -14,7 +14,7 @@ const now = new Date();
 
 // Base post template
 export const basePost: Post = {
-  ___id: '1',
+  _id: '1',
   title: 'Luxury Condo in Bangkok',
   slug: 'luxury-condo-bangkok',
   desc: faker.lorem.paragraph(),

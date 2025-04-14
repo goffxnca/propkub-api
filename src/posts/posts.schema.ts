@@ -188,8 +188,8 @@ export interface FirebaseTimestamp {
 
 @Schema({ timestamps: false })
 export class Post {
-  @Prop({ required: true, unique: true })
-  ___id: string;
+  @Prop()
+  _id: string;
 
   @Prop({ required: true })
   title: string;
@@ -251,12 +251,6 @@ export class Post {
   @Prop()
   legal?: Legal;
 
-  @Prop({ type: Object })
-  ___createdAt?: FirebaseTimestamp;
-
-  @Prop({ type: Object })
-  ___updatedAt?: FirebaseTimestamp;
-
   @Prop({ required: true, default: 0 })
   postViews: number;
 
@@ -298,6 +292,15 @@ export class Post {
 
   @Prop()
   updatedBy: CreatedBy;
+
+  @Prop()
+  ___id?: string;
+
+  @Prop({ type: Object })
+  ___createdAt?: FirebaseTimestamp;
+
+  @Prop({ type: Object })
+  ___updatedAt?: FirebaseTimestamp;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

@@ -13,7 +13,7 @@ describe('Posts (e2e)', () => {
 
   const mockPosts: Post[] = [
     createPost({
-      ___id: '1',
+      _id: '1',
       title: 'Luxury Condo in Bangkok',
       address: {
         provinceId: '1',
@@ -27,7 +27,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      ___id: '2',
+      _id: '2',
       title: 'Modern House for Rent',
       assetType: AssetType.HOUSE,
       postType: PostType.RENT,
@@ -43,7 +43,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      ___id: '3',
+      _id: '3',
       title: 'Luxury Villa in Bangkok',
       assetType: AssetType.HOUSE,
       address: {
@@ -58,7 +58,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      ___id: '4',
+      _id: '4',
       title: 'Studio Apartment for Rent',
       assetType: AssetType.CONDO,
       postType: PostType.RENT,
@@ -74,7 +74,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      ___id: '5',
+      _id: '5',
       title: 'Townhome in CBD',
       assetType: AssetType.TOWNHOME,
       address: {
@@ -89,7 +89,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      ___id: '6',
+      _id: '6',
       title: 'Townhome for Sale',
       assetType: AssetType.TOWNHOME,
       address: {
@@ -104,7 +104,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      ___id: '7',
+      _id: '7',
       title: 'Land Plot in Suburb',
       assetType: AssetType.LAND,
       address: {
@@ -119,7 +119,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      ___id: '8',
+      _id: '8',
       title: 'Penthouse with City View',
       assetType: AssetType.CONDO,
       address: {
@@ -134,7 +134,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      ___id: '9',
+      _id: '9',
       title: 'Family House with Garden',
       assetType: AssetType.HOUSE,
       address: {
@@ -149,7 +149,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      ___id: '10',
+      _id: '10',
       title: 'Luxury Condo for Rent',
       assetType: AssetType.CONDO,
       postType: PostType.RENT,
@@ -180,7 +180,7 @@ describe('Posts (e2e)', () => {
                 return Promise.resolve(paginatedPosts);
               }),
             findOne: jest.fn().mockImplementation((id) => {
-              const post = mockPosts.find((p) => p.___id === id);
+              const post = mockPosts.find((p) => p._id === id);
               return Promise.resolve(post || null);
             }),
             findByProvinceId: jest.fn().mockImplementation((provinceId) => {
@@ -216,7 +216,7 @@ describe('Posts (e2e)', () => {
               return Promise.resolve(filteredPosts);
             }),
             incrementViews: jest.fn().mockImplementation((id) => {
-              const post = mockPosts.find((p) => p.___id === id);
+              const post = mockPosts.find((p) => p._id === id);
               if (post) {
                 post.postViews += 1;
                 return Promise.resolve(post);
@@ -377,7 +377,7 @@ describe('Posts (e2e)', () => {
         .get('/posts/1')
         .expect(200)
         .expect((res) => {
-          expect(res.body.___id).toBe('1');
+          expect(res.body._id).toBe('1');
           expect(res.body.title).toBe('Luxury Condo in Bangkok');
         });
     });
