@@ -12,7 +12,7 @@ export enum UserRole {
 @Schema({ timestamps: true })
 export class User {
   @Prop()
-  ___id?: string;
+  _id: string;
 
   @Prop({ required: true })
   name: string;
@@ -40,6 +40,9 @@ export class User {
 
   @Prop()
   profileImg?: string;
+
+  @Prop()
+  ___id?: string;
 
   @Prop()
   createdBy: string;

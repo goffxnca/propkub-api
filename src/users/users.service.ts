@@ -41,11 +41,7 @@ export class UsersService implements OnModuleInit {
     };
 
     return this.userModel
-      .findOneAndUpdate(
-        { id: firstUser.id },
-        { $set: allowedUpdates },
-        { new: true },
-      )
+      .findByIdAndUpdate(firstUser.id, { $set: allowedUpdates }, { new: true })
       .exec();
   }
 }
