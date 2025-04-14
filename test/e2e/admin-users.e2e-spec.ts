@@ -1,4 +1,8 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import {
+  INestApplication,
+  ValidationPipe,
+  ConflictException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AdminUsersController } from '../../src/admin/users/admin-users.controller';
@@ -51,9 +55,22 @@ describe('AdminUsers (e2e)', () => {
               const user = mockUsers.find((u) => u._id === id);
               return Promise.resolve(user || null);
             }),
+            findByEmail: jest.fn().mockImplementation((email: string) => {
+              const user = mockUsers.find((u) => u.email === email);
+              return Promise.resolve(user || null);
+            }),
             create: jest
               .fn()
               .mockImplementation((createUserDto: CreateUserDto) => {
+                const existingUser = mockUsers.find(
+                  (u) => u.email === createUserDto.email,
+                );
+                if (existingUser) {
+                  throw new ConflictException(
+                    `User with email ${createUserDto.email} already exists`,
+                  );
+                }
+
                 const newUser = createUser({
                   ...createUserDto,
                   _id: String(mockUsers.length + 1),
@@ -168,10 +185,33 @@ describe('AdminUsers (e2e)', () => {
         });
     });
 
-    it('should return 400 if required fields are missing', () => {
+    it('should return 409 when email already exists', () => {
+      const createUserDto: CreateUserDto = {
+        name: 'Duplicate User',
+        email: mockUsers[0].email,
+      };
+
       return request(app.getHttpServer())
         .post('/admin/users')
-        .send({ name: 'Invalid User' }) // missing email
+        .send(createUserDto)
+        .expect(409)
+        .expect((res) => {
+          expect(res.body.message).toContain('already exists');
+          expect(service.create).toHaveBeenCalledWith(createUserDto);
+        });
+    });
+
+    it('should return 400 if email is missing', () => {
+      return request(app.getHttpServer())
+        .post('/admin/users')
+        .send({ name: 'Invalid User' })
+        .expect(400);
+    });
+
+    it('should return 400 if name is missing', () => {
+      return request(app.getHttpServer())
+        .post('/admin/users')
+        .send({ email: 'joe@example.com' })
         .expect(400);
     });
 

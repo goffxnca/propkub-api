@@ -8,13 +8,15 @@ import {
   NotFoundException,
   Query,
   Body,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { AdminUsersService } from './admin-users.service';
 import { User } from '../../users/users.schema';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { CreateUserDto, UpdateUserDto } from '../../users/dto/user.dto';
 import { MongoIdValidationPipe } from '../../common/pipes/mongo-id.pipe';
-import { ApiOperation, ApiBody } from '@nestjs/swagger';
+import { ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 
 @Controller('admin/users')
 export class AdminUsersController {
@@ -35,7 +37,14 @@ export class AdminUsersController {
   }
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new user' })
+  @ApiResponse({ status: 201, description: 'User successfully created' })
+  @ApiResponse({
+    status: 409,
+    description: 'User with the same email already exists',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiBody({
     type: CreateUserDto,
     description: 'User creation data',
@@ -49,11 +58,7 @@ export class AdminUsersController {
     },
   })
   create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    const userData = {
-      ...createUserDto,
-      createdBy: 'admin',
-    };
-    return this.adminUsersService.create(userData);
+    return this.adminUsersService.create(createUserDto);
   }
 
   @Put(':id')
