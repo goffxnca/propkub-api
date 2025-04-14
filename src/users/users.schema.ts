@@ -32,7 +32,7 @@ export class User {
   emailVToken?: string;
 
   @Prop({ default: false })
-  acceptTerm: boolean;
+  tosAccepted: boolean;
 
   @Prop({ enum: UserRole, default: UserRole.NORMAL })
   role: UserRole;

@@ -14,6 +14,7 @@ import { User } from '../../users/users.schema';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { CreateUserDto, UpdateUserDto } from '../../users/dto/user.dto';
 import { MongoIdValidationPipe } from '../../common/pipes/mongo-id.pipe';
+import { ApiOperation, ApiBody } from '@nestjs/swagger';
 
 @Controller('admin/users')
 export class AdminUsersController {
@@ -34,6 +35,19 @@ export class AdminUsersController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Create a new user' })
+  @ApiBody({
+    type: CreateUserDto,
+    description: 'User creation data',
+    examples: {
+      user: {
+        value: {
+          name: 'John Doe',
+          email: 'john.doe@example.com',
+        },
+      },
+    },
+  })
   create(@Body() createUserDto: CreateUserDto): Promise<User> {
     const userData = {
       ...createUserDto,

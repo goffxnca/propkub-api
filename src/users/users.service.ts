@@ -18,7 +18,7 @@ export class UsersService implements OnModuleInit {
           ___id: user.id,
           createdBy: user.id,
           updatedBy: user.id,
-          acceptTerm: true,
+          tosAccepted: true,
         };
       });
 

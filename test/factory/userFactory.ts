@@ -6,7 +6,7 @@ export const baseUser: User = {
   name: 'John Doe',
   email: 'john.doe@example.com',
   emailVerified: false,
-  acceptTerm: true,
+  tosAccepted: true,
   role: UserRole.NORMAL,
   createdBy: 'admin',
   updatedBy: 'admin',

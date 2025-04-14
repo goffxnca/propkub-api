@@ -83,7 +83,7 @@ export class AcceptInfo {
   accept: boolean;
 
   @Prop({ required: true })
-  acceptTerm: string;
+  tosAccepted: string;
 }
 
 export class UInfo {
