@@ -46,7 +46,7 @@ export class AdminUsersService {
     };
 
     const createdUser = new this.userModel(userData);
-    return createdUser.save();
+    return createdUser.save(); //TODO: Exclude password
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User | null> {
@@ -58,5 +58,10 @@ export class AdminUsersService {
   // Delete a user
   async remove(id: string): Promise<User | null> {
     return this.userModel.findByIdAndDelete(id).exec();
+  }
+
+  async seedTest(userData: Partial<User>): Promise<User> {
+    const newUser = new this.userModel(userData);
+    return newUser.save();
   }
 }

@@ -4,12 +4,17 @@ import { Model } from 'mongoose';
 import * as usersData from './data/users.json';
 import { User, UserDocument } from './users.schema';
 import { v4 as uuidV4 } from 'uuid';
+import { IS_TEST } from '../common/constants';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async onModuleInit() {
+    if (IS_TEST) {
+      return;
+    }
+
     const count = await this.userModel.estimatedDocumentCount();
     if (count === 0) {
       const transformedUsers = usersData.map((user) => {

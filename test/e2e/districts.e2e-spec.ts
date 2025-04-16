@@ -39,7 +39,7 @@ describe('Districts (e2e)', () => {
   });
 
   describe('GET /districts', () => {
-    it('should return all districts', () => {
+    it('should return 3 districts', () => {
       return request(app.getHttpServer())
         .get('/districts')
         .expect(200)
