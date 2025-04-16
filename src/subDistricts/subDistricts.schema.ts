@@ -5,6 +5,8 @@ export type SubDistrictDocument = SubDistrict & Document;
 
 @Schema({ timestamps: true })
 export class SubDistrict {
+  _id?: string;
+
   @Prop({ required: true, unique: true })
   id: string;
 
@@ -15,4 +17,4 @@ export class SubDistrict {
   districtId: string;
 }
 
-export const SubDistrictSchema = SchemaFactory.createForClass(SubDistrict); 
+export const SubDistrictSchema = SchemaFactory.createForClass(SubDistrict);

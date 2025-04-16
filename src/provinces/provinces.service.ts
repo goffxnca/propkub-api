@@ -31,7 +31,7 @@ export class ProvincesService implements OnModuleInit {
     return this.provinceModel.findOne({ id }).exec();
   }
 
-  async seed(province: Partial<Province>): Promise<Province> {
+  async seedTest(province: Partial<Province>): Promise<Province> {
     const newProvince = new this.provinceModel(province);
     return newProvince.save();
   }

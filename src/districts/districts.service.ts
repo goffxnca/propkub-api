@@ -35,7 +35,7 @@ export class DistrictsService implements OnModuleInit {
     return this.districtModel.find({ provinceId }).exec();
   }
 
-  async seed(district: Partial<District>): Promise<District> {
+  async seedTest(district: Partial<District>): Promise<District> {
     const newDistrict = new this.districtModel(district);
     return newDistrict.save();
   }

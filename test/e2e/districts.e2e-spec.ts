@@ -28,9 +28,8 @@ describe('Districts (e2e)', () => {
     service = moduleFixture.get<DistrictsService>(DistrictsService);
     await app.init();
 
-    // Seed database with test data
     for (const district of testDistricts) {
-      await service.seed(district);
+      await service.seedTest(district);
     }
   });
 

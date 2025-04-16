@@ -28,7 +28,7 @@ describe('Provinces (e2e)', () => {
     await app.init();
 
     for (const province of testProvinces) {
-      await service.seed(province);
+      await service.seedTest(province);
     }
   });
 
