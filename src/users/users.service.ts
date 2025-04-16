@@ -1,9 +1,8 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserDocument } from './users.schema';
 import * as usersData from './data/users.json';
-import { UpdateProfileDto } from './dto/user.dto';
+import { User, UserDocument } from './users.schema';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -16,6 +15,7 @@ export class UsersService implements OnModuleInit {
         return {
           ...user,
           ___id: user.id,
+          password: '123456',
           createdBy: user.id,
           updatedBy: user.id,
           tosAccepted: true,
@@ -27,21 +27,11 @@ export class UsersService implements OnModuleInit {
     }
   }
 
-  async getMe(): Promise<User | null> {
-    const firstUser = await this.userModel.findOne().exec();
-    return firstUser;
+  async findByEmail(email: string): Promise<User | null> {
+    return await this.userModel.findOne({ email }).exec();
   }
 
-  async updateMe(profileDto: UpdateProfileDto): Promise<User | null> {
-    const firstUser = await this.userModel.findOne().exec();
-    if (!firstUser) return null;
-
-    const allowedUpdates = {
-      name: profileDto.name,
-    };
-
-    return this.userModel
-      .findByIdAndUpdate(firstUser.id, { $set: allowedUpdates }, { new: true })
-      .exec();
+  async findById(userId: string) {
+    return await this.userModel.findById(userId);
   }
 }

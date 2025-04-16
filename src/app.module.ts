@@ -5,8 +5,9 @@ import { ProvincesModule } from './provinces/provinces.module';
 import { DistrictsModule } from './districts/districts.module';
 import { SubDistrictsModule } from './subDistricts/subDistricts.module';
 import { PostsModule } from './posts/posts.module';
-import { UsersModule } from './users/users.module';
 import { AdminModule } from './admin/admin.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AdminModule } from './admin/admin.module';
     PostsModule,
     UsersModule,
     AdminModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

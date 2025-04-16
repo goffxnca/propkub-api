@@ -12,11 +12,11 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { AdminUsersService } from './admin-users.service';
-import { User } from '../../users/users.schema';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { MongoIdValidationPipe } from '../../common/pipes/mongo-id.pipe';
 import { ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import { User } from '../../users/users.schema';
 
 @Controller('admin/users')
 export class AdminUsersController {

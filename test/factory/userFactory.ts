@@ -5,6 +5,7 @@ export const baseUser: User = {
   _id: '1',
   name: 'John Doe',
   email: 'john.doe@example.com',
+  password: '123456',
   emailVerified: false,
   tosAccepted: true,
   role: UserRole.NORMAL,

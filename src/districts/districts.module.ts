@@ -5,8 +5,12 @@ import { DistrictsController } from './districts.controller';
 import { District, DistrictSchema } from './districts.schema';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: District.name, schema: DistrictSchema }])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: District.name, schema: DistrictSchema },
+    ]),
+  ],
   providers: [DistrictsService],
   controllers: [DistrictsController],
 })
-export class DistrictsModule {} 
+export class DistrictsModule {}
