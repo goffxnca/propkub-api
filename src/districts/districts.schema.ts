@@ -5,6 +5,8 @@ export type DistrictDocument = District & Document;
 
 @Schema({ timestamps: true })
 export class District {
+  _id?: string;
+
   @Prop({ required: true, unique: true })
   id: string;
 
@@ -15,4 +17,4 @@ export class District {
   provinceId: string;
 }
 
-export const DistrictSchema = SchemaFactory.createForClass(District); 
+export const DistrictSchema = SchemaFactory.createForClass(District);

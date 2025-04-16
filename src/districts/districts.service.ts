@@ -2,15 +2,20 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { District, DistrictDocument } from './districts.schema';
-import * as districtsData from "./data/districts.json"
+import * as districtsData from './data/districts.json';
+import { IS_TEST } from '../common/constants';
 
 @Injectable()
 export class DistrictsService implements OnModuleInit {
   constructor(
-    @InjectModel(District.name) private districtModel: Model<DistrictDocument>
+    @InjectModel(District.name) private districtModel: Model<DistrictDocument>,
   ) {}
 
   async onModuleInit() {
+    if (IS_TEST) {
+      return;
+    }
+
     const count = await this.districtModel.estimatedDocumentCount();
     if (count === 0) {
       await this.districtModel.insertMany(districtsData);
@@ -29,4 +34,9 @@ export class DistrictsService implements OnModuleInit {
   async findByProvinceId(provinceId: string): Promise<District[]> {
     return this.districtModel.find({ provinceId }).exec();
   }
-} 
+
+  async seed(district: Partial<District>): Promise<District> {
+    const newDistrict = new this.districtModel(district);
+    return newDistrict.save();
+  }
+}

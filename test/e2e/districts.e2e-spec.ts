@@ -1,56 +1,82 @@
-import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as request from 'supertest';
-
-import { DistrictsController } from '../../src/districts/districts.controller';
-import { District } from '../../src/districts/districts.schema';
 import { DistrictsService } from '../../src/districts/districts.service';
+import * as request from 'supertest';
+import { INestApplication } from '@nestjs/common';
+import { District } from '../../src/districts/districts.schema';
+import {
+  rootMongooseTestModule,
+  closeMongodConnection,
+} from '../utils/mongodb-memory';
+import { DistrictsModule } from '../../src/districts/districts.module';
 
 describe('Districts (e2e)', () => {
   let app: INestApplication;
   let service: DistrictsService;
 
-  const mockDistricts: District[] = [
+  const testDistricts: District[] = [
     { id: '1', name: 'Bang Rak', provinceId: '1' },
     { id: '2', name: 'Pathum Wan', provinceId: '1' },
     { id: '3', name: 'Mueang Chiang Mai', provinceId: '2' },
   ];
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      controllers: [DistrictsController],
-      providers: [
-        {
-          provide: DistrictsService,
-          useValue: {
-            findAll: jest.fn().mockResolvedValue(mockDistricts),
-            findOne: jest.fn().mockImplementation((id) => {
-              const district = mockDistricts.find(d => d.id === id);
-              return Promise.resolve(district || null);
-            }),
-            findByProvinceId: jest.fn().mockImplementation((provinceId) => {
-              return Promise.resolve(mockDistricts.filter(d => d.provinceId === provinceId));
-            }),
-          },
-        },
-      ],
+      imports: [rootMongooseTestModule(), DistrictsModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     service = moduleFixture.get<DistrictsService>(DistrictsService);
     await app.init();
+
+    // Seed database with test data
+    for (const district of testDistricts) {
+      await service.seed(district);
+    }
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await app.close();
+    await closeMongodConnection();
   });
 
   describe('GET /districts', () => {
-    it('should return an array of districts', () => {
+    it('should return all districts', () => {
       return request(app.getHttpServer())
         .get('/districts')
         .expect(200)
-        .expect(mockDistricts);
+        .expect((res) => {
+          expect(Array.isArray(res.body)).toBe(true);
+          expect(res.body.length).toBe(3);
+
+          const districts = res.body as District[];
+
+          const district1 = districts.find((d) => d.id === '1');
+          expect(district1).toBeDefined();
+          if (district1) {
+            expect(district1._id).toBeDefined();
+            expect(district1.id).toBe('1');
+            expect(district1.name).toBe('Bang Rak');
+            expect(district1.provinceId).toBe('1');
+          }
+
+          const district2 = districts.find((d) => d.id === '2');
+          expect(district2).toBeDefined();
+          if (district2) {
+            expect(district2._id).toBeDefined();
+            expect(district2.id).toBe('2');
+            expect(district2.name).toBe('Pathum Wan');
+            expect(district2.provinceId).toBe('1');
+          }
+
+          const district3 = districts.find((d) => d.id === '3');
+          expect(district3).toBeDefined();
+          if (district3) {
+            expect(district3._id).toBeDefined();
+            expect(district3.id).toBe('3');
+            expect(district3.name).toBe('Mueang Chiang Mai');
+            expect(district3.provinceId).toBe('2');
+          }
+        });
     });
   });
 
@@ -59,31 +85,41 @@ describe('Districts (e2e)', () => {
       return request(app.getHttpServer())
         .get('/districts/1')
         .expect(200)
-        .expect(mockDistricts[0]);
+        .expect((res) => {
+          const district = res.body as District;
+
+          expect(district._id).toBeDefined();
+          expect(district.id).toBe('1');
+          expect(district.name).toBe('Bang Rak');
+          expect(district.provinceId).toBe('1');
+        });
     });
 
     it('should return 404 when district is not found', () => {
       return request(app.getHttpServer())
-        .get('/districts/999')
+        .get('/districts/nonexistent-id')
         .expect(404)
-        .expect({
-          statusCode: 404,
-          message: 'District with ID 999 not found',
-          error: 'Not Found'
+        .expect((res) => {
+          expect(res.body.message).toContain('not found');
         });
     });
   });
 
   describe('GET /districts/province/:provinceId', () => {
     it('should return districts for a province', () => {
-      const province1Districts = mockDistricts.filter(d => d.provinceId === '1');
       return request(app.getHttpServer())
         .get('/districts/province/1')
         .expect(200)
-        .expect(province1Districts)
         .expect((res) => {
-          expect(res.body.length).toBe(2); 
-          expect(res.body.every(d => d.provinceId === '1')).toBe(true);
+          expect(Array.isArray(res.body)).toBe(true);
+          expect(res.body.length).toBe(2);
+
+          const districts = res.body as District[];
+          expect(districts.every((d) => d.provinceId === '1')).toBe(true);
+
+          const districtIds = districts.map((d) => d.id);
+          expect(districtIds).toContain('1');
+          expect(districtIds).toContain('2');
         });
     });
 
@@ -94,4 +130,4 @@ describe('Districts (e2e)', () => {
         .expect([]);
     });
   });
-}); 
+});
