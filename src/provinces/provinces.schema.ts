@@ -5,6 +5,8 @@ export type ProvinceDocument = Province & Document;
 
 @Schema({ timestamps: true })
 export class Province {
+  _id?: string;
+
   @Prop({ required: true, unique: true })
   id: string;
 

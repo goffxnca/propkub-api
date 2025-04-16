@@ -1,51 +1,71 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProvincesController } from '../../src/provinces/provinces.controller';
 import { ProvincesService } from '../../src/provinces/provinces.service';
 import * as request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Province } from '../../src/provinces/provinces.schema';
+import {
+  rootMongooseTestModule,
+  closeMongodConnection,
+} from '../utils/mongodb-memory';
+import { ProvincesModule } from '../../src/provinces/provinces.module';
 
 describe('Provinces (e2e)', () => {
   let app: INestApplication;
   let service: ProvincesService;
 
-  const mockProvinces: Province[] = [
+  const testProvinces: Province[] = [
     { id: '1', name: 'Bangkok', regionId: '1' },
     { id: '2', name: 'Chiang Mai', regionId: '2' },
   ];
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      controllers: [ProvincesController],
-      providers: [
-        {
-          provide: ProvincesService,
-          useValue: {
-            findAll: jest.fn().mockResolvedValue(mockProvinces),
-            findOne: jest.fn().mockImplementation((id) => {
-              const province = mockProvinces.find(p => p.id === id);
-              return Promise.resolve(province || null);
-            }),
-          },
-        },
-      ],
+      imports: [rootMongooseTestModule(), ProvincesModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     service = moduleFixture.get<ProvincesService>(ProvincesService);
     await app.init();
+
+    for (const province of testProvinces) {
+      await service.create(province);
+    }
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await app.close();
+    await closeMongodConnection();
   });
 
   describe('GET /provinces', () => {
-    it('should return an array of provinces', () => {
+    it('should return 2 provinces', () => {
       return request(app.getHttpServer())
         .get('/provinces')
         .expect(200)
-        .expect(mockProvinces);
+        .expect((res) => {
+          expect(Array.isArray(res.body)).toBe(true);
+          expect(res.body.length).toBe(2);
+
+          const provinces = res.body as Province[];
+          const province1 = provinces.find((p) => p.id === '1');
+          const province2 = provinces.find((p) => p.id === '2');
+
+          expect(province1).toBeDefined();
+          if (province1) {
+            expect(province1._id).toBeDefined();
+            expect(province1.id).toBe('1');
+            expect(province1.name).toBe('Bangkok');
+            expect(province1.regionId).toBe('1');
+          }
+
+          expect(province2).toBeDefined();
+          if (province2) {
+            expect(province2._id).toBeDefined();
+            expect(province2.id).toBe('2');
+            expect(province2.name).toBe('Chiang Mai');
+            expect(province2.regionId).toBe('2');
+          }
+        });
     });
   });
 
@@ -54,18 +74,22 @@ describe('Provinces (e2e)', () => {
       return request(app.getHttpServer())
         .get('/provinces/1')
         .expect(200)
-        .expect(mockProvinces[0]);
+        .expect((res) => {
+          const province = res.body as Province;
+          expect(province._id).toBeDefined();
+          expect(province.id).toBe('1');
+          expect(province.name).toBe('Bangkok');
+          expect(province.regionId).toBe('1');
+        });
     });
 
     it('should return 404 when province is not found', () => {
       return request(app.getHttpServer())
-        .get('/provinces/999')
+        .get('/provinces/nonexistent-id')
         .expect(404)
-        .expect({
-          statusCode: 404,
-          message: 'Province with ID 999 not found',
-          error: 'Not Found'
+        .expect((res) => {
+          expect(res.body.message).toContain('not found');
         });
     });
   });
-}); 
+});
