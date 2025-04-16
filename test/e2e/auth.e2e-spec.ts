@@ -1,153 +1,52 @@
-import {
-  INestApplication,
-  ValidationPipe,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
-import { AuthController } from '../../src/auth/auth.controller';
-import { AuthService } from '../../src/auth/auth.service';
-import { JwtService } from '@nestjs/jwt';
-import { createUser } from '../factory/userFactory';
 import { User, UserRole } from '../../src/users/users.schema';
-import { SignupDto } from 'src/auth/dto/signupDto';
+import { SignupDto } from '../../src/auth/dto/signupDto';
+import {
+  rootMongooseTestModule,
+  closeMongodConnection,
+} from '../utils/mongodb-memory';
+import { AuthModule } from '../../src/auth/auth.module';
+import { getModelToken } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { UsersService } from '../../src/users/users.service';
 
 describe('Auth (e2e)', () => {
   let app: INestApplication;
-  let authService: AuthService;
-  let jwtService: JwtService;
+  let userModel: Model<User>;
+  let usersService: UsersService;
 
-  // Mock user for testing
-  const mockUser: User = createUser({
-    _id: '1',
+  const testUser = {
     name: 'John Doe',
-    email: 'john@mail.com',
-    password: '123456',
+    email: 'john@test.com',
+    password: 'password123',
     role: UserRole.NORMAL,
-  });
+  };
 
-  // Mock JWT token
-  const mockToken = 'mock.jwt.token';
-
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      controllers: [AuthController],
-      providers: [
-        {
-          provide: AuthService,
-          useValue: {
-            signin: jest.fn().mockImplementation((email, password) => {
-              if (email === mockUser.email && password === mockUser.password) {
-                return Promise.resolve({ accessToken: mockToken });
-              }
-              throw new UnauthorizedException();
-            }),
-            signup: jest.fn().mockImplementation((name, email, password) => {
-              if (email === mockUser.email) {
-                throw new Error('User already exists');
-              }
-              return Promise.resolve({
-                accessToken: mockToken,
-              });
-            }),
-            profile: jest.fn().mockImplementation((userId) => {
-              if (userId === mockUser._id) {
-                return Promise.resolve({
-                  _id: mockUser._id,
-                  name: mockUser.name,
-                  email: mockUser.email,
-                  role: mockUser.role,
-                });
-              }
-              return Promise.resolve(null);
-            }),
-          },
-        },
-        {
-          provide: JwtService,
-          useValue: {
-            signAsync: jest.fn().mockResolvedValue(mockToken),
-            verifyAsync: jest.fn().mockImplementation((token) => {
-              if (token === mockToken) {
-                return Promise.resolve({ sub: mockUser._id });
-              }
-              throw new Error('Invalid token');
-            }),
-          },
-        },
-      ],
+      imports: [rootMongooseTestModule(), AuthModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
-    authService = moduleFixture.get<AuthService>(AuthService);
-    jwtService = moduleFixture.get<JwtService>(JwtService);
+    userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
+    usersService = moduleFixture.get<UsersService>(UsersService);
     await app.init();
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await app.close();
-  });
-
-  describe('POST /auth/login', () => {
-    it('should return JWT token when credentials are valid', () => {
-      return request(app.getHttpServer())
-        .post('/auth/login')
-        .send({ email: mockUser.email, password: '123456' })
-        .expect(200)
-        .expect((res) => {
-          expect(res.body.accessToken).toBe(mockToken);
-          expect(authService.signin).toHaveBeenCalledWith(
-            mockUser.email,
-            '123456',
-          );
-        });
-    });
-
-    it('should return 401 when credentials are invalid', () => {
-      return request(app.getHttpServer())
-        .post('/auth/login')
-        .send({ email: 'invalid@mail.com', password: 'wrongpassword' })
-        .expect(401);
-    });
-
-    it('should return 400 when email is missing', () => {
-      return request(app.getHttpServer())
-        .post('/auth/login')
-        .send({ password: '123456' })
-        .expect(400)
-        .expect((res) => {
-          expect(res.body.message).toContain('email should not be empty');
-        });
-    });
-
-    it('should return 400 when password is missing', () => {
-      return request(app.getHttpServer())
-        .post('/auth/login')
-        .send({ email: mockUser.email })
-        .expect(400)
-        .expect((res) => {
-          expect(res.body.message).toContain('password should not be empty');
-        });
-    });
-
-    it('should return 400 when email is invalid format', () => {
-      return request(app.getHttpServer())
-        .post('/auth/login')
-        .send({ email: 'not-an-email', password: '123456' })
-        .expect(400)
-        .expect((res) => {
-          expect(res.body.message).toContain('email must be an email');
-        });
-    });
+    await closeMongodConnection();
   });
 
   describe('POST /auth/register', () => {
     it('should create a new user and return JWT token', () => {
       const signupDto: SignupDto = {
-        name: 'New User',
-        email: 'new.user@mail.com',
-        password: 'password123',
+        name: testUser.name,
+        email: testUser.email,
+        password: testUser.password,
       };
 
       return request(app.getHttpServer())
@@ -155,19 +54,26 @@ describe('Auth (e2e)', () => {
         .send(signupDto)
         .expect(201)
         .expect((res) => {
-          expect(res.body.accessToken).toBe(mockToken);
-          expect(authService.signup).toHaveBeenCalledWith(
-            signupDto.name,
-            signupDto.email,
-            signupDto.password,
-          );
+          expect(res.body.accessToken).toBeDefined();
+          expect(res.body.accessToken).toContain('eyJhb');
         });
+    });
+
+    it('should return 409 when email already exists', () => {
+      return request(app.getHttpServer())
+        .post('/auth/register')
+        .send({
+          name: 'Duplicate User',
+          email: testUser.email,
+          password: testUser.password,
+        })
+        .expect(409);
     });
 
     it('should return 400 when name is missing', () => {
       return request(app.getHttpServer())
         .post('/auth/register')
-        .send({ email: 'new.user@mail.com', password: 'password123' })
+        .send({ email: 'new.user2@test.com', password: testUser.password })
         .expect(400)
         .expect((res) => {
           expect(res.body.message).toContain('name should not be empty');
@@ -177,7 +83,7 @@ describe('Auth (e2e)', () => {
     it('should return 400 when email is missing', () => {
       return request(app.getHttpServer())
         .post('/auth/register')
-        .send({ name: 'New User', password: 'password123' })
+        .send({ name: 'New User', password: testUser.password })
         .expect(400)
         .expect((res) => {
           expect(res.body.message).toContain('email should not be empty');
@@ -187,7 +93,7 @@ describe('Auth (e2e)', () => {
     it('should return 400 when password is missing', () => {
       return request(app.getHttpServer())
         .post('/auth/register')
-        .send({ name: 'New User', email: 'new.user@mail.com' })
+        .send({ name: 'New User', email: 'new.user3@test.com' })
         .expect(400)
         .expect((res) => {
           expect(res.body.message).toContain('password should not be empty');
@@ -200,7 +106,7 @@ describe('Auth (e2e)', () => {
         .send({
           name: 'New User',
           email: 'not-an-email',
-          password: 'password123',
+          password: testUser.password,
         })
         .expect(400)
         .expect((res) => {
@@ -213,7 +119,7 @@ describe('Auth (e2e)', () => {
         .post('/auth/register')
         .send({
           name: 'New User',
-          email: 'new.user@mail.com',
+          email: 'new.user4@test.com',
           password: '12345',
         })
         .expect(400)
@@ -225,16 +131,72 @@ describe('Auth (e2e)', () => {
     });
   });
 
+  describe('POST /auth/login', () => {
+    it('should return JWT token when credentials are valid', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: testUser.email, password: testUser.password })
+        .expect(200);
+
+      expect(response.body.accessToken).toBeDefined();
+      expect(response.body.accessToken).toContain('eyJhb');
+    });
+
+    it('should return 401 when credentials are invalid', () => {
+      return request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: testUser.email, password: 'wrongpassword' })
+        .expect(401);
+    });
+
+    it('should return 400 when email is missing', () => {
+      return request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ password: testUser.password })
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('email should not be empty');
+        });
+    });
+
+    it('should return 400 when password is missing', () => {
+      return request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: testUser.email })
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('password should not be empty');
+        });
+    });
+
+    it('should return 400 when email is invalid format', () => {
+      return request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'not-an-email', password: testUser.password })
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('email must be an email');
+        });
+    });
+  });
+
   describe('GET /auth/profile', () => {
-    it('should return the user profile when authenticated', () => {
+    it('should return the user profile when authenticated', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: testUser.email, password: testUser.password })
+        .expect(200);
+
+      const accessToken = response.body.accessToken;
+      expect(accessToken).toBeDefined();
+
       return request(app.getHttpServer())
         .get('/auth/profile')
-        .set('Authorization', `Bearer ${mockToken}`)
+        .set('Authorization', `Bearer ${accessToken}`)
         .expect(200)
         .expect((res) => {
-          expect(res.body._id).toBe(mockUser._id);
-          expect(res.body.name).toBe(mockUser.name);
-          expect(res.body.email).toBe(mockUser.email);
+          expect(res.body.name).toBe(testUser.name);
+          expect(res.body.email).toBe(testUser.email);
         });
     });
 
