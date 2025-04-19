@@ -11,6 +11,7 @@ import { AuthModule } from '../../src/auth/auth.module';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UsersService } from '../../src/users/users.service';
+import { ConfigModule } from '@nestjs/config';
 
 describe('Auth (e2e)', () => {
   let app: INestApplication;
@@ -26,7 +27,11 @@ describe('Auth (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [rootMongooseTestModule(), AuthModule],
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env.test' }),
+        rootMongooseTestModule(),
+        AuthModule,
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
