@@ -9,19 +9,19 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SigninDto } from './dto/signinDto';
 import { SignupDto } from './dto/signupDto';
+import { LocalAuthGuard } from './local-auth.guard';
 import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signin(@Body() signinDto: SigninDto) {
-    const { email, password } = signinDto;
-    return this.authService.signin(email, password);
+  signin(@Request() req) {
+    return this.authService.login(req.user);
   }
 
   @Post('register')
