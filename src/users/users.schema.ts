@@ -1,11 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { AuthProvider } from '../common/enums/auth-provider.enum';
 
 export type UserDocument = User & Document;
 
 export enum UserRole {
-  AGENT = 'agent',
+  // AGENT = 'agent',
   ADMIN = 'admin',
   NORMAL = 'normal',
 }
@@ -20,8 +21,11 @@ export class User {
   @Prop({ required: true, unique: true })
   email: string;
 
+  @Prop()
+  password?: string;
+
   @Prop({ required: true })
-  password: string;
+  provider: AuthProvider;
 
   @Prop()
   phone?: string;
@@ -48,6 +52,15 @@ export class User {
   ___id?: string;
 
   @Prop()
+  googleId?: string;
+
+  @Prop()
+  facebookId?: string;
+
+  @Prop()
+  appleId?: string;
+
+  @Prop()
   createdBy: string;
 
   @Prop()
@@ -57,7 +70,7 @@ export class User {
 export const UserSchema = SchemaFactory.createForClass(User);
 
 UserSchema.pre('save', async function (next) {
-  if (this.isModified('password')) {
+  if (this.password && this.isModified('password')) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
   }

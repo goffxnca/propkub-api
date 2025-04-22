@@ -2,9 +2,10 @@ import { Injectable, OnModuleInit, ConflictException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as usersData from './data/users.json';
-import { User, UserDocument } from './users.schema';
+import { User, UserDocument, UserRole } from './users.schema';
 import { v4 as uuidV4 } from 'uuid';
 import { IS_TEST } from '../common/constants';
+import { AuthProvider } from '../common/enums/auth-provider.enum';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -23,6 +24,8 @@ export class UsersService implements OnModuleInit {
           ___id: user.id,
           password:
             '$2b$10$LsEG1edOmHH8Sq6QacrROu/dkl7xpKNW4jlyjab9gmGWVsmLuIkjy',
+          provider: AuthProvider.EMAIL,
+          role: UserRole.NORMAL,
           createdBy: user.id,
           updatedBy: user.id,
           tosAccepted: true,
@@ -42,7 +45,13 @@ export class UsersService implements OnModuleInit {
     return await this.userModel.findById(userId);
   }
 
-  async create(name: string, email: string, password: string): Promise<User> {
+  async create(
+    name: string,
+    email: string,
+    password: string,
+    provider: AuthProvider,
+    googleId?: string,
+  ): Promise<User> {
     const user = await this.findByEmail(email);
     if (user) {
       throw new ConflictException('Email already registered');
@@ -51,9 +60,12 @@ export class UsersService implements OnModuleInit {
     const newUser = new this.userModel({
       name,
       email,
-      password,
+      password: provider === AuthProvider.EMAIL ? password : undefined,
+      provider,
       tosAccepted: true,
-      emailVToken: uuidV4(),
+      emailVToken: provider === AuthProvider.EMAIL ? uuidV4() : undefined,
+      emailVerified: provider !== AuthProvider.EMAIL,
+      googleId,
     });
 
     //TODO: Send verification email

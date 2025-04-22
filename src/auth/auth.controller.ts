@@ -4,14 +4,15 @@ import {
   Post,
   HttpCode,
   HttpStatus,
-  Get,
   UseGuards,
   Request,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signupDto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -20,8 +21,19 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signin(@Request() req) {
+  login(@Request() req) {
     return this.authService.login(req.user);
+  }
+  @UseGuards(GoogleAuthGuard)
+  @Get('google')
+  loginGoogle() {
+    // initiates the Google OAuth2 login flow
+  }
+
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/redirect')
+  googleAuthRedirect(@Request() req) {
+    return this.authService.loginGoogle(req.user);
   }
 
   @Post('register')

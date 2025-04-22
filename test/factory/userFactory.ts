@@ -1,3 +1,4 @@
+import { AuthProvider } from '../../src/common/enums/auth-provider.enum';
 import { User, UserRole } from '../../src/users/users.schema';
 
 // Base user template
@@ -6,6 +7,7 @@ export const baseUser: User = {
   name: 'John Doe',
   email: 'john.doe@example.com',
   password: '123456',
+  provider: AuthProvider.EMAIL,
   emailVerified: false,
   tosAccepted: true,
   role: UserRole.NORMAL,

@@ -12,6 +12,7 @@ import { AdminUsersModule } from '../../src/admin/users/admin-users.module';
 import * as bcrypt from 'bcrypt';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { AuthProvider } from '../../src/common/enums/auth-provider.enum';
 
 describe('AdminUsers (e2e)', () => {
   let app: INestApplication;
@@ -27,19 +28,22 @@ describe('AdminUsers (e2e)', () => {
       name: 'John Doe',
       email: johnEmail,
       password: bcrypt.hashSync('password123', 10),
+      provider: AuthProvider.EMAIL,
       role: UserRole.NORMAL,
     },
     {
       name: 'Jane Smith',
       email: janeEmail,
       password: bcrypt.hashSync('password123', 10),
-      role: UserRole.AGENT,
+      provider: AuthProvider.EMAIL,
+      role: UserRole.NORMAL,
     },
     {
       name: 'Jeff Foo',
       email: jeffEmail,
       password: bcrypt.hashSync('password123', 10),
-      role: UserRole.AGENT,
+      provider: AuthProvider.EMAIL,
+      role: UserRole.NORMAL,
     },
   ];
 

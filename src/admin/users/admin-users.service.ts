@@ -3,6 +3,7 @@ import { User, UserDocument } from '../../users/users.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import { AuthProvider } from '../../common/enums/auth-provider.enum';
 
 @Injectable()
 export class AdminUsersService {
@@ -42,6 +43,7 @@ export class AdminUsersService {
 
     const userData = {
       ...createUserDto,
+      provider: AuthProvider.EMAIL,
       createdBy: 'admin',
     };
 
