@@ -43,6 +43,25 @@ export class AuthService {
     return { accessToken };
   }
 
+  async loginFacebook(user: any) {
+    const { email, name, facebookId } = user;
+    const existingUser = await this.usersService.findByEmail(email);
+    let finalUser = existingUser;
+    if (!existingUser) {
+      finalUser = await this.usersService.create(
+        name,
+        email,
+        '',
+        AuthProvider.FACEBOOK,
+        undefined,
+        facebookId,
+      );
+    }
+    const payload = { sub: finalUser?._id };
+    const accessToken = await this.jwtService.signAsync(payload);
+    return { accessToken };
+  }
+
   async signup(name: string, email: string, password: string) {
     const user = await this.usersService.create(
       name,

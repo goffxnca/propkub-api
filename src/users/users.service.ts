@@ -51,6 +51,7 @@ export class UsersService implements OnModuleInit {
     password: string,
     provider: AuthProvider,
     googleId?: string,
+    facebookId?: string,
   ): Promise<User> {
     const user = await this.findByEmail(email);
     if (user) {
@@ -66,6 +67,7 @@ export class UsersService implements OnModuleInit {
       emailVToken: provider === AuthProvider.EMAIL ? uuidV4() : undefined,
       emailVerified: provider !== AuthProvider.EMAIL,
       googleId,
+      facebookId,
     });
 
     //TODO: Send verification email

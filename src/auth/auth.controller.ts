@@ -13,6 +13,7 @@ import { SignupDto } from './dto/signupDto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { FacebookAuthGuard } from './guards/facebook-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -34,6 +35,18 @@ export class AuthController {
   @Get('google/redirect')
   googleAuthRedirect(@Request() req) {
     return this.authService.loginGoogle(req.user);
+  }
+
+  @UseGuards(FacebookAuthGuard)
+  @Get('facebook')
+  loginFacebook() {
+    // initiates the Facebook OAuth2 login flow
+  }
+
+  @UseGuards(FacebookAuthGuard)
+  @Get('facebook/redirect')
+  facebookAuthRedirect(@Request() req) {
+    return this.authService.loginFacebook(req.user);
   }
 
   @Post('register')
