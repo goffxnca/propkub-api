@@ -50,6 +50,7 @@ export class UsersService implements OnModuleInit {
     email: string,
     password: string,
     provider: AuthProvider,
+    profileImg?: string,
     googleId?: string,
     facebookId?: string,
   ): Promise<User> {
@@ -63,6 +64,7 @@ export class UsersService implements OnModuleInit {
       email,
       password: provider === AuthProvider.EMAIL ? password : undefined,
       provider,
+      profileImg,
       tosAccepted: true,
       emailVToken: provider === AuthProvider.EMAIL ? uuidV4() : undefined,
       emailVerified: provider !== AuthProvider.EMAIL,
@@ -84,5 +86,20 @@ export class UsersService implements OnModuleInit {
     // });
 
     return await newUser.save();
+  }
+
+  async updateLastLogin(userId: string, provider: AuthProvider) {
+    await this.userModel.findByIdAndUpdate(userId, {
+      lastLoginProvider: provider,
+      lastLoginAt: new Date(),
+    });
+  }
+
+  async linkGoogleId(userId: string, googleId: string) {
+    await this.userModel.findByIdAndUpdate(userId, { googleId });
+  }
+
+  async linkFacebookId(userId: string, facebookId: string) {
+    await this.userModel.findByIdAndUpdate(userId, { facebookId });
   }
 }

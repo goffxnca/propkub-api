@@ -6,12 +6,11 @@ import { Profile, Strategy } from 'passport-facebook';
 @Injectable()
 export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
   constructor(configService: ConfigService) {
-    console.log('FacebookStrategy.constructor');
     super({
       clientID: configService.get<string>('FACEBOOK_CLIENT_ID') || '',
       clientSecret: configService.get<string>('FACEBOOK_CLIENT_SECRET') || '',
       callbackURL: configService.get<string>('FACEBOOK_CALLBACK_URL') || '',
-      profileFields: ['id', 'emails', 'name'],
+      profileFields: ['id', 'emails', 'name', 'photos'],
       scope: ['email'],
     });
   }
@@ -22,13 +21,13 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
     profile: Profile,
     done: Function,
   ): any {
-    console.log('FacebookStrategy.validate', { accessToken, refreshToken });
-    const { id, emails, name } = profile;
-    console.log('FacebookStrategy.validate', profile);
+    const { id, emails, name, photos } = profile;
+
     const user = {
       facebookId: id,
       email: emails?.[0]?.value,
       name: name?.givenName + ' ' + name?.familyName,
+      profileImg: photos?.[0]?.value,
     };
     done(null, user);
   }

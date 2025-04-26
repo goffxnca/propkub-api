@@ -51,14 +51,20 @@ export class User {
   @Prop()
   ___id?: string;
 
-  @Prop()
+  @Prop({ unique: true, sparse: true })
   googleId?: string;
 
-  @Prop()
+  @Prop({ unique: true, sparse: true })
   facebookId?: string;
 
   @Prop()
   appleId?: string;
+
+  @Prop({ enum: AuthProvider })
+  lastLoginProvider?: AuthProvider;
+
+  @Prop()
+  lastLoginAt?: Date;
 
   @Prop()
   createdBy: string;
