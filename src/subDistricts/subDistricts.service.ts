@@ -3,17 +3,18 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SubDistrict, SubDistrictDocument } from './subDistricts.schema';
 import * as subDistrictsData from './data/subDistricts.json';
-import { IS_TEST } from '../common/constants';
+import { EnvironmentService } from '../environments/environment.service';
 
 @Injectable()
 export class SubDistrictsService implements OnModuleInit {
   constructor(
     @InjectModel(SubDistrict.name)
-    private subDistrictModel: Model<SubDistrictDocument>,
+    private readonly subDistrictModel: Model<SubDistrictDocument>,
+    private readonly envService: EnvironmentService,
   ) {}
 
   async onModuleInit() {
-    if (IS_TEST) {
+    if (this.envService.isTest()) {
       return;
     }
 

@@ -4,15 +4,18 @@ import { Model } from 'mongoose';
 import * as usersData from './data/users.json';
 import { User, UserDocument, UserRole } from './users.schema';
 import { v4 as uuidV4 } from 'uuid';
-import { IS_TEST } from '../common/constants';
 import { AuthProvider } from '../common/enums/auth-provider.enum';
+import { EnvironmentService } from '../environments/environment.service';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    private readonly envService: EnvironmentService,
+  ) {}
 
   async onModuleInit() {
-    if (IS_TEST) {
+    if (this.envService.isTest()) {
       return;
     }
 
@@ -71,19 +74,6 @@ export class UsersService implements OnModuleInit {
       googleId,
       facebookId,
     });
-
-    //TODO: Send verification email
-    // const verificationUrl = `${SITE_DOMAIN}/auth/verify-email?vtoken=${emailVerficationToken}&email=${encodeURIComponent(
-    //   email,
-    // )}`;
-    // await sendEmail({
-    //   from: NO_REPLY_EMAIL,
-    //   to: email,
-    //   templateId: EMAIL_WELCOME,
-    //   templateData: {
-    //     verificationUrl,
-    //   },
-    // });
 
     return await newUser.save();
   }

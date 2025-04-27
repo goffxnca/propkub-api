@@ -25,7 +25,9 @@ interface PostWithDates {
 
 @Injectable()
 export class PostsService implements OnModuleInit {
-  constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) {}
+  constructor(
+    @InjectModel(Post.name) private readonly postModel: Model<PostDocument>,
+  ) {}
 
   async onModuleInit() {
     const count = await this.postModel.estimatedDocumentCount();

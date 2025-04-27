@@ -3,16 +3,18 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Province, ProvinceDocument } from './provinces.schema';
 import * as provincesData from './data/provinces.json';
-import { IS_TEST } from '../common/constants';
+import { EnvironmentService } from '../environments/environment.service';
 
 @Injectable()
 export class ProvincesService implements OnModuleInit {
   constructor(
-    @InjectModel(Province.name) private provinceModel: Model<ProvinceDocument>,
+    @InjectModel(Province.name)
+    private readonly provinceModel: Model<ProvinceDocument>,
+    private readonly envService: EnvironmentService,
   ) {}
 
   async onModuleInit() {
-    if (IS_TEST) {
+    if (this.envService.isTest()) {
       return;
     }
 

@@ -3,12 +3,17 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { AuthProvider } from '../common/enums/auth-provider.enum';
+import { EMAIL_WELCOME, NO_REPLY_EMAIL } from '../common/constants';
+import { MailService } from '../mail/mail.service';
+import { EnvironmentService } from '../environments/environment.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+    private readonly envService: EnvironmentService,
+    private readonly mailService: MailService,
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -26,6 +31,19 @@ export class AuthService {
       password,
       AuthProvider.EMAIL,
     );
+
+    if (!user.emailVerified) {
+      const verificationUrl = `${this.envService.siteDomain()}/auth/verify-email?vtoken=${user.emailVToken}`;
+      await this.mailService.sendEmail({
+        from: NO_REPLY_EMAIL,
+        to: user.email,
+        templateId: EMAIL_WELCOME,
+        templateData: {
+          verificationUrl,
+        },
+      });
+    }
+
     const payload = { sub: user._id };
     const accessToken = await this.jwtService.signAsync(payload);
     return { accessToken };

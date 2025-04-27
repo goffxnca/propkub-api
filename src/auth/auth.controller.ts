@@ -19,6 +19,12 @@ import { FacebookAuthGuard } from './guards/facebook-auth.guard';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Post('register')
+  signup(@Body() signupDto: SignupDto) {
+    const { name, email, password } = signupDto;
+    return this.authService.signup(name, email, password);
+  }
+
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
@@ -47,12 +53,6 @@ export class AuthController {
   @Get('facebook/redirect')
   facebookAuthRedirect(@Request() req) {
     return this.authService.loginFacebook(req.user);
-  }
-
-  @Post('register')
-  signup(@Body() signupDto: SignupDto) {
-    const { name, email, password } = signupDto;
-    return this.authService.signup(name, email, password);
   }
 
   @UseGuards(JwtAuthGuard)

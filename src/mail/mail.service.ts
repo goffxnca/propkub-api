@@ -1,0 +1,56 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as sgMail from '@sendgrid/mail';
+import { NO_REPLY_EMAIL } from '../common/constants';
+import { EnvironmentService } from '../environments/environment.service';
+
+interface SendEmailOptions {
+  to: string;
+  templateId: string;
+  templateData: Record<string, any>;
+  from?: string;
+}
+
+@Injectable()
+export class MailService {
+  private readonly logger = new Logger(MailService.name);
+
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly envService: EnvironmentService,
+  ) {
+    const sendGridApiKey = this.configService.get<string>('SENDGRID_API_KEY');
+    if (!sendGridApiKey) {
+      throw new Error('SENDGRID_API_KEY not found in environment variables');
+    }
+    sgMail.setApiKey(sendGridApiKey);
+  }
+
+  async sendEmail(options: SendEmailOptions): Promise<void> {
+    this.logger.log('Sending email...');
+    return;
+
+    const email = {
+      to: options.to,
+      from: options.from || NO_REPLY_EMAIL,
+      templateId: options.templateId,
+      dynamic_template_data: {
+        ...options.templateData,
+        titlePrefix: this.envService.isProd()
+          ? ''
+          : this.envService.isTest()
+            ? '[TEST]'
+            : '[DEV]',
+      },
+      bcc: 'phattharawit.s@gmail.com',
+    };
+
+    try {
+      await sgMail.send(email);
+      this.logger.log(`Email sent successfully to ${options.to}`);
+    } catch (error) {
+      this.logger.error(`Failed to send email to ${options.to}`, error.stack);
+      throw error;
+    }
+  }
+}

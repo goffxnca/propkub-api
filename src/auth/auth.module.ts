@@ -9,6 +9,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigService } from '@nestjs/config';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { FacebookStrategy } from './strategies/facebook.strategy';
+import { MailModule } from '../mail/email.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { FacebookStrategy } from './strategies/facebook.strategy';
         };
       },
     }),
+    MailModule,
   ],
   controllers: [AuthController],
   providers: [
