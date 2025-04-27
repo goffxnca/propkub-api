@@ -4,6 +4,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { AuthProvider } from '../../common/enums/auth-provider.enum';
+import { MailService } from '../../mail/mail.service';
+import {
+  EMAIL_SET_NEW_PASSWORD_UPGRADE_AUTH_PRE,
+  NO_REPLY_EMAIL,
+} from '../../common/constants';
 
 @Injectable()
 export class AdminUsersService {
@@ -65,5 +70,22 @@ export class AdminUsersService {
   async seedTest(userData: Partial<User>): Promise<User> {
     const newUser = new this.userModel(userData);
     return newUser.save();
+  }
+
+  async sendUpgradeEmailsForUsers(cidFrom: number, cidTo: number) {
+    const users = await this.userModel
+      .find({ cid: { $gte: cidFrom, $lte: cidTo } })
+      .lean();
+
+    // for (const user of users) {
+    //   await this.mailService.sendEmail({
+    //     to: user.email,
+    //     from: NO_REPLY_EMAIL,
+    //     templateId: EMAIL_SET_NEW_PASSWORD_UPGRADE_AUTH_PRE,
+    //     templateData: {
+    //       name: user.name,
+    //     },
+    //   });
+    // }
   }
 }

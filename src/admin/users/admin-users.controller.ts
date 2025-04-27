@@ -102,4 +102,10 @@ export class AdminUsersController {
     }
     return user;
   }
+
+  @Post('EMAIL_SET_NEW_PASSWORD_UPGRADE_AUTH_PRE')
+  async send_EMAIL_SET_NEW_PASSWORD_UPGRADE_AUTH_PRE() {
+    await this.adminUsersService.sendUpgradeEmailsForUsers(1, 2);
+    return { message: 'Emails sent successfully.' };
+  }
 }

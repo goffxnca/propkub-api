@@ -3,7 +3,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AdminUsersService } from '../../src/admin/users/admin-users.service';
 import { User, UserRole } from '../../src/users/users.schema';
-import { CreateUserDto, UpdateUserDto } from 'src/admin/users/dto/user.dto';
 import {
   rootMongooseTestModule,
   closeMongodConnection,
@@ -13,6 +12,10 @@ import * as bcrypt from 'bcrypt';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AuthProvider } from '../../src/common/enums/auth-provider.enum';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+} from '../../src/admin/users/dto/user.dto';
 
 describe('AdminUsers (e2e)', () => {
   let app: INestApplication;
