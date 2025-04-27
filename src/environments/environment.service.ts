@@ -22,4 +22,12 @@ export class EnvironmentService {
       this.configService.get<string>('SITE_DOMAIN') ?? 'http://localhost:3000'
     );
   }
+
+  sendGridApiKey(): string {
+    const apiKey = this.configService.get<string>('SENDGRID_API_KEY');
+    if (!apiKey) {
+      throw new Error('SENDGRID_API_KEY env is missing.');
+    }
+    return apiKey;
+  }
 }

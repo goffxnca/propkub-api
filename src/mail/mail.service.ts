@@ -15,20 +15,16 @@ interface SendEmailOptions {
 export class MailService {
   private readonly logger = new Logger(MailService.name);
 
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly envService: EnvironmentService,
-  ) {
-    const sendGridApiKey = this.configService.get<string>('SENDGRID_API_KEY');
-    if (!sendGridApiKey) {
-      throw new Error('SENDGRID_API_KEY not found in environment variables');
-    }
-    sgMail.setApiKey(sendGridApiKey);
+  constructor(private readonly envService: EnvironmentService) {
+    sgMail.setApiKey(this.envService.sendGridApiKey());
   }
 
   async sendEmail(options: SendEmailOptions): Promise<void> {
     this.logger.log('Sending email...');
-    return;
+
+    if (this.envService.isTest()) {
+      return;
+    }
 
     const email = {
       to: options.to,
