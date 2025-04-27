@@ -49,6 +49,10 @@ export class AuthService {
     return { accessToken };
   }
 
+  async verifyEmail(vtoken: string): Promise<boolean> {
+    return this.usersService.verifyEmail(vtoken);
+  }
+
   async login(user: any) {
     const payload = { sub: user.id };
     const accessToken = await this.jwtService.signAsync(payload);

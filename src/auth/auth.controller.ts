@@ -7,6 +7,8 @@ import {
   UseGuards,
   Request,
   Get,
+  Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signupDto';
@@ -14,6 +16,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { FacebookAuthGuard } from './guards/facebook-auth.guard';
+import { VerifyEmailDto } from './dto/verifyEmailDto';
 
 @Controller('auth')
 export class AuthController {
@@ -23,6 +26,17 @@ export class AuthController {
   signup(@Body() signupDto: SignupDto) {
     const { name, email, password } = signupDto;
     return this.authService.signup(name, email, password);
+  }
+
+  @Get('verify-email')
+  async verifyEmail(@Query() query: VerifyEmailDto) {
+    const { vtoken } = query;
+    const success = await this.authService.verifyEmail(vtoken);
+
+    if (!success) {
+      throw new BadRequestException('Invalid or expired verification token.');
+    }
+    return { message: 'Email verified successfully' };
   }
 
   @UseGuards(LocalAuthGuard)

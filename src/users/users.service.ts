@@ -29,6 +29,8 @@ export class UsersService implements OnModuleInit {
             '$2b$10$LsEG1edOmHH8Sq6QacrROu/dkl7xpKNW4jlyjab9gmGWVsmLuIkjy',
           provider: AuthProvider.EMAIL,
           role: UserRole.NORMAL,
+          emailVToken:
+            user.emailVerified === true ? undefined : user.emailVToken,
           createdBy: user.id,
           updatedBy: user.id,
           tosAccepted: true,
@@ -91,5 +93,21 @@ export class UsersService implements OnModuleInit {
 
   async linkFacebookId(userId: string, facebookId: string) {
     await this.userModel.findByIdAndUpdate(userId, { facebookId });
+  }
+
+  async verifyEmail(vtoken: string): Promise<boolean> {
+    const user = await this.userModel.findOne({
+      emailVToken: vtoken,
+    });
+
+    if (!user) {
+      return false;
+    }
+
+    user.emailVerified = true;
+    user.emailVToken = undefined;
+
+    await user.save();
+    return true;
   }
 }
