@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { AuthProvider } from '../common/enums/auth-provider.enum';
 
@@ -14,6 +14,9 @@ export enum UserRole {
 @Schema({ timestamps: true })
 export class User {
   _id: string;
+
+  @Prop({ unique: true })
+  cid: number;
 
   @Prop({ required: true })
   name: string;
@@ -76,6 +79,14 @@ export class User {
 export const UserSchema = SchemaFactory.createForClass(User);
 
 UserSchema.pre('save', async function (next) {
+  if (this.isNew) {
+    // Assign manual auto incremental for cid
+    const lastUser = await (this.constructor as mongoose.Model<UserDocument>)
+      .findOne({}, { cid: 1 }, { sort: { cid: -1 } })
+      .lean();
+    this.cid = (lastUser?.cid ?? 0) + 1;
+  }
+
   if (this.password && this.isModified('password')) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);

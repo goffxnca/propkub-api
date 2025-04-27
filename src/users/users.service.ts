@@ -21,7 +21,7 @@ export class UsersService implements OnModuleInit {
 
     const count = await this.userModel.estimatedDocumentCount();
     if (count === 0) {
-      const transformedUsers = usersData.map((user) => {
+      const transformedUsers = usersData.map((user, index) => {
         return {
           ...user,
           ___id: user.id,
@@ -34,6 +34,7 @@ export class UsersService implements OnModuleInit {
           createdBy: user.id,
           updatedBy: user.id,
           tosAccepted: true,
+          cid: index + 1,
         };
       });
 
