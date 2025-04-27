@@ -16,6 +16,7 @@ import {
   CreateUserDto,
   UpdateUserDto,
 } from '../../src/admin/users/dto/user.dto';
+import { ConfigModule } from '@nestjs/config';
 
 describe('AdminUsers (e2e)', () => {
   let app: INestApplication;
@@ -52,7 +53,11 @@ describe('AdminUsers (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [rootMongooseTestModule(), AdminUsersModule],
+      imports: [
+        ConfigModule.forRoot({ envFilePath: '.env.test' }),
+        rootMongooseTestModule(),
+        AdminUsersModule,
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();

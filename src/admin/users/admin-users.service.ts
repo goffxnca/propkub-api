@@ -12,9 +12,13 @@ import {
 
 @Injectable()
 export class AdminUsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly mailService: MailService,
+  ) {}
 
   async findAll(limit?: number, offset?: number): Promise<User[]> {
+    console.log('SENDGRID_API_KEY', process.env.SENDGRID_API_KEY);
     const query = this.userModel.find();
 
     if (offset) {

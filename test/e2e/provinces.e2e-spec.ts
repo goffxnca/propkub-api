@@ -8,6 +8,7 @@ import {
   closeMongodConnection,
 } from '../utils/mongodb-memory';
 import { ProvincesModule } from '../../src/provinces/provinces.module';
+import { ConfigModule } from '@nestjs/config';
 
 describe('Provinces (e2e)', () => {
   let app: INestApplication;
@@ -20,7 +21,11 @@ describe('Provinces (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [rootMongooseTestModule(), ProvincesModule],
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env.test' }),
+        rootMongooseTestModule(),
+        ProvincesModule,
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
