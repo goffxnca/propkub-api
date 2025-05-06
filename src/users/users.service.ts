@@ -24,6 +24,7 @@ export class UsersService implements OnModuleInit {
       const transformedUsers = usersData.map((user, index) => {
         return {
           ...user,
+          name: user?.name || user.email,
           ___id: user.id,
           password:
             '$2b$10$LsEG1edOmHH8Sq6QacrROu/dkl7xpKNW4jlyjab9gmGWVsmLuIkjy',

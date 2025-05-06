@@ -76,20 +76,22 @@ export class AdminUsersService {
     return newUser.save();
   }
 
-  async sendUpgradeEmailsForUsers(cidFrom: number, cidTo: number) {
+  async sendEamilSetNewPasswordPre(cidFrom: number, cidTo: number) {
     const users = await this.userModel
-      .find({ cid: { $gte: cidFrom, $lte: cidTo } })
+      // .find({ cid: { $gte: cidFrom, $lte: cidTo } })
+      .find({ cid: { $gte: 44, $lte: 50 } }) // 44-50 NOT SENDING YET HIT LIMIT
       .lean();
 
-    // for (const user of users) {
-    //   await this.mailService.sendEmail({
-    //     to: user.email,
-    //     from: NO_REPLY_EMAIL,
-    //     templateId: EMAIL_SET_NEW_PASSWORD_UPGRADE_AUTH_PRE,
-    //     templateData: {
-    //       name: user.name,
-    //     },
-    //   });
-    // }
+    for (const user of users) {
+      console.log('user' + user.name);
+      await this.mailService.sendEmail({
+        to: user.email,
+        from: NO_REPLY_EMAIL,
+        templateId: EMAIL_SET_NEW_PASSWORD_UPGRADE_AUTH_PRE,
+        templateData: {
+          name: user.name,
+        },
+      });
+    }
   }
 }

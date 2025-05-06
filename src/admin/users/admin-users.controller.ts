@@ -22,6 +22,12 @@ import { User } from '../../users/users.schema';
 export class AdminUsersController {
   constructor(private readonly adminUsersService: AdminUsersService) {}
 
+  @Get('/send-email-set-new-password-pre')
+  async sendEmailSetNewPasswordPre() {
+    await this.adminUsersService.sendEamilSetNewPasswordPre(1, 2);
+    return { message: 'Emails sent successfully.' };
+  }
+
   @Get()
   async findAll(@Query() pagination: PaginationDto): Promise<User[]> {
     return this.adminUsersService.findAll(pagination.limit, pagination.offset);
@@ -101,11 +107,5 @@ export class AdminUsersController {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
     return user;
-  }
-
-  @Post('EMAIL_SET_NEW_PASSWORD_UPGRADE_AUTH_PRE')
-  async send_EMAIL_SET_NEW_PASSWORD_UPGRADE_AUTH_PRE() {
-    await this.adminUsersService.sendUpgradeEmailsForUsers(1, 2);
-    return { message: 'Emails sent successfully.' };
   }
 }
