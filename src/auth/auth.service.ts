@@ -3,7 +3,11 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { AuthProvider } from '../common/enums/auth-provider.enum';
-import { EMAIL_WELCOME, NO_REPLY_EMAIL } from '../common/constants';
+import {
+  EMAIL_WELCOME,
+  EMAIL_WELCOME_WITH_VERIFICATION,
+  NO_REPLY_EMAIL,
+} from '../common/constants';
 import { MailService } from '../mail/mail.service';
 import { EnvironmentService } from '../environments/environment.service';
 
@@ -37,7 +41,7 @@ export class AuthService {
       await this.mailService.sendEmail({
         from: NO_REPLY_EMAIL,
         to: user.email,
-        templateId: EMAIL_WELCOME,
+        templateId: EMAIL_WELCOME_WITH_VERIFICATION,
         templateData: {
           verificationUrl,
         },
@@ -78,6 +82,13 @@ export class AuthService {
         profileImg,
         googleId,
       );
+
+      await this.mailService.sendEmail({
+        from: NO_REPLY_EMAIL,
+        to: user.email,
+        templateId: EMAIL_WELCOME,
+        templateData: {},
+      });
     }
     const userId = finalUser?._id!;
 
@@ -106,6 +117,13 @@ export class AuthService {
         undefined,
         facebookId,
       );
+
+      await this.mailService.sendEmail({
+        from: NO_REPLY_EMAIL,
+        to: user.email,
+        templateId: EMAIL_WELCOME,
+        templateData: {},
+      });
     }
 
     const userId = finalUser?._id!;

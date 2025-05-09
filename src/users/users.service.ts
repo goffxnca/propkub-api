@@ -6,7 +6,7 @@ import { User, UserDocument, UserRole } from './users.schema';
 import { v4 as uuidV4 } from 'uuid';
 import { AuthProvider } from '../common/enums/auth-provider.enum';
 import { EnvironmentService } from '../environments/environment.service';
-import { generatePassword } from 'src/common/utils/strings';
+import { generatePassword } from '../common/utils/strings';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
