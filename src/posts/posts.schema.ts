@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 
 // Embedded Types
 export class Facility {
@@ -55,28 +55,28 @@ export class Address {
   location: Location;
 }
 
-export class CreatedBy {
-  @Prop({ required: true })
-  userId: string;
+// export class CreatedBy {
+//   @Prop({ required: true })
+//   userId: string;
 
-  @Prop({ required: true })
-  name: string;
+//   @Prop({ required: true })
+//   name: string;
 
-  @Prop({ required: true })
-  email: string;
+//   @Prop({ required: true })
+//   email: string;
 
-  @Prop({ required: true })
-  phone: string;
+//   @Prop({ required: true })
+//   phone: string;
 
-  @Prop({ required: true })
-  role: string;
+//   @Prop({ required: true })
+//   role: string;
 
-  @Prop()
-  profileImg?: string;
+//   @Prop()
+//   profileImg?: string;
 
-  @Prop()
-  line?: string;
-}
+//   @Prop()
+//   line?: string;
+// }
 
 export class AcceptInfo {
   @Prop({ required: true })
@@ -286,14 +286,17 @@ export class Post {
   @Prop({ type: Date })
   updatedAt: Date;
 
-  @Prop({ required: true })
-  createdBy: CreatedBy;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
+  createdBy: string;
 
-  @Prop()
-  updatedBy: CreatedBy;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  updatedBy: string;
 
   @Prop()
   ___id?: string;
+
+  @Prop()
+  ___createdById?: string;
 
   @Prop({ type: Object })
   ___createdAt?: FirebaseTimestamp;

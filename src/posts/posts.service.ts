@@ -3,6 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post, PostDocument } from './posts.schema';
 import * as postsData from './data/posts.json';
+import { CreatePostDto } from './dto/createPostDto';
+import { User, UserDocument } from '../users/users.schema';
 
 interface FirebaseTimestamp {
   seconds: number;
@@ -26,14 +28,53 @@ interface PostWithDates {
 @Injectable()
 export class PostsService implements OnModuleInit {
   constructor(
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(Post.name) private readonly postModel: Model<PostDocument>,
   ) {}
 
   async onModuleInit() {
     const count = await this.postModel.estimatedDocumentCount();
+
+    const uniqueFirebaseCreatedByIdsFromPosts = [
+      ...new Set(postsData.map((post) => post.createdBy.userId)),
+    ];
+    // console.log(
+    //   'uniqueFirebaseCreatedByIdsFromPosts',
+    //   uniqueFirebaseCreatedByIdsFromPosts,
+    // );
+
+    const allUsersMatchedPostsCreatedBy = await this.userModel
+      .find({
+        ___id: { $in: uniqueFirebaseCreatedByIdsFromPosts },
+      })
+      .lean();
+    // console.log('allUsersMatchedPostsCreatedBy', allUsersMatchedPostsCreatedBy);
+
+    const userIdMap = {};
+    allUsersMatchedPostsCreatedBy.forEach((user) => {
+      userIdMap[user.___id!] = user._id;
+    });
+
+    console.log('userIdMap', userIdMap);
+
     if (count === 0) {
       const convertedPosts = (postsData as PostWithFirebaseTimestamps[]).map(
         (post, index) => {
+          const createdByFirebaseUserId = post.createdBy.userId;
+          if (!createdByFirebaseUserId) {
+            console.error(
+              `Pos ID ${post.id} does not contain created by firebase id`,
+            );
+            return null;
+          }
+          const mongoUserId = userIdMap[post.createdBy.userId];
+          if (!mongoUserId) {
+            console.error(
+              `User with Firebase ID ${post.createdBy.userId} not found`,
+            );
+            return null;
+          }
+
           const convertedPost: PostWithDates = {
             ...post,
             cid: index + 1,
@@ -42,10 +83,13 @@ export class PostsService implements OnModuleInit {
               post.createdAt.seconds * 1000 +
                 post.createdAt.nanoseconds / 1000000,
             ),
+            createdBy: mongoUserId,
+            updatedBy: mongoUserId,
+            ___createdById: post.createdBy.userId,
             ___createdAt: post.createdAt,
             updatedAt: new Date(),
             ___updatedAt: post.updatedAt,
-          } as PostWithDates;
+          };
 
           return convertedPost;
         },
