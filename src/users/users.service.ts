@@ -6,6 +6,8 @@ import { User, UserDocument, UserRole } from './users.schema';
 import { v4 as uuidV4 } from 'uuid';
 import { AuthProvider } from '../common/enums/auth-provider.enum';
 import { EnvironmentService } from '../environments/environment.service';
+import { generatePassword } from 'src/common/utils/strings';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -21,23 +23,29 @@ export class UsersService implements OnModuleInit {
 
     const count = await this.userModel.estimatedDocumentCount();
     if (count === 0) {
-      const transformedUsers = usersData.map((user, index) => {
-        return {
-          ...user,
-          name: user?.name || user.email,
-          ___id: user.id,
-          password:
-            '$2b$10$LsEG1edOmHH8Sq6QacrROu/dkl7xpKNW4jlyjab9gmGWVsmLuIkjy',
-          provider: AuthProvider.EMAIL,
-          role: UserRole.NORMAL,
-          emailVToken:
-            user.emailVerified === true ? undefined : user.emailVToken,
-          createdBy: user.id,
-          updatedBy: user.id,
-          tosAccepted: true,
-          cid: index + 1,
-        };
-      });
+      const transformedUsers = await Promise.all(
+        (usersData as unknown as User[]).map(async (user, index) => {
+          const tempIntialPassword = generatePassword();
+          const salt = await bcrypt.genSalt(10);
+          const hashedPassword = await bcrypt.hash(tempIntialPassword, salt);
+          const userId = (user as any).id;
+          return {
+            ...user,
+            name: user?.name || user.email,
+            ___id: userId,
+            password: hashedPassword,
+            temp_p: tempIntialPassword,
+            provider: AuthProvider.EMAIL,
+            role: UserRole.NORMAL,
+            emailVToken:
+              user.emailVerified === true ? undefined : user.emailVToken,
+            createdBy: userId,
+            updatedBy: userId,
+            tosAccepted: true,
+            cid: index + 1,
+          };
+        }),
+      );
 
       await this.userModel.insertMany(transformedUsers);
       console.log(`✅ Seeded ${transformedUsers.length} users.`);

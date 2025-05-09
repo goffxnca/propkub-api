@@ -66,7 +66,6 @@ export class AdminUsersService {
       .exec();
   }
 
-  // Delete a user
   async remove(id: string): Promise<User | null> {
     return this.userModel.findByIdAndDelete(id).exec();
   }

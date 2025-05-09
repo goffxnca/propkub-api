@@ -27,6 +27,9 @@ export class User {
   @Prop()
   password?: string;
 
+  @Prop()
+  temp_p?: string;
+
   @Prop({ required: true })
   provider: AuthProvider;
 
