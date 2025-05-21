@@ -66,20 +66,8 @@ export const basePost: Post = {
     phone: faker.phone.number(),
     line: faker.internet.username(),
   },
-  createdBy: {
-    userId: '1',
-    name: faker.person.fullName(),
-    email: faker.internet.email(),
-    phone: faker.phone.number(),
-    role: 'agent',
-  },
-  updatedBy: {
-    userId: '1',
-    name: faker.person.fullName(),
-    email: faker.internet.email(),
-    phone: faker.phone.number(),
-    role: 'agent',
-  },
+  createdBy: '1',
+  updatedBy: '1',
 };
 
 export const createPost = (overrides: Partial<Post> = {}): Post => {
@@ -100,20 +88,6 @@ export const createPost = (overrides: Partial<Post> = {}): Post => {
     merged.contact = {
       ...basePost.contact,
       ...overrides.contact,
-    };
-  }
-
-  if (overrides.createdBy) {
-    merged.createdBy = {
-      ...basePost.createdBy,
-      ...overrides.createdBy,
-    };
-  }
-
-  if (overrides.updatedBy) {
-    merged.updatedBy = {
-      ...basePost.updatedBy,
-      ...overrides.updatedBy,
     };
   }
 

@@ -91,6 +91,7 @@ export class UInfo {
   ua: string;
 }
 
+// TODO: It's not so useful, will be removed soon
 export class Legal {
   @Prop({ type: AcceptInfo, required: true })
   acceptInfo: AcceptInfo;

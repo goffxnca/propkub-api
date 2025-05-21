@@ -1,7 +1,13 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Post, PostDocument } from './posts.schema';
+import {
+  AssetType,
+  Post,
+  PostDocument,
+  PostStatus,
+  PostType,
+} from './posts.schema';
 import * as postsData from './data/posts.json';
 import { CreatePostDto } from './dto/createPostDto';
 import { User, UserDocument } from '../users/users.schema';
@@ -134,5 +140,34 @@ export class PostsService implements OnModuleInit {
     return this.postModel
       .findByIdAndUpdate(id, { $inc: { postViews: 1 } }, { new: true })
       .exec();
+  }
+
+  async create(createPostDto: CreatePostDto, userId: string): Promise<Post> {
+    const userData: any = {
+      ...createPostDto,
+      desc: 'wefwe', //required
+      assetType: AssetType.HOUSE, //required
+      postType: PostType.RENT, //required
+      cid: 5555, //required
+      area: 120, //required
+      price: 20, //required
+      address: {
+        //Paused 12:13, not understand why subfeilds of address marked as required not being validated, (as part of try to build proper post DTO with strict validation)
+        provinceId: null, //required
+        // provinceLabel: 'Bangkok', //required
+        // districtId: '1', //required
+        // districtLabel: 'Phra Nakhon', //required
+        // subDistrictId: '1', //required
+        // subDistrictLabel: 'Phra Borom Maha Ratchawang', //required
+        // regionId: '1', //required
+        // location: { lat: 13.7563, lng: 100.5018 }, //required
+      }, //required
+      thumbnail: 'wefwe', //required
+      status: PostStatus.ACTIVE, //required
+      slug: 'fff', //required
+      createdBy: userId, //required
+    };
+    const createdPost = new this.postModel(userData);
+    return createdPost.save();
   }
 }

@@ -28,7 +28,7 @@ export class User {
   password?: string;
 
   @Prop()
-  temp_p?: string;
+  temp_p?: string; //TODO: Once migrated all users, remove this field from code and users collection
 
   @Prop({ required: true })
   provider: AuthProvider;
@@ -55,16 +55,13 @@ export class User {
   profileImg?: string;
 
   @Prop()
-  ___id?: string;
+  ___id?: string; //TODO: Firebase Id, can be remove later
 
   @Prop({ unique: true, sparse: true })
   googleId?: string;
 
   @Prop({ unique: true, sparse: true })
   facebookId?: string;
-
-  @Prop()
-  appleId?: string;
 
   @Prop({ enum: AuthProvider })
   lastLoginProvider?: AuthProvider;

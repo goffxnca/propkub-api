@@ -1,15 +1,21 @@
 import {
   Controller,
   Get,
+  Post as PostRequest,
   Param,
   Post as HttpPost,
   NotFoundException,
   Query,
+  Body,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post } from './posts.schema';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { MongoIdValidationPipe } from '../common/pipes/mongo-id.pipe';
+import { CreatePostDto } from './dto/createPostDto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('posts')
 export class PostsController {
@@ -65,5 +71,15 @@ export class PostsController {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
     return post;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @PostRequest()
+  createPost(
+    @Request() req,
+    @Body() createPostDto: CreatePostDto,
+  ): Promise<Post> {
+    console.log('createPost...');
+    return this.postsService.create(createPostDto, req.user.userId);
   }
 }
