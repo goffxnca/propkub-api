@@ -45,6 +45,12 @@ export class User {
   @Prop()
   emailVToken?: string;
 
+  @Prop()
+  passwordResetToken?: string;
+
+  @Prop()
+  passwordResetExpires?: Date;
+
   @Prop({ default: false })
   tosAccepted: boolean;
 

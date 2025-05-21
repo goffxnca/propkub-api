@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { AuthProvider } from '../common/enums/auth-provider.enum';
 import {
+  EMAIL_PASSWORD_RESET,
   EMAIL_WELCOME,
   EMAIL_WELCOME_WITH_VERIFICATION,
   NO_REPLY_EMAIL,
@@ -13,6 +14,8 @@ import { EnvironmentService } from '../environments/environment.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -135,5 +138,54 @@ export class AuthService {
 
   async profile(userId: string) {
     return this.usersService.findById(userId);
+  }
+
+  async sendPasswordResetEmail(email: string) {
+    this.logger.log(`Password reset requested for email: ${email}`);
+    const resetToken = await this.usersService.createPasswordResetToken(email);
+
+    if (!resetToken) {
+      this.logger.warn(
+        `Password reset requested for non-existent email: ${email}`,
+      );
+      return {
+        message: 'If the email exists, a password reset link has been sent',
+      };
+    }
+
+    const resetUrl = `${this.envService.siteDomain()}/auth/reset-password?token=${resetToken}`;
+    this.logger.log(`Password reset token generated for email: ${email}`);
+
+    await this.mailService.sendEmail({
+      from: NO_REPLY_EMAIL,
+      to: email,
+      templateId: EMAIL_PASSWORD_RESET,
+      templateData: {
+        resetUrl,
+      },
+    });
+
+    return {
+      message: 'If the email exists, a password reset link has been sent',
+    };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    this.logger.log(
+      `Password reset attempt with token: ${token.substring(0, 8)}...`,
+    );
+    const success = await this.usersService.resetPassword(token, newPassword);
+
+    if (!success) {
+      this.logger.warn(
+        `Password reset failed: Invalid or expired token ${token.substring(0, 8)}...`,
+      );
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    this.logger.log(
+      `Password reset successful for token: ${token.substring(0, 8)}...`,
+    );
+    return { message: 'Password has been reset successfully' };
   }
 }

@@ -9,6 +9,7 @@ import {
   Get,
   Query,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signupDto';
@@ -17,9 +18,13 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { FacebookAuthGuard } from './guards/facebook-auth.guard';
 import { VerifyEmailDto } from './dto/verifyEmailDto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
@@ -45,6 +50,7 @@ export class AuthController {
   login(@Request() req) {
     return this.authService.login(req.user);
   }
+
   @UseGuards(GoogleAuthGuard)
   @Get('google')
   loginGoogle() {
@@ -73,5 +79,22 @@ export class AuthController {
   @Get('/profile')
   getProfile(@Request() req) {
     return this.authService.profile(req.user.userId);
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    this.logger.log(`Forgot password request received for: ${forgotPasswordDto.email}`);
+    return this.authService.sendPasswordResetEmail(forgotPasswordDto.email);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    this.logger.log(`Reset password request received with token: ${resetPasswordDto.token.substring(0, 8)}...`);
+    return this.authService.resetPassword(
+      resetPasswordDto.token,
+      resetPasswordDto.newPassword,
+    );
   }
 }

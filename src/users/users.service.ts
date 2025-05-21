@@ -1,4 +1,9 @@
-import { Injectable, OnModuleInit, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  ConflictException,
+  Logger,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as usersData from './data/users.json';
@@ -11,6 +16,8 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly envService: EnvironmentService,
@@ -39,8 +46,8 @@ export class UsersService implements OnModuleInit {
             role: UserRole.NORMAL,
             emailVToken:
               user.emailVerified === true ? undefined : user.emailVToken,
-            createdBy: userId,
-            updatedBy: userId,
+            createdBy: userId, //TODO: Later set to the user mongoid
+            updatedBy: userId, //TODO: Later set to the user mongoid
             tosAccepted: true,
             cid: index + 1,
           };
@@ -114,10 +121,60 @@ export class UsersService implements OnModuleInit {
       return false;
     }
 
+    if (user.emailVerified) {
+      return false;
+    }
+
     user.emailVerified = true;
     user.emailVToken = undefined;
 
     await user.save();
+    return true;
+  }
+
+  async createPasswordResetToken(email: string): Promise<string | null> {
+    const user = await this.findByEmail(email);
+    if (!user) {
+      this.logger.warn(
+        `Password reset token requested for non-existent email: ${email}`,
+      );
+      return null;
+    }
+
+    const resetToken = uuidV4();
+    const expires = new Date();
+    expires.setHours(expires.getHours() + 1); // Token expires in 1 hour
+
+    await this.userModel.updateOne(
+      { _id: user._id },
+      {
+        passwordResetToken: resetToken,
+        passwordResetExpires: expires,
+      },
+    );
+
+    this.logger.log(`Password reset token created for user: ${user._id}`);
+    return resetToken;
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<boolean> {
+    const user = await this.userModel.findOne({
+      passwordResetToken: token,
+      passwordResetExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      this.logger.warn(`Password reset failed: invalid or expired token`);
+      return false;
+    }
+
+    user.password = newPassword;
+    user.temp_p = undefined;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+
+    await user.save();
+    this.logger.log(`Password updated successfully for user: ${user._id}`);
     return true;
   }
 }
