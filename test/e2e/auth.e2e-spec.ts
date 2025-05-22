@@ -125,12 +125,12 @@ describe('Auth (e2e)', () => {
         .send({
           name: 'New User',
           email: 'new.user4@test.com',
-          password: '12345',
+          password: '1234567',
         })
         .expect(400)
         .expect((res) => {
           expect(res.body.message).toContain(
-            'password must be longer than or equal to 6 characters',
+            'password must be longer than or equal to 8 characters',
           );
         });
     });
