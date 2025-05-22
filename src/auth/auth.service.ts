@@ -16,6 +16,7 @@ import {
 } from '../common/constants';
 import { MailService } from '../mail/mail.service';
 import { EnvironmentService } from '../environments/environment.service';
+import { truncEmail, truncToken } from '../common/utils/strings';
 
 @Injectable()
 export class AuthService {
@@ -29,59 +30,102 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string) {
+    this.logger.debug(`Validating credentials for user: ${truncEmail(email)}`);
     const user = await this.usersService.findByEmail(email);
-    if (user && (await bcrypt.compare(password, user.password))) {
-      return user;
+    
+    if (!user) {
+      this.logger.debug(`Authentication failed: user not found - ${truncEmail(email)}`);
+      return null;
     }
-    return null;
+    
+    const passwordValid = await bcrypt.compare(password, user.password);
+    if (passwordValid) {
+      this.logger.debug(`Authentication successful for user: ${truncEmail(email)}`);
+      return user;
+    } else {
+      this.logger.debug(`Authentication failed: invalid password for user - ${truncEmail(email)}`);
+      return null;
+    }
   }
 
   async signup(name: string, email: string, password: string) {
-    const user = await this.usersService.create(
-      name,
-      email,
-      password,
-      AuthProvider.EMAIL,
-    );
+    this.logger.log(`Creating new user account: ${truncEmail(email)}`);
+    
+    try {
+      const user = await this.usersService.create(
+        name,
+        email,
+        password,
+        AuthProvider.EMAIL,
+      );
+      
+      this.logger.log(`User account created successfully: ${truncEmail(email)} (ID: ${user._id})`);
 
-    if (!user.emailVerified) {
-      const verificationUrl = `${this.envService.siteDomain()}/auth/verify-email?vtoken=${user.emailVToken}`;
-      await this.mailService.sendEmail({
-        from: NO_REPLY_EMAIL,
-        to: user.email,
-        templateId: EMAIL_WELCOME_WITH_VERIFICATION,
-        templateData: {
-          verificationUrl,
-        },
-      });
+      if (!user.emailVerified) {
+        this.logger.debug(`Sending verification email to: ${truncEmail(email)}`);
+        const verificationUrl = `${this.envService.siteDomain()}/auth/verify-email?vtoken=${user.emailVToken}`;
+        await this.mailService.sendEmail({
+          from: NO_REPLY_EMAIL,
+          to: user.email,
+          templateId: EMAIL_WELCOME_WITH_VERIFICATION,
+          templateData: {
+            verificationUrl,
+          },
+        });
+        this.logger.debug(`Verification email sent to: ${truncEmail(email)}`);
+      }
+
+      const payload = { sub: user._id };
+      const accessToken = await this.jwtService.signAsync(payload);
+      return { accessToken };
+    } catch (error) {
+      this.logger.error(`Failed to create user account: ${truncEmail(email)}`, error.stack);
+      throw error;
     }
-
-    const payload = { sub: user._id };
-    const accessToken = await this.jwtService.signAsync(payload);
-    return { accessToken };
   }
 
   async verifyEmail(vtoken: string): Promise<boolean> {
-    return this.usersService.verifyEmail(vtoken);
+    this.logger.debug(`Verifying email with token: ${truncToken(vtoken)}`);
+    const result = await this.usersService.verifyEmail(vtoken);
+    
+    if (result) {
+      this.logger.debug(`Email verification successful for token: ${truncToken(vtoken)}`);
+    } else {
+      this.logger.debug(`Email verification failed for token: ${truncToken(vtoken)}`);
+    }
+    
+    return result;
   }
 
   async login(user: any) {
+    this.logger.debug(`Generating auth token for user: ${truncEmail(user.email)} (ID: ${user.id})`);
+    
     const payload = { sub: user.id };
     const accessToken = await this.jwtService.signAsync(payload);
+    
+    this.logger.debug(`Updating last login for user: ${truncEmail(user.email)}`);
     await this.usersService.updateLastLogin(user.id, AuthProvider.EMAIL);
+    
     return { accessToken };
   }
 
   async loginGoogle(user: any) {
     const { email, name, googleId, profileImg } = user;
+    this.logger.log(`Processing Google OAuth login for: ${truncEmail(email)}`);
+    
     const existingUser = await this.usersService.findByEmail(email);
     let finalUser = existingUser;
 
     if (existingUser) {
+      this.logger.debug(`Existing user found for Google OAuth: ${truncEmail(email)}`);
+      
       if (!existingUser.googleId) {
+        this.logger.debug(`Linking Google account to existing user: ${truncEmail(email)}`);
         await this.usersService.linkGoogleId(existingUser._id, googleId);
       }
     } else {
+      this.logger.debug(`Creating new user from Google OAuth: ${truncEmail(email)}`);
+      
       finalUser = await this.usersService.create(
         name,
         email,
@@ -91,6 +135,7 @@ export class AuthService {
         googleId,
       );
 
+      this.logger.debug(`Sending welcome email to: ${truncEmail(email)}`);
       await this.mailService.sendEmail({
         from: NO_REPLY_EMAIL,
         to: user.email,
@@ -98,24 +143,35 @@ export class AuthService {
         templateData: {},
       });
     }
+    
     const userId = finalUser?._id!;
-
     const payload = { sub: userId };
     const accessToken = await this.jwtService.signAsync(payload);
+    
+    this.logger.debug(`Updating last login for user: ${truncEmail(email)}`);
     await this.usersService.updateLastLogin(userId, AuthProvider.GOOGLE);
+    
+    this.logger.log(`Google OAuth login successful for: ${truncEmail(email)}`);
     return { accessToken };
   }
 
   async loginFacebook(user: any) {
     const { email, name, facebookId, profileImg } = user;
+    this.logger.log(`Processing Facebook OAuth login for: ${truncEmail(email)}`);
+    
     const existingUser = await this.usersService.findByEmail(email);
     let finalUser = existingUser;
 
     if (existingUser) {
+      this.logger.debug(`Existing user found for Facebook OAuth: ${truncEmail(email)}`);
+      
       if (!existingUser.facebookId) {
+        this.logger.debug(`Linking Facebook account to existing user: ${truncEmail(email)}`);
         await this.usersService.linkFacebookId(existingUser._id, facebookId);
       }
     } else {
+      this.logger.debug(`Creating new user from Facebook OAuth: ${truncEmail(email)}`);
+      
       finalUser = await this.usersService.create(
         name,
         email,
@@ -126,6 +182,7 @@ export class AuthService {
         facebookId,
       );
 
+      this.logger.debug(`Sending welcome email to: ${truncEmail(email)}`);
       await this.mailService.sendEmail({
         from: NO_REPLY_EMAIL,
         to: user.email,
@@ -137,21 +194,26 @@ export class AuthService {
     const userId = finalUser?._id!;
     const payload = { sub: userId };
     const accessToken = await this.jwtService.signAsync(payload);
+    
+    this.logger.debug(`Updating last login for user: ${truncEmail(email)}`);
     await this.usersService.updateLastLogin(userId, AuthProvider.FACEBOOK);
+    
+    this.logger.log(`Facebook OAuth login successful for: ${truncEmail(email)}`);
     return { accessToken };
   }
 
   async profile(userId: string) {
+    this.logger.debug(`Retrieving profile for user ID: ${userId}`);
     return this.usersService.findById(userId);
   }
 
   async sendPasswordResetEmail(email: string) {
-    this.logger.log(`Password reset requested for email: ${email}`);
+    this.logger.log(`Password reset requested for email: ${truncEmail(email)}`);
     const resetToken = await this.usersService.createPasswordResetToken(email);
 
     if (!resetToken) {
       this.logger.warn(
-        `Password reset requested for non-existent email: ${email}`,
+        `Password reset requested for non-existent email: ${truncEmail(email)}`,
       );
       return {
         message: 'If the email exists, a password reset link has been sent',
@@ -159,7 +221,7 @@ export class AuthService {
     }
 
     const resetUrl = `${this.envService.siteDomain()}/auth/reset-password?token=${resetToken}`;
-    this.logger.log(`Password reset token generated for email: ${email}`);
+    this.logger.log(`Password reset token generated for email: ${truncEmail(email)}`);
 
     await this.mailService.sendEmail({
       from: NO_REPLY_EMAIL,
@@ -177,19 +239,19 @@ export class AuthService {
 
   async resetPassword(token: string, newPassword: string) {
     this.logger.log(
-      `Password reset attempt with token: ${token.substring(0, 8)}...`,
+      `Password reset attempt with token: ${truncToken(token)}`,
     );
     const success = await this.usersService.resetPassword(token, newPassword);
 
     if (!success) {
       this.logger.warn(
-        `Password reset failed: Invalid or expired token ${token.substring(0, 8)}...`,
+        `Password reset failed: Invalid or expired token ${truncToken(token)}`,
       );
       throw new BadRequestException('Invalid or expired reset token');
     }
 
     this.logger.log(
-      `Password reset successful for token: ${token.substring(0, 8)}...`,
+      `Password reset successful for token: ${truncToken(token)}`,
     );
     return { message: 'Password has been reset successfully' };
   }

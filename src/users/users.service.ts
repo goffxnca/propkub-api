@@ -61,10 +61,12 @@ export class UsersService implements OnModuleInit {
   }
 
   async findByEmail(email: string): Promise<User | null> {
+    this.logger.debug(`Finding user by email: ${email}`);
     return await this.userModel.findOne({ email }).exec();
   }
 
   async findById(userId: string) {
+    this.logger.debug(`Finding user by ID: ${userId}`);
     return await this.userModel.findById(userId);
   }
 
@@ -77,8 +79,11 @@ export class UsersService implements OnModuleInit {
     googleId?: string,
     facebookId?: string,
   ): Promise<User> {
+    this.logger.debug(`Creating new user with email: ${email}, provider: ${provider}`);
+    
     const user = await this.findByEmail(email);
     if (user) {
+      this.logger.warn(`User creation failed: email already exists - ${email}`);
       throw new ConflictException('Email already registered');
     }
 
@@ -95,10 +100,13 @@ export class UsersService implements OnModuleInit {
       facebookId,
     });
 
-    return await newUser.save();
+    const savedUser = await newUser.save();
+    this.logger.log(`User created successfully: ${email} (ID: ${savedUser._id})`);
+    return savedUser;
   }
 
   async updateLastLogin(userId: string, provider: AuthProvider) {
+    this.logger.debug(`Updating last login for user: ${userId}, provider: ${provider}`);
     await this.userModel.findByIdAndUpdate(userId, {
       lastLoginProvider: provider,
       lastLoginAt: new Date(),
@@ -106,23 +114,29 @@ export class UsersService implements OnModuleInit {
   }
 
   async linkGoogleId(userId: string, googleId: string) {
+    this.logger.debug(`Linking Google ID for user: ${userId}`);
     await this.userModel.findByIdAndUpdate(userId, { googleId });
   }
 
   async linkFacebookId(userId: string, facebookId: string) {
+    this.logger.debug(`Linking Facebook ID for user: ${userId}`);
     await this.userModel.findByIdAndUpdate(userId, { facebookId });
   }
 
   async verifyEmail(vtoken: string): Promise<boolean> {
+    this.logger.debug(`Verifying email with token: ${vtoken.substring(0, 8)}...`);
+    
     const user = await this.userModel.findOne({
       emailVToken: vtoken,
     });
 
     if (!user) {
+      this.logger.warn(`Email verification failed: token not found - ${vtoken.substring(0, 8)}...`);
       return false;
     }
 
     if (user.emailVerified) {
+      this.logger.warn(`Email verification failed: email already verified - User: ${user._id}`);
       return false;
     }
 
@@ -130,6 +144,7 @@ export class UsersService implements OnModuleInit {
     user.emailVToken = undefined;
 
     await user.save();
+    this.logger.log(`Email verified successfully for user: ${user._id}`);
     return true;
   }
 
