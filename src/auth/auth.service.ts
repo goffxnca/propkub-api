@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -187,5 +187,30 @@ export class AuthService {
       `Password reset successful for token: ${token.substring(0, 8)}...`,
     );
     return { message: 'Password has been reset successfully' };
+  }
+
+  async updatePassword(userId: string, currentPassword: string, newPassword: string) {
+    this.logger.log(`Password update attempt for user: ${userId}`);
+    
+    try {
+      const success = await this.usersService.updatePassword(
+        userId,
+        currentPassword,
+        newPassword,
+      );
+
+      if (success) {
+        this.logger.log(`Password updated successfully for user: ${userId}`);
+        return { message: 'Password has been updated successfully' };
+      } else {
+        this.logger.warn(`Password update failed for user: ${userId}`);
+        throw new BadRequestException('Failed to update password');
+      }
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new BadRequestException('Failed to update password');
+    }
   }
 }

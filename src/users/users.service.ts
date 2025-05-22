@@ -3,6 +3,7 @@ import {
   OnModuleInit,
   ConflictException,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -173,6 +174,35 @@ export class UsersService implements OnModuleInit {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
 
+    await user.save();
+    this.logger.log(`Password updated successfully for user: ${user._id}`);
+    return true;
+  }
+
+  async updatePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<boolean> {
+    const user = await this.userModel.findById(userId);
+
+    if (!user) {
+      this.logger.warn(`Update password failed: user not found`);
+      return false;
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
+    if (!isPasswordValid) {
+      this.logger.warn(
+        `Update password failed: invalid current password for user ${userId}`,
+      );
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    user.password = newPassword;
     await user.save();
     this.logger.log(`Password updated successfully for user: ${user._id}`);
     return true;

@@ -20,6 +20,7 @@ import { FacebookAuthGuard } from './guards/facebook-auth.guard';
 import { VerifyEmailDto } from './dto/verifyEmailDto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -95,6 +96,18 @@ export class AuthController {
     return this.authService.resetPassword(
       resetPasswordDto.token,
       resetPasswordDto.newPassword,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('update-password')
+  @HttpCode(HttpStatus.OK)
+  updatePassword(@Request() req, @Body() updatePasswordDto: UpdatePasswordDto) {
+    this.logger.log(`Update password request received for user: ${req.user.userId}`);
+    return this.authService.updatePassword(
+      req.user.userId,
+      updatePasswordDto.currentPassword,
+      updatePasswordDto.newPassword,
     );
   }
 }
