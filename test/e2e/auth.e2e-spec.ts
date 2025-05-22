@@ -12,11 +12,13 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UsersService } from '../../src/users/users.service';
 import { ConfigModule } from '@nestjs/config';
+import { MailService } from '../../src/mail/mail.service';
 
 describe('Auth (e2e)', () => {
   let app: INestApplication;
   let userModel: Model<User>;
   let usersService: UsersService;
+  let mailService: MailService;
 
   const testUser = {
     name: 'John Doe',
@@ -32,12 +34,18 @@ describe('Auth (e2e)', () => {
         rootMongooseTestModule(),
         AuthModule,
       ],
-    }).compile();
+    })
+      .overrideProvider(MailService)
+      .useValue({
+        sendEmail: jest.fn().mockResolvedValue(undefined),
+      })
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
     usersService = moduleFixture.get<UsersService>(UsersService);
+    mailService = moduleFixture.get<MailService>(MailService);
     await app.init();
   });
 
@@ -214,6 +222,75 @@ describe('Auth (e2e)', () => {
         .get('/auth/profile')
         .set('Authorization', 'Bearer invalid-token')
         .expect(401);
+    });
+  });
+
+  describe('POST /auth/forgot-password', () => {
+    beforeEach(async () => {
+      jest.clearAllMocks();
+    });
+
+    it('should create a password reset token for existing user', async () => {
+      const createTokenSpy = jest.spyOn(
+        usersService,
+        'createPasswordResetToken',
+      );
+      const sendEmailSpy = jest.spyOn(mailService, 'sendEmail');
+
+      const response = await request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: testUser.email })
+        .expect(200);
+
+      expect(response.body.message).toBe(
+        'If the email exists, a password reset link has been sent',
+      );
+      expect(createTokenSpy).toHaveBeenCalledWith(testUser.email);
+      expect(sendEmailSpy).toHaveBeenCalled();
+
+      const user = await userModel.findOne({ email: testUser.email });
+      expect(user).not.toBeNull();
+      expect(user?.passwordResetToken).toBeDefined();
+      expect(user?.passwordResetExpires).toBeDefined();
+    });
+
+    it('should return same response for non-existent email', async () => {
+      const createTokenSpy = jest.spyOn(
+        usersService,
+        'createPasswordResetToken',
+      );
+      const sendEmailSpy = jest.spyOn(mailService, 'sendEmail');
+
+      const response = await request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: 'nonexist@user.com' })
+        .expect(200);
+
+      expect(response.body.message).toBe(
+        'If the email exists, a password reset link has been sent',
+      );
+      expect(createTokenSpy).toHaveBeenCalledWith('nonexist@user.com');
+      expect(sendEmailSpy).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 when email is missing', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({})
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('email should not be empty');
+        });
+    });
+
+    it('should return 400 when email format is invalid', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: 'not-an-email' })
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('email must be an email');
+        });
     });
   });
 });
