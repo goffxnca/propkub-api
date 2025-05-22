@@ -387,5 +387,142 @@ describe('Auth (e2e)', () => {
           );
         });
     });
+
+    afterAll(async () => {
+      const user = await userModel.findOne({ email: testUser.email });
+      if (user) {
+        user.password = testUser.password;
+        await user.save();
+      }
+    });
+  });
+
+  describe('POST /auth/update-password', () => {
+    let accessToken: string;
+    const newPassword = 'newPassword123';
+
+    beforeAll(async () => {
+      const loginResponse = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email: testUser.email,
+          password: testUser.password,
+        });
+
+      accessToken = loginResponse.body.accessToken;
+    });
+
+    it('should update password when current password is correct', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/update-password')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          currentPassword: testUser.password,
+          newPassword: newPassword,
+        })
+        .expect(200);
+
+      expect(response.body.message).toBe(
+        'Password has been updated successfully',
+      );
+
+      // Verify password was changed by trying to login with new password
+      const loginResponse = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email: testUser.email,
+          password: newPassword,
+        })
+        .expect(200);
+
+      expect(loginResponse.body.accessToken).toBeDefined();
+      expect(loginResponse.body.accessToken).toContain('eyJhb');
+
+      // Reset password back to original for subsequent tests
+      await request(app.getHttpServer())
+        .post('/auth/update-password')
+        .set('Authorization', `Bearer ${loginResponse.body.accessToken}`)
+        .send({
+          currentPassword: newPassword,
+          newPassword: testUser.password,
+        })
+        .expect(200);
+    });
+
+    it('should return 401 when current password is incorrect', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/update-password')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          currentPassword: 'wrongPassword',
+          newPassword: newPassword,
+        })
+        .expect(401)
+        .expect((res) => {
+          expect(res.body.message).toBe('Current password is incorrect');
+        });
+    });
+
+    it('should return 401 when not authenticated', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/update-password')
+        .send({
+          currentPassword: testUser.password,
+          newPassword: newPassword,
+        })
+        .expect(401);
+    });
+
+    it('should return 400 when currentPassword is missing', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/update-password')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          newPassword: newPassword,
+        })
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain(
+            'currentPassword should not be empty',
+          );
+        });
+    });
+
+    it('should return 400 when newPassword is missing', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/update-password')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          currentPassword: testUser.password,
+        })
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('newPassword should not be empty');
+        });
+    });
+
+    it('should return 400 when newPassword is too short', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/update-password')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          currentPassword: testUser.password,
+          newPassword: '1234567',
+        })
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain(
+            'newPassword must be longer than or equal to 8 characters',
+          );
+        });
+    });
+
+    afterAll(async () => {
+      const user = await userModel.findOne({ email: testUser.email });
+      if (user) {
+        user.password = testUser.password;
+        await user.save();
+      }
+    });
   });
 });
