@@ -203,6 +203,7 @@ export class UsersService implements OnModuleInit {
     }
 
     user.password = newPassword;
+    user.temp_p = undefined;
     await user.save();
     this.logger.log(`Password updated successfully for user: ${user._id}`);
     return true;

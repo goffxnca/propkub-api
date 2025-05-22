@@ -13,6 +13,7 @@ import { Model } from 'mongoose';
 import { UsersService } from '../../src/users/users.service';
 import { ConfigModule } from '@nestjs/config';
 import { MailService } from '../../src/mail/mail.service';
+import { v4 as uuidV4 } from 'uuid';
 
 describe('Auth (e2e)', () => {
   let app: INestApplication;
@@ -290,6 +291,100 @@ describe('Auth (e2e)', () => {
         .expect(400)
         .expect((res) => {
           expect(res.body.message).toContain('email must be an email');
+        });
+    });
+  });
+
+  describe('POST /auth/reset-password', () => {
+    let resetToken: string;
+    const newPassword = 'newPassword123';
+
+    beforeAll(async () => {
+      const token = await usersService.createPasswordResetToken(testUser.email);
+      resetToken = token!;
+    });
+
+    it('should reset password with valid token', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/reset-password')
+        .send({
+          token: resetToken,
+          newPassword: newPassword,
+        })
+        .expect(200);
+
+      expect(response.body.message).toBe(
+        'Password has been reset successfully',
+      );
+
+      const loginResponse = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email: testUser.email,
+          password: newPassword,
+        })
+        .expect(200);
+
+      expect(loginResponse.body.accessToken).toBeDefined();
+      expect(loginResponse.body.accessToken).toContain('eyJhb');
+
+      const updatedUser = await userModel.findOne({ email: testUser.email });
+      expect(updatedUser).not.toBeNull();
+      expect(updatedUser?.passwordResetToken).toBeUndefined();
+      expect(updatedUser?.passwordResetExpires).toBeUndefined();
+      expect(updatedUser?.temp_p).toBeUndefined();
+    });
+
+    it('should return 400 with invalid token', async () => {
+      const invalidToken = uuidV4();
+
+      const response = await request(app.getHttpServer())
+        .post('/auth/reset-password')
+        .send({
+          token: invalidToken,
+          newPassword: newPassword,
+        })
+        .expect(400);
+
+      expect(response.body.message).toBe('Invalid or expired reset token');
+    });
+
+    it('should return 400 when token is missing', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/reset-password')
+        .send({
+          newPassword: newPassword,
+        })
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('token should not be empty');
+        });
+    });
+
+    it('should return 400 when new password is missing', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/reset-password')
+        .send({
+          token: resetToken,
+        })
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('newPassword should not be empty');
+        });
+    });
+
+    it('should return 400 when new password is too short', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/reset-password')
+        .send({
+          token: resetToken,
+          newPassword: '1234567',
+        })
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain(
+            'newPassword must be longer than or equal to 8 characters',
+          );
         });
     });
   });
