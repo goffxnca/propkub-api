@@ -447,6 +447,9 @@ describe('Auth (e2e)', () => {
           newPassword: testUser.password,
         })
         .expect(200);
+
+      const updatedUser = await userModel.findOne({ email: testUser.email });
+      expect(updatedUser?.temp_p).toBeUndefined();
     });
 
     it('should return 401 when current password is incorrect', async () => {
@@ -523,6 +526,80 @@ describe('Auth (e2e)', () => {
         user.password = testUser.password;
         await user.save();
       }
+    });
+  });
+
+  describe('GET /auth/verify-email', () => {
+    let verificationToken: string;
+    const verifyUser = {
+      name: 'Verify Test User',
+      email: 'verify@test.com',
+      password: 'password123',
+    };
+
+    beforeAll(async () => {
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send(verifyUser)
+        .expect(201);
+
+      const newUser = await userModel.findOne({ email: verifyUser.email });
+      expect(newUser).not.toBeNull();
+      expect(newUser?.emailVerified).toBe(false);
+      verificationToken = newUser?.emailVToken!;
+    });
+
+    it('should verify email with valid token', async () => {
+      await request(app.getHttpServer())
+        .get(`/auth/verify-email?vtoken=${verificationToken}`)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.message).toBe('Email verified successfully');
+        });
+
+      const updatedUser = await userModel.findOne({
+        email: verifyUser.email,
+      });
+      expect(updatedUser).not.toBeNull();
+      expect(updatedUser?.emailVerified).toBe(true);
+      expect(updatedUser?.emailVToken).toBeUndefined();
+    });
+
+    it('should return 400 with invalid token', async () => {
+      const invalidToken = uuidV4();
+
+      return request(app.getHttpServer())
+        .get(`/auth/verify-email?vtoken=${invalidToken}`)
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toBe(
+            'Invalid or expired verification token.',
+          );
+        });
+    });
+
+    it('should return 400 when token is missing', async () => {
+      return request(app.getHttpServer())
+        .get('/auth/verify-email')
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('vtoken should not be empty');
+        });
+    });
+
+    it('should return 400 when trying to verify already verified email', async () => {
+      return request(app.getHttpServer())
+        .get(`/auth/verify-email?vtoken=${verificationToken}`)
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toBe(
+            'Invalid or expired verification token.',
+          );
+        });
+    });
+
+    afterAll(async () => {
+      await userModel.deleteOne({ email: verifyUser.email });
     });
   });
 });
