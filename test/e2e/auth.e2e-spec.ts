@@ -56,14 +56,15 @@ describe('Auth (e2e)', () => {
   });
 
   describe('POST /auth/register', () => {
-    it('should create a new user and return JWT token', () => {
+    it('should create a new user and return JWT token', async () => {
+      const sendEmailSpy = jest.spyOn(mailService, 'sendEmail');
       const signupDto: SignupDto = {
         name: testUser.name,
         email: testUser.email,
         password: testUser.password,
       };
 
-      return request(app.getHttpServer())
+      await request(app.getHttpServer())
         .post('/auth/register')
         .send(signupDto)
         .expect(201)
@@ -71,6 +72,8 @@ describe('Auth (e2e)', () => {
           expect(res.body.accessToken).toBeDefined();
           expect(res.body.accessToken).toContain('eyJhb');
         });
+
+      expect(sendEmailSpy).toHaveBeenCalled();
     });
 
     it('should return 409 when email already exists', () => {
