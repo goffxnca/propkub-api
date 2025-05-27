@@ -1,7 +1,6 @@
 import {
   Post,
   PostStatus,
-  PostSubStatus,
   PostType,
   AssetType,
   AreaUnit,
@@ -25,8 +24,7 @@ export const basePost: Post = {
   area: 100,
   areaUnit: AreaUnit.SQM,
   status: PostStatus.ACTIVE,
-  subStatus: PostSubStatus.CREATED,
-  isMember: true,
+  byMember: true,
   isStudio: false,
   thumbnail: faker.image.url(),
   images: [faker.image.url(), faker.image.url()],

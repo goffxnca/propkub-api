@@ -44,6 +44,7 @@ export class UsersService implements OnModuleInit {
             password: hashedPassword,
             temp_p: tempIntialPassword,
             provider: AuthProvider.EMAIL,
+
             role: UserRole.NORMAL,
             emailVToken:
               user.emailVerified === true ? undefined : user.emailVToken,
@@ -79,8 +80,10 @@ export class UsersService implements OnModuleInit {
     googleId?: string,
     facebookId?: string,
   ): Promise<User> {
-    this.logger.debug(`Creating new user with email: ${email}, provider: ${provider}`);
-    
+    this.logger.debug(
+      `Creating new user with email: ${email}, provider: ${provider}`,
+    );
+
     const user = await this.findByEmail(email);
     if (user) {
       this.logger.warn(`User creation failed: email already exists - ${email}`);
@@ -101,12 +104,16 @@ export class UsersService implements OnModuleInit {
     });
 
     const savedUser = await newUser.save();
-    this.logger.log(`User created successfully: ${email} (ID: ${savedUser._id})`);
+    this.logger.log(
+      `User created successfully: ${email} (ID: ${savedUser._id})`,
+    );
     return savedUser;
   }
 
   async updateLastLogin(userId: string, provider: AuthProvider) {
-    this.logger.debug(`Updating last login for user: ${userId}, provider: ${provider}`);
+    this.logger.debug(
+      `Updating last login for user: ${userId}, provider: ${provider}`,
+    );
     await this.userModel.findByIdAndUpdate(userId, {
       lastLoginProvider: provider,
       lastLoginAt: new Date(),
@@ -124,19 +131,25 @@ export class UsersService implements OnModuleInit {
   }
 
   async verifyEmail(vtoken: string): Promise<boolean> {
-    this.logger.debug(`Verifying email with token: ${vtoken.substring(0, 8)}...`);
-    
+    this.logger.debug(
+      `Verifying email with token: ${vtoken.substring(0, 8)}...`,
+    );
+
     const user = await this.userModel.findOne({
       emailVToken: vtoken,
     });
 
     if (!user) {
-      this.logger.warn(`Email verification failed: token not found - ${vtoken.substring(0, 8)}...`);
+      this.logger.warn(
+        `Email verification failed: token not found - ${vtoken.substring(0, 8)}...`,
+      );
       return false;
     }
 
     if (user.emailVerified) {
-      this.logger.warn(`Email verification failed: email already verified - User: ${user._id}`);
+      this.logger.warn(
+        `Email verification failed: email already verified - User: ${user._id}`,
+      );
       return false;
     }
 

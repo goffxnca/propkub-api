@@ -17,3 +17,7 @@ export function truncToken(token: string): string {
   if (!token) return '';
   return `${token.substring(0, 8)}...`;
 }
+
+export function getUnixEpochTime(): number {
+  return Date.now();
+}

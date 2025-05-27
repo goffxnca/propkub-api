@@ -1,149 +1,127 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Type } from 'class-transformer';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import mongoose, { Document } from 'mongoose';
 
-// Embedded Types
+@Schema({ _id: false })
 export class Facility {
   @Prop({ required: true })
+  @IsString()
+  @IsNotEmpty()
   id: string;
 
   @Prop({ required: true })
+  @IsString()
+  @IsNotEmpty()
   label: string;
 }
 
+@Schema({ _id: false })
 export class Spec {
   @Prop({ required: true })
+  @IsString()
+  @IsNotEmpty()
   id: string;
 
   @Prop({ required: true })
+  @IsString()
+  @IsNotEmpty()
   label: string;
 
   @Prop({ required: true })
+  @IsNumber()
+  @IsNotEmpty()
   value: number;
 }
 
+@Schema({ _id: false })
 export class Location {
   @Prop({ required: true })
+  @IsNotEmpty()
+  @IsNumber()
   lat: number;
 
   @Prop({ required: true })
+  @IsNotEmpty()
+  @IsNumber()
   lng: number;
 }
 
+@Schema({ _id: false })
 export class Address {
   @Prop({ required: true })
+  @IsNotEmpty()
+  @IsString()
   subDistrictLabel: string;
 
   @Prop({ required: true })
+  @IsNotEmpty()
+  @IsString()
   subDistrictId: string;
 
   @Prop({ required: true })
+  @IsNotEmpty()
+  @IsString()
   districtLabel: string;
 
   @Prop({ required: true })
+  @IsNotEmpty()
+  @IsString()
   districtId: string;
 
   @Prop({ required: true })
+  @IsNotEmpty()
+  @IsString()
   provinceLabel: string;
 
   @Prop({ required: true })
+  @IsNotEmpty()
+  @IsString()
   provinceId: string;
 
   @Prop({ required: true })
+  @IsNotEmpty()
+  @IsString()
   regionId: string;
 
   @Prop({ required: true })
+  @IsNotEmpty()
+  @ValidateNested()
+  @Type(() => Location)
   location: Location;
 }
 
-// export class CreatedBy {
-//   @Prop({ required: true })
-//   userId: string;
-
-//   @Prop({ required: true })
-//   name: string;
-
-//   @Prop({ required: true })
-//   email: string;
-
-//   @Prop({ required: true })
-//   phone: string;
-
-//   @Prop({ required: true })
-//   role: string;
-
-//   @Prop()
-//   profileImg?: string;
-
-//   @Prop()
-//   line?: string;
-// }
-
-export class AcceptInfo {
-  @Prop({ required: true })
-  accept: boolean;
-
-  @Prop({ required: true })
-  tosAccepted: string;
-}
-
-export class UInfo {
-  @Prop({ required: true })
-  ua: string;
-}
-
-// TODO: It's not so useful, will be removed soon
-export class Legal {
-  @Prop({ type: AcceptInfo, required: true })
-  acceptInfo: AcceptInfo;
-
-  @Prop({ type: UInfo })
-  uInfo?: UInfo;
-}
-
-export class Timestamp {
-  @Prop({ required: true })
-  seconds: number;
-
-  @Prop({ required: true })
-  nanoseconds: number;
-}
-
-export class Contact {
-  @Prop()
-  name?: string;
-
-  @Prop()
-  phone?: string;
-
-  @Prop()
-  line?: string;
-
-  @Prop()
-  profileImg?: string;
-}
-
+@Schema({ _id: false })
 export class Stats {
-  @Prop()
-  views?: number;
+  @Prop({ required: true, default: 0 })
+  @IsNotEmpty()
+  @IsString()
+  postViews: number;
 
-  @Prop()
-  saves?: number;
+  @Prop({ required: true, default: 0 })
+  @IsNotEmpty()
+  @IsString()
+  phoneViews: number;
 
-  @Prop()
-  shares?: number;
+  @Prop({ required: true, default: 0 })
+  @IsNotEmpty()
+  @IsString()
+  lineViews: number;
 }
 
 // Main Schema
 export type PostDocument = Post & Document;
 
 export enum PostStatus {
+  DRAFT = 'draft',
+  REVIEW = 'review',
   ACTIVE = 'active',
-  INACTIVE = 'inactive',
-}
-
-export enum PostSubStatus {
-  CREATED = 'created',
-  FULFILLED = 'fulfilled',
+  SOLD = 'sold',
   EXPIRED = 'expired',
   CLOSED = 'closed',
 }
@@ -182,12 +160,15 @@ export enum Condition {
   NEW = 'new',
 }
 
-export interface FirebaseTimestamp {
+@Schema({ _id: false })
+export class FirebaseTimestamp {
+  @Prop({ required: true })
   seconds: number;
+  @Prop({ required: true })
   nanoseconds: number;
 }
 
-@Schema({ timestamps: false })
+@Schema({ timestamps: false }) //TODO: After seeded, we can turn back to true
 export class Post {
   _id: string;
 
@@ -209,101 +190,122 @@ export class Post {
   @Prop({ required: true })
   price: number;
 
-  @Prop({ enum: [...Object.values(AreaUnit), ...Object.values(TimeUnit)] })
+  @Prop({
+    required: true,
+    enum: [...Object.values(AreaUnit), ...Object.values(TimeUnit)],
+  })
   priceUnit: PriceUnit;
 
   @Prop({ required: true })
   area: number;
 
-  @Prop({ enum: AreaUnit })
+  @Prop({ required: true, enum: AreaUnit })
   areaUnit: AreaUnit;
 
   @Prop({ required: true, enum: PostStatus })
   status: PostStatus;
 
-  @Prop({ enum: PostSubStatus })
-  subStatus: PostSubStatus;
+  @Prop({ required: true })
+  byMember: boolean;
 
-  @Prop({ required: true, default: false })
-  isMember: boolean;
-
-  @Prop({ required: true, default: false })
+  @Prop({ required: true })
   isStudio: boolean;
 
   @Prop({ required: true })
   thumbnail: string;
 
-  @Prop({ type: [String], required: true })
+  @Prop({
+    type: [String],
+    required: true,
+    validate: {
+      validator: (array: string[]) => array.length >= 3,
+      message: 'Images must have at least 3 item',
+    },
+  })
   images: string[];
 
   @Prop()
   video?: string;
 
-  @Prop({ type: [Facility], required: true })
+  @Prop({
+    type: [Facility],
+    required: true,
+    validate: {
+      validator: (array: Facility[]) => array.length >= 1,
+      message: 'Facilities must have at least 1 item',
+    },
+  })
   facilities: Facility[];
 
-  @Prop({ type: [Spec], required: true })
+  @Prop({
+    type: [Spec],
+    required: true,
+    validate: {
+      validator: (array: Spec[]) => array.length >= 1,
+      message: 'Specs must have at least 1 item',
+    },
+  })
   specs: Spec[];
 
   @Prop({ required: true })
   address: Address;
 
+  @Prop({ required: true, default: {} })
+  stats: Stats;
+
   @Prop()
-  legal?: Legal;
-
-  @Prop({ required: true, default: 0 })
-  postViews: number;
-
-  @Prop({ required: true, default: 0 })
-  phoneViews: number;
-
-  @Prop({ required: true, default: 0 })
-  lineViews: number;
-
-  @Prop({ required: true })
   cid: number;
 
-  @Prop()
-  refId?: string;
-
-  @Prop()
+  @Prop({ required: true })
   postNumber: string;
+
+  @Prop({ required: true, enum: Condition })
+  condition: Condition;
 
   @Prop()
   land?: number;
 
   @Prop({ enum: AreaUnit })
-  landUnit: AreaUnit;
-
-  @Prop({ enum: Condition })
-  condition: Condition;
+  landUnit?: AreaUnit;
 
   @Prop()
-  contact: Contact;
+  refId?: string;
 
-  @Prop({ type: Date })
-  createdAt: Date;
+  @Prop({ required: true, type: Date })
+  createdAt: Date; //TODO: After seeded, we can remove this
 
-  @Prop({ type: Date })
-  updatedAt: Date;
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   createdBy: string;
 
+  @Prop({ type: Date })
+  updatedAt?: Date; //TODO: After seeded, we can remove this
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  updatedBy: string;
+  updatedBy?: string;
 
   @Prop()
-  ___id?: string;
+  ___id?: string; //TODO: After seeded, we can remove this
 
   @Prop()
-  ___createdById?: string;
+  ___createdById?: string; //TODO: After seeded, we can remove this
 
-  @Prop({ type: Object })
-  ___createdAt?: FirebaseTimestamp;
+  @Prop()
+  ___createdAt?: FirebaseTimestamp; //TODO: After seeded, we can remove this
 
-  @Prop({ type: Object })
-  ___updatedAt?: FirebaseTimestamp;
+  @Prop()
+  ___updatedAt?: FirebaseTimestamp; //TODO: After seeded, we can remove this
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);
+
+PostSchema.pre('save', async function (next) {
+  if (this.isNew) {
+    // Assign manual auto incremental for cid
+    const lastUser = await (this.constructor as mongoose.Model<PostDocument>)
+      .findOne({}, { cid: 1 }, { sort: { cid: -1 } })
+      .lean();
+    this.cid = (lastUser?.cid ?? 0) + 1;
+  }
+
+  next();
+});

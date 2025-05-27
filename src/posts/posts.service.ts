@@ -11,8 +11,11 @@ import {
 import * as postsData from './data/posts.json';
 import { CreatePostDto } from './dto/createPostDto';
 import { User, UserDocument } from '../users/users.schema';
+import { randomUUID } from 'crypto';
+import { getUnixEpochTime } from '../common/utils/strings';
 
 interface FirebaseTimestamp {
+  //TODO: Remove later once it seems to created correctly
   seconds: number;
   nanoseconds: number;
 }
@@ -81,10 +84,18 @@ export class PostsService implements OnModuleInit {
             return null;
           }
 
+          const postStatus = post.subStatus;
+
           const convertedPost: PostWithDates = {
             ...post,
             cid: index + 1,
             ___id: post.id,
+            status:
+              postStatus === 'fulfilled'
+                ? PostStatus.SOLD
+                : postStatus === 'expired' || postStatus === 'closed'
+                  ? PostStatus.CLOSED
+                  : PostStatus.ACTIVE,
             createdAt: new Date(
               post.createdAt.seconds * 1000 +
                 post.createdAt.nanoseconds / 1000000,
@@ -143,29 +154,15 @@ export class PostsService implements OnModuleInit {
   }
 
   async create(createPostDto: CreatePostDto, userId: string): Promise<Post> {
+    console.log('userId', userId);
     const userData: any = {
       ...createPostDto,
-      desc: 'wefwe', //required
-      assetType: AssetType.HOUSE, //required
-      postType: PostType.RENT, //required
-      cid: 5555, //required
-      area: 120, //required
-      price: 20, //required
-      address: {
-        //Paused 12:13, not understand why subfeilds of address marked as required not being validated, (as part of try to build proper post DTO with strict validation)
-        provinceId: null, //required
-        // provinceLabel: 'Bangkok', //required
-        // districtId: '1', //required
-        // districtLabel: 'Phra Nakhon', //required
-        // subDistrictId: '1', //required
-        // subDistrictLabel: 'Phra Borom Maha Ratchawang', //required
-        // regionId: '1', //required
-        // location: { lat: 13.7563, lng: 100.5018 }, //required
-      }, //required
-      thumbnail: 'wefwe', //required
-      status: PostStatus.ACTIVE, //required
-      slug: 'fff', //required
-      createdBy: userId, //required
+      slug: randomUUID(),
+      status: createPostDto.isDraft ? PostStatus.DRAFT : PostStatus.ACTIVE,
+      postNumber: getUnixEpochTime(),
+      byMember: !!userId,
+      createdAt: new Date(),
+      createdBy: userId,
     };
     const createdPost = new this.postModel(userData);
     return createdPost.save();
