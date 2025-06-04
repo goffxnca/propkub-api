@@ -1,18 +1,11 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  AssetType,
-  Post,
-  PostDocument,
-  PostStatus,
-  PostType,
-} from './posts.schema';
+import { Post, PostDocument, PostStatus } from './posts.schema';
 import * as postsData from './data/posts.json';
 import { CreatePostDto } from './dto/createPostDto';
 import { User, UserDocument } from '../users/users.schema';
-import { randomUUID } from 'crypto';
-import { getUnixEpochTime } from '../common/utils/strings';
+import { genSlug, genUnixEpochTime } from '../common/utils/strings';
 
 interface FirebaseTimestamp {
   //TODO: Remove later once it seems to created correctly
@@ -89,23 +82,35 @@ export class PostsService implements OnModuleInit {
           const convertedPost: PostWithDates = {
             ...post,
             cid: index + 1,
-            ___id: post.id,
             status:
               postStatus === 'fulfilled'
                 ? PostStatus.SOLD
                 : postStatus === 'expired' || postStatus === 'closed'
                   ? PostStatus.CLOSED
                   : PostStatus.ACTIVE,
+            isStudio: post?.isStudio || false,
+            byMember: true,
+            views: {
+              post: post.postViews,
+              phone: post.phoneViews,
+              line: post.lineViews,
+            },
+            postNumber: post.id,
+            video: post?.video || undefined,
+            priceUnit: post?.priceUnit || undefined,
+            landUnit: post?.landUnit || undefined,
+            refId: post?.refId || undefined,
             createdAt: new Date(
               post.createdAt.seconds * 1000 +
                 post.createdAt.nanoseconds / 1000000,
             ),
             createdBy: mongoUserId,
-            updatedBy: mongoUserId,
+            updatedAt: undefined,
+            updatedBy: undefined,
             ___createdById: post.createdBy.userId,
             ___createdAt: post.createdAt,
-            updatedAt: new Date(),
-            ___updatedAt: post.updatedAt,
+            ___updatedAt: undefined,
+            ___id: post.id,
           };
 
           return convertedPost;
@@ -155,11 +160,13 @@ export class PostsService implements OnModuleInit {
 
   async create(createPostDto: CreatePostDto, userId: string): Promise<Post> {
     console.log('userId', userId);
+
+    const postNumber = genUnixEpochTime();
     const userData: any = {
       ...createPostDto,
-      slug: randomUUID(),
       status: createPostDto.isDraft ? PostStatus.DRAFT : PostStatus.ACTIVE,
-      postNumber: getUnixEpochTime(),
+      postNumber,
+      slug: genSlug(createPostDto.title, postNumber.toString()),
       byMember: !!userId,
       createdAt: new Date(),
       createdBy: userId,

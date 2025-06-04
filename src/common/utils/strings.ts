@@ -18,6 +18,30 @@ export function truncToken(token: string): string {
   return `${token.substring(0, 8)}...`;
 }
 
-export function getUnixEpochTime(): number {
+export function genUnixEpochTime(): number {
   return Date.now();
+}
+
+export function genSlug(text: string, id: string) {
+  let slug = '';
+
+  slug = text
+    .trim() //remove white space at start & end
+    .toLowerCase() //set EN characters to lower case
+    .replace(
+      /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g,
+      '',
+    ) //remove all emoji icons
+    .replaceAll(' ', '-') //replace any space to dash
+    .replaceAll('@', 'แอท')
+    .replaceAll('%', 'เปอร์เซนต์')
+    .replaceAll('&', 'แอนด์')
+    .replaceAll('/', 'ต่อ')
+    .replaceAll(/[`~!@#$%^&*()_\+=\[\]{};:'"\\|\/,.<>?\s]/g, '')
+    .replaceAll(/\s\s+/g, '-') //remove consecutive whitespace to one dash
+    .replaceAll(/-+/g, '-') //remove consecutive dashes to one dash
+    .replaceAll(/^-+/g, '') //remove dash at start of string
+    .replaceAll(/-+$/g, ''); //remove dash at end of string
+
+  return slug.substring(0, 70) + '_' + id;
 }

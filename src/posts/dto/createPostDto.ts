@@ -45,10 +45,6 @@ export class CreatePostDto {
   price: number;
 
   @IsNotEmpty()
-  @IsEnum({ ...AreaUnit, ...TimeUnit })
-  priceUnit: PriceUnit;
-
-  @IsNotEmpty()
   @IsNumber()
   area: number;
 
@@ -108,6 +104,10 @@ export class CreatePostDto {
   @IsOptional()
   @IsEnum(AreaUnit)
   landUnit?: string;
+
+  @IsOptional()
+  @IsEnum({ ...AreaUnit, ...TimeUnit })
+  priceUni?: PriceUnit;
 
   @IsOptional()
   @IsString()

@@ -97,21 +97,21 @@ export class Address {
 }
 
 @Schema({ _id: false })
-export class Stats {
+export class Views {
   @Prop({ required: true, default: 0 })
   @IsNotEmpty()
   @IsString()
-  postViews: number;
+  post: number;
 
   @Prop({ required: true, default: 0 })
   @IsNotEmpty()
   @IsString()
-  phoneViews: number;
+  phone: number;
 
   @Prop({ required: true, default: 0 })
   @IsNotEmpty()
   @IsString()
-  lineViews: number;
+  line: number;
 }
 
 // Main Schema
@@ -190,12 +190,6 @@ export class Post {
   @Prop({ required: true })
   price: number;
 
-  @Prop({
-    required: true,
-    enum: [...Object.values(AreaUnit), ...Object.values(TimeUnit)],
-  })
-  priceUnit: PriceUnit;
-
   @Prop({ required: true })
   area: number;
 
@@ -224,9 +218,6 @@ export class Post {
   })
   images: string[];
 
-  @Prop()
-  video?: string;
-
   @Prop({
     type: [Facility],
     required: true,
@@ -251,8 +242,9 @@ export class Post {
   address: Address;
 
   @Prop({ required: true, default: {} })
-  stats: Stats;
+  views: Views;
 
+  // Cannot mark as required as on create mode it start with undefined and pre save hook will generate id for it
   @Prop()
   cid: number;
 
@@ -263,10 +255,18 @@ export class Post {
   condition: Condition;
 
   @Prop()
+  video?: string;
+
+  @Prop()
   land?: number;
 
   @Prop({ enum: AreaUnit })
   landUnit?: AreaUnit;
+
+  @Prop({
+    enum: [...Object.values(AreaUnit), ...Object.values(TimeUnit)],
+  })
+  priceUnit?: PriceUnit;
 
   @Prop()
   refId?: string;
@@ -292,8 +292,8 @@ export class Post {
   @Prop()
   ___createdAt?: FirebaseTimestamp; //TODO: After seeded, we can remove this
 
-  @Prop()
-  ___updatedAt?: FirebaseTimestamp; //TODO: After seeded, we can remove this
+  // @Prop()
+  // ___updatedAt?: FirebaseTimestamp; //TODO: After seeded, we can remove this
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);
