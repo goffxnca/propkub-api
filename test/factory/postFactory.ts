@@ -15,12 +15,11 @@ const now = new Date();
 export const basePost: Post = {
   _id: '1',
   title: 'Luxury Condo in Bangkok',
-  slug: 'luxury-condo-bangkok',
+  slug: 'luxury-condo-bangkok_P001',
   desc: faker.lorem.paragraph(),
   assetType: AssetType.CONDO,
   postType: PostType.SALE,
   price: 5000000,
-  priceUnit: AreaUnit.SQM,
   area: 100,
   areaUnit: AreaUnit.SQM,
   status: PostStatus.ACTIVE,
@@ -49,23 +48,16 @@ export const basePost: Post = {
       lng: 100.5018,
     },
   },
-  createdAt: now,
-  updatedAt: now,
-  postViews: 0,
-  phoneViews: 0,
-  lineViews: 0,
+  views: {
+    post: 0,
+    phone: 0,
+    line: 0,
+  },
   cid: 1,
   postNumber: 'P001',
-  land: 0,
-  landUnit: AreaUnit.SQM,
   condition: Condition.NEW,
-  contact: {
-    name: faker.person.fullName(),
-    phone: faker.phone.number(),
-    line: faker.internet.username(),
-  },
+  createdAt: now,
   createdBy: '1',
-  updatedBy: '1',
 };
 
 export const createPost = (overrides: Partial<Post> = {}): Post => {
@@ -79,13 +71,6 @@ export const createPost = (overrides: Partial<Post> = {}): Post => {
     merged.address = {
       ...basePost.address,
       ...overrides.address,
-    };
-  }
-
-  if (overrides.contact) {
-    merged.contact = {
-      ...basePost.contact,
-      ...overrides.contact,
     };
   }
 

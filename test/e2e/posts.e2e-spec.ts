@@ -4,8 +4,25 @@ import * as request from 'supertest';
 import { PostsController } from '../../src/posts/posts.controller';
 import { PostsService } from '../../src/posts/posts.service';
 import { Post } from '../../src/posts/posts.schema';
-import { PostType, AssetType } from '../../src/posts/posts.schema';
+import {
+  PostType,
+  AssetType,
+  Condition,
+  AreaUnit,
+} from '../../src/posts/posts.schema';
 import { createPost } from '../factory/postFactory';
+
+jest.mock('../../src/auth/guards/jwt-auth.guard', () => {
+  return {
+    JwtAuthGuard: jest.fn().mockImplementation(() => ({
+      canActivate: jest.fn().mockImplementation((context) => {
+        const request = context.switchToHttp().getRequest();
+        request.user = { userId: 'test-user-id' };
+        return true;
+      }),
+    })),
+  };
+});
 
 describe('Posts (e2e)', () => {
   let app: INestApplication;
@@ -173,6 +190,7 @@ describe('Posts (e2e)', () => {
         {
           provide: PostsService,
           useValue: {
+            //TODO: Remove all these mockings we dont need as we already use in-memeory mongo in test env
             findAll: jest
               .fn()
               .mockImplementation((limit: number, offset: number) => {
@@ -218,10 +236,22 @@ describe('Posts (e2e)', () => {
             incrementViews: jest.fn().mockImplementation((id) => {
               const post = mockPosts.find((p) => p._id === id);
               if (post) {
-                post.postViews += 1;
+                post.views.post += 1;
                 return Promise.resolve(post);
               }
               return Promise.resolve(null);
+            }),
+            create: jest.fn().mockImplementation((createPostDto, userId) => {
+              const newPost = {
+                _id: 'new-post-id',
+                ...createPostDto,
+                createdBy: userId,
+                views: { post: 0, phone: 0, line: 0 },
+                createdAt: new Date(),
+                slug: 'test-slug',
+                postNumber: '123456789',
+              };
+              return Promise.resolve(newPost);
             }),
           },
         },
@@ -485,12 +515,12 @@ describe('Posts (e2e)', () => {
 
   describe('POST /posts/:id/view', () => {
     it('should increment views for a post', () => {
-      const initialViews = mockPosts[0].postViews;
+      const initialViews = mockPosts[0].views.post;
       return request(app.getHttpServer())
         .post('/posts/1/view')
         .expect(201)
         .expect((res) => {
-          expect(res.body.postViews).toBe(initialViews + 1);
+          expect(res.body.views.post).toBe(initialViews + 1);
         });
     });
 
@@ -502,6 +532,77 @@ describe('Posts (e2e)', () => {
           statusCode: 404,
           message: 'Post with ID 999 not found',
           error: 'Not Found',
+        });
+    });
+  });
+
+  describe('POST /posts', () => {
+    const validCreatePostDto = {
+      title: 'New Test Post',
+      desc: 'A beautiful property for sale',
+      assetType: AssetType.CONDO,
+      postType: PostType.SALE,
+      price: 5000000,
+      area: 50,
+      areaUnit: AreaUnit.SQM,
+      isDraft: false,
+      isStudio: false,
+      thumbnail: 'https://example.com/thumb.jpg',
+      images: [
+        'https://example.com/image1.jpg',
+        'https://example.com/image2.jpg',
+        'https://example.com/image3.jpg',
+      ],
+      facilities: [
+        { id: 'pool', label: 'Swimming Pool' },
+        { id: 'gym', label: 'Gym' },
+      ],
+      specs: [
+        { id: 'bedrooms', label: 'Bedrooms', value: 2 },
+        { id: 'bathrooms', label: 'Bathrooms', value: 2 },
+      ],
+      address: {
+        provinceId: '1',
+        provinceLabel: 'Bangkok',
+        districtId: '1',
+        districtLabel: 'Watthana',
+        subDistrictId: '1',
+        subDistrictLabel: 'Khlong Toei Nuea',
+        regionId: '1',
+        location: {
+          lat: 13.7374,
+          lng: 100.5605,
+        },
+      },
+      condition: Condition.NEW,
+    };
+
+    it('should create a new post successfully', () => {
+      return request(app.getHttpServer())
+        .post('/posts')
+        .send(validCreatePostDto)
+        .expect(201)
+        .expect((res) => {
+          expect(res.body._id).toBe('new-post-id');
+          expect(res.body.title).toBe(validCreatePostDto.title);
+          expect(res.body.createdBy).toBe('test-user-id');
+        });
+    });
+
+    it('should return 400 when required fields are missing', () => {
+      const invalidPost = {
+        ...validCreatePostDto,
+        title: undefined,
+        price: undefined,
+      };
+
+      return request(app.getHttpServer())
+        .post('/posts')
+        .send(invalidPost)
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('title should not be empty');
+          expect(res.body.message).toContain('price should not be empty');
         });
     });
   });
