@@ -8,6 +8,7 @@ import {
   Condition,
 } from '../../src/posts/posts.schema';
 import { faker } from '@faker-js/faker';
+import { Types } from 'mongoose';
 
 const now = new Date();
 
@@ -26,7 +27,7 @@ export const basePost: Post = {
   byMember: true,
   isStudio: false,
   thumbnail: faker.image.url(),
-  images: [faker.image.url(), faker.image.url()],
+  images: [faker.image.url(), faker.image.url(), faker.image.url()],
   facilities: [
     { id: 'pool', label: 'Swimming Pool' },
     { id: 'gym', label: 'Gym' },
@@ -57,7 +58,7 @@ export const basePost: Post = {
   postNumber: 'P001',
   condition: Condition.NEW,
   createdAt: now,
-  createdBy: '1',
+  createdBy: new Types.ObjectId().toString(),
 };
 
 export const createPost = (overrides: Partial<Post> = {}): Post => {

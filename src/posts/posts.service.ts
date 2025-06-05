@@ -6,6 +6,8 @@ import * as postsData from './data/posts.json';
 import { CreatePostDto } from './dto/createPostDto';
 import { User, UserDocument } from '../users/users.schema';
 import { genSlug, genUnixEpochTime } from '../common/utils/strings';
+import { EnvironmentService } from '../environments/environment.service';
+import * as sanitizeHtml from 'sanitize-html';
 
 interface FirebaseTimestamp {
   //TODO: Remove later once it seems to created correctly
@@ -32,9 +34,14 @@ export class PostsService implements OnModuleInit {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(Post.name) private readonly postModel: Model<PostDocument>,
+    private readonly envService: EnvironmentService,
   ) {}
 
   async onModuleInit() {
+    if (this.envService.isTest()) {
+      return;
+    }
+
     const count = await this.postModel.estimatedDocumentCount();
 
     const uniqueFirebaseCreatedByIdsFromPosts = [
@@ -154,16 +161,17 @@ export class PostsService implements OnModuleInit {
 
   async incrementViews(id: string): Promise<Post | null> {
     return this.postModel
-      .findByIdAndUpdate(id, { $inc: { postViews: 1 } }, { new: true })
+      .findByIdAndUpdate(id, { $inc: { 'views.post': 1 } }, { new: true })
       .exec();
   }
 
   async create(createPostDto: CreatePostDto, userId: string): Promise<Post> {
-    console.log('userId', userId);
-
     const postNumber = genUnixEpochTime();
     const userData: any = {
       ...createPostDto,
+      desc: sanitizeHtml(createPostDto.desc, {
+        allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br'],
+      }),
       status: createPostDto.isDraft ? PostStatus.DRAFT : PostStatus.ACTIVE,
       postNumber,
       slug: genSlug(createPostDto.title, postNumber.toString()),
@@ -173,5 +181,10 @@ export class PostsService implements OnModuleInit {
     };
     const createdPost = new this.postModel(userData);
     return createdPost.save();
+  }
+
+  async seedTest(post: Post): Promise<Post> {
+    const newPost = new this.postModel(post);
+    return newPost.save();
   }
 }

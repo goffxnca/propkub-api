@@ -1,23 +1,32 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
-import { PostsController } from '../../src/posts/posts.controller';
 import { PostsService } from '../../src/posts/posts.service';
-import { Post } from '../../src/posts/posts.schema';
 import {
+  AreaUnit,
+  Condition,
+  Post,
   PostType,
   AssetType,
-  Condition,
-  AreaUnit,
 } from '../../src/posts/posts.schema';
 import { createPost } from '../factory/postFactory';
+import {
+  rootMongooseTestModule,
+  closeMongodConnection,
+} from '../utils/mongodb-memory';
+import { PostsModule } from '../../src/posts/posts.module';
+import { ConfigModule } from '@nestjs/config';
+import { Model, Types } from 'mongoose';
+import { getModelToken } from '@nestjs/mongoose';
+import { CreatePostDto } from 'src/posts/dto/createPostDto';
 
+const authUserId = new Types.ObjectId().toString();
 jest.mock('../../src/auth/guards/jwt-auth.guard', () => {
   return {
     JwtAuthGuard: jest.fn().mockImplementation(() => ({
       canActivate: jest.fn().mockImplementation((context) => {
         const request = context.switchToHttp().getRequest();
-        request.user = { userId: 'test-user-id' };
+        request.user = { userId: authUserId };
         return true;
       }),
     })),
@@ -27,10 +36,11 @@ jest.mock('../../src/auth/guards/jwt-auth.guard', () => {
 describe('Posts (e2e)', () => {
   let app: INestApplication;
   let service: PostsService;
+  let postModel: Model<Post>;
 
   const mockPosts: Post[] = [
     createPost({
-      _id: '1',
+      _id: new Types.ObjectId().toString(),
       title: 'Luxury Condo in Bangkok',
       address: {
         provinceId: '1',
@@ -44,7 +54,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      _id: '2',
+      _id: new Types.ObjectId().toString(),
       title: 'Modern House for Rent',
       assetType: AssetType.HOUSE,
       postType: PostType.RENT,
@@ -60,7 +70,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      _id: '3',
+      _id: new Types.ObjectId().toString(),
       title: 'Luxury Villa in Bangkok',
       assetType: AssetType.HOUSE,
       address: {
@@ -75,7 +85,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      _id: '4',
+      _id: new Types.ObjectId().toString(),
       title: 'Studio Apartment for Rent',
       assetType: AssetType.CONDO,
       postType: PostType.RENT,
@@ -91,7 +101,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      _id: '5',
+      _id: new Types.ObjectId().toString(),
       title: 'Townhome in CBD',
       assetType: AssetType.TOWNHOME,
       address: {
@@ -106,7 +116,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      _id: '6',
+      _id: new Types.ObjectId().toString(),
       title: 'Townhome for Sale',
       assetType: AssetType.TOWNHOME,
       address: {
@@ -121,7 +131,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      _id: '7',
+      _id: new Types.ObjectId().toString(),
       title: 'Land Plot in Suburb',
       assetType: AssetType.LAND,
       address: {
@@ -136,7 +146,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      _id: '8',
+      _id: new Types.ObjectId().toString(),
       title: 'Penthouse with City View',
       assetType: AssetType.CONDO,
       address: {
@@ -151,7 +161,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      _id: '9',
+      _id: new Types.ObjectId().toString(),
       title: 'Family House with Garden',
       assetType: AssetType.HOUSE,
       address: {
@@ -166,7 +176,7 @@ describe('Posts (e2e)', () => {
       },
     }),
     createPost({
-      _id: '10',
+      _id: new Types.ObjectId().toString(),
       title: 'Luxury Condo for Rent',
       assetType: AssetType.CONDO,
       postType: PostType.RENT,
@@ -183,89 +193,29 @@ describe('Posts (e2e)', () => {
     }),
   ];
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      controllers: [PostsController],
-      providers: [
-        {
-          provide: PostsService,
-          useValue: {
-            //TODO: Remove all these mockings we dont need as we already use in-memeory mongo in test env
-            findAll: jest
-              .fn()
-              .mockImplementation((limit: number, offset: number) => {
-                const paginatedPosts = mockPosts.slice(offset, offset + limit);
-                return Promise.resolve(paginatedPosts);
-              }),
-            findOne: jest.fn().mockImplementation((id) => {
-              const post = mockPosts.find((p) => p._id === id);
-              return Promise.resolve(post || null);
-            }),
-            findByProvinceId: jest.fn().mockImplementation((provinceId) => {
-              const filteredPosts = mockPosts.filter(
-                (p) => p.address.provinceId === provinceId,
-              );
-              return Promise.resolve(filteredPosts);
-            }),
-            findByDistrictId: jest.fn().mockImplementation((districtId) => {
-              const filteredPosts = mockPosts.filter(
-                (p) => p.address.districtId === districtId,
-              );
-              return Promise.resolve(filteredPosts);
-            }),
-            findBySubDistrictId: jest
-              .fn()
-              .mockImplementation((subDistrictId) => {
-                const filteredPosts = mockPosts.filter(
-                  (p) => p.address.subDistrictId === subDistrictId,
-                );
-                return Promise.resolve(filteredPosts);
-              }),
-            findByAssetType: jest.fn().mockImplementation((assetType) => {
-              const filteredPosts = mockPosts.filter(
-                (p) => p.assetType === assetType,
-              );
-              return Promise.resolve(filteredPosts);
-            }),
-            findByPostType: jest.fn().mockImplementation((postType) => {
-              const filteredPosts = mockPosts.filter(
-                (p) => p.postType === postType,
-              );
-              return Promise.resolve(filteredPosts);
-            }),
-            incrementViews: jest.fn().mockImplementation((id) => {
-              const post = mockPosts.find((p) => p._id === id);
-              if (post) {
-                post.views.post += 1;
-                return Promise.resolve(post);
-              }
-              return Promise.resolve(null);
-            }),
-            create: jest.fn().mockImplementation((createPostDto, userId) => {
-              const newPost = {
-                _id: 'new-post-id',
-                ...createPostDto,
-                createdBy: userId,
-                views: { post: 0, phone: 0, line: 0 },
-                createdAt: new Date(),
-                slug: 'test-slug',
-                postNumber: '123456789',
-              };
-              return Promise.resolve(newPost);
-            }),
-          },
-        },
+      imports: [
+        ConfigModule.forRoot({ envFilePath: '.env.test' }),
+        rootMongooseTestModule(),
+        PostsModule,
       ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     service = moduleFixture.get<PostsService>(PostsService);
+    postModel = moduleFixture.get<Model<Post>>(getModelToken(Post.name));
     await app.init();
+
+    for (const post of mockPosts) {
+      await service.seedTest(post);
+    }
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await app.close();
+    await closeMongodConnection();
   });
 
   describe('GET /posts', () => {
@@ -399,211 +349,218 @@ describe('Posts (e2e)', () => {
           });
       });
     });
-  });
 
-  describe('GET /posts/:id', () => {
-    it('should return a post when found', () => {
-      return request(app.getHttpServer())
-        .get('/posts/1')
-        .expect(200)
-        .expect((res) => {
-          expect(res.body._id).toBe('1');
-          expect(res.body.title).toBe('Luxury Condo in Bangkok');
-        });
-    });
-
-    it('should return 404 when post is not found', () => {
-      return request(app.getHttpServer()).get('/posts/999').expect(404).expect({
-        statusCode: 404,
-        message: 'Post with ID 999 not found',
-        error: 'Not Found',
+    describe('GET /posts/:id', () => {
+      it('should return a post when found', () => {
+        const firstPost = mockPosts[0];
+        return request(app.getHttpServer())
+          .get(`/posts/${firstPost._id}`)
+          .expect(200)
+          .expect((res) => {
+            expect(res.body._id).toBe(firstPost._id);
+            expect(res.body.title).toBe('Luxury Condo in Bangkok');
+          });
+      });
+      it('should return 404 when post is not found', () => {
+        const notExistingId = new Types.ObjectId().toString();
+        return request(app.getHttpServer())
+          .get(`/posts/${notExistingId}`)
+          .expect(404)
+          .expect({
+            statusCode: 404,
+            message: `Post with ID ${notExistingId} not found`,
+            error: 'Not Found',
+          });
       });
     });
-  });
 
-  describe('GET /posts/province/:provinceId', () => {
-    it('should return posts for a province', () => {
-      const provinceId = '1';
-      return request(app.getHttpServer())
-        .get(`/posts/province/${provinceId}`)
-        .expect(200)
-        .expect((res) => {
-          expect(res.body.length).toBe(5);
-          expect(
-            res.body.every((p) => p.address.provinceId === provinceId),
-          ).toBe(true);
-        });
+    describe('GET /posts/province/:provinceId', () => {
+      it('should return posts for a province', () => {
+        const provinceId = '1';
+        return request(app.getHttpServer())
+          .get(`/posts/province/${provinceId}`)
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.length).toBe(5);
+            expect(
+              res.body.every((p) => p.address.provinceId === provinceId),
+            ).toBe(true);
+          });
+      });
+
+      it('should return empty array for non-existent province', () => {
+        return request(app.getHttpServer())
+          .get('/posts/province/999')
+          .expect(200)
+          .expect([]);
+      });
     });
 
-    it('should return empty array for non-existent province', () => {
-      return request(app.getHttpServer())
-        .get('/posts/province/999')
-        .expect(200)
-        .expect([]);
-    });
-  });
+    describe('GET /posts/district/:districtId', () => {
+      it('should return posts for a district', () => {
+        const districtId = '1';
+        return request(app.getHttpServer())
+          .get(`/posts/district/${districtId}`)
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.length).toBe(3);
+            expect(
+              res.body.every((p) => p.address.districtId === districtId),
+            ).toBe(true);
+          });
+      });
 
-  describe('GET /posts/district/:districtId', () => {
-    it('should return posts for a district', () => {
-      const districtId = '1';
-      return request(app.getHttpServer())
-        .get(`/posts/district/${districtId}`)
-        .expect(200)
-        .expect((res) => {
-          expect(res.body.length).toBe(3);
-          expect(
-            res.body.every((p) => p.address.districtId === districtId),
-          ).toBe(true);
-        });
-    });
-
-    it('should return empty array for non-existent district', () => {
-      return request(app.getHttpServer())
-        .get('/posts/district/999')
-        .expect(200)
-        .expect([]);
-    });
-  });
-
-  describe('GET /posts/subdistrict/:subDistrictId', () => {
-    it('should return posts for a subdistrict', () => {
-      const subDistrictId = '1';
-      return request(app.getHttpServer())
-        .get(`/posts/subdistrict/${subDistrictId}`)
-        .expect(200)
-        .expect((res) => {
-          expect(res.body.length).toBe(3);
-          expect(
-            res.body.every((p) => p.address.subDistrictId === subDistrictId),
-          ).toBe(true);
-        });
+      it('should return empty array for non-existent district', () => {
+        return request(app.getHttpServer())
+          .get('/posts/district/999')
+          .expect(200)
+          .expect([]);
+      });
     });
 
-    it('should return empty array for non-existent subdistrict', () => {
-      return request(app.getHttpServer())
-        .get('/posts/subdistrict/999')
-        .expect(200)
-        .expect([]);
-    });
-  });
+    describe('GET /posts/subdistrict/:subDistrictId', () => {
+      it('should return posts for a subdistrict', () => {
+        const subDistrictId = '1';
+        return request(app.getHttpServer())
+          .get(`/posts/subdistrict/${subDistrictId}`)
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.length).toBe(3);
+            expect(
+              res.body.every((p) => p.address.subDistrictId === subDistrictId),
+            ).toBe(true);
+          });
+      });
 
-  describe('GET /posts/asset-type/:assetType', () => {
-    it('should return posts for an asset type', () => {
-      const assetType = AssetType.HOUSE;
-      return request(app.getHttpServer())
-        .get(`/posts/asset-type/${assetType}`)
-        .expect(200)
-        .expect((res) => {
-          expect(res.body.length).toBe(3);
-          expect(res.body.every((p) => p.assetType === assetType)).toBe(true);
-        });
-    });
-  });
-
-  describe('GET /posts/post-type/:postType', () => {
-    it('should return posts for a post type', () => {
-      const postType = PostType.RENT;
-      return request(app.getHttpServer())
-        .get(`/posts/post-type/${postType}`)
-        .expect(200)
-        .expect((res) => {
-          expect(res.body.length).toBe(3);
-          expect(res.body.every((p) => p.postType === postType)).toBe(true);
-        });
-    });
-  });
-
-  describe('POST /posts/:id/view', () => {
-    it('should increment views for a post', () => {
-      const initialViews = mockPosts[0].views.post;
-      return request(app.getHttpServer())
-        .post('/posts/1/view')
-        .expect(201)
-        .expect((res) => {
-          expect(res.body.views.post).toBe(initialViews + 1);
-        });
+      it('should return empty array for non-existent subdistrict', () => {
+        return request(app.getHttpServer())
+          .get('/posts/subdistrict/999')
+          .expect(200)
+          .expect([]);
+      });
     });
 
-    it('should return 404 when post is not found', () => {
-      return request(app.getHttpServer())
-        .post('/posts/999/view')
-        .expect(404)
-        .expect({
-          statusCode: 404,
-          message: 'Post with ID 999 not found',
-          error: 'Not Found',
-        });
+    describe('GET /posts/asset-type/:assetType', () => {
+      it('should return posts for an asset type', () => {
+        const assetType = AssetType.HOUSE;
+        return request(app.getHttpServer())
+          .get(`/posts/asset-type/${assetType}`)
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.length).toBe(3);
+            expect(res.body.every((p) => p.assetType === assetType)).toBe(true);
+          });
+      });
     });
-  });
 
-  describe('POST /posts', () => {
-    const validCreatePostDto = {
-      title: 'New Test Post',
-      desc: 'A beautiful property for sale',
-      assetType: AssetType.CONDO,
-      postType: PostType.SALE,
-      price: 5000000,
-      area: 50,
-      areaUnit: AreaUnit.SQM,
-      isDraft: false,
-      isStudio: false,
-      thumbnail: 'https://example.com/thumb.jpg',
-      images: [
-        'https://example.com/image1.jpg',
-        'https://example.com/image2.jpg',
-        'https://example.com/image3.jpg',
-      ],
-      facilities: [
-        { id: 'pool', label: 'Swimming Pool' },
-        { id: 'gym', label: 'Gym' },
-      ],
-      specs: [
-        { id: 'bedrooms', label: 'Bedrooms', value: 2 },
-        { id: 'bathrooms', label: 'Bathrooms', value: 2 },
-      ],
-      address: {
-        provinceId: '1',
-        provinceLabel: 'Bangkok',
-        districtId: '1',
-        districtLabel: 'Watthana',
-        subDistrictId: '1',
-        subDistrictLabel: 'Khlong Toei Nuea',
-        regionId: '1',
-        location: {
-          lat: 13.7374,
-          lng: 100.5605,
+    describe('GET /posts/post-type/:postType', () => {
+      it('should return posts for a post type', () => {
+        const postType = PostType.RENT;
+        return request(app.getHttpServer())
+          .get(`/posts/post-type/${postType}`)
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.length).toBe(3);
+            expect(res.body.every((p) => p.postType === postType)).toBe(true);
+          });
+      });
+    });
+
+    describe('POST /posts/:id/view', () => {
+      it('should increment views for a post', () => {
+        const firstPost = mockPosts[0];
+        const initialViews = firstPost.views.post;
+        return request(app.getHttpServer())
+          .post(`/posts/${firstPost._id}/view`)
+          .expect(201)
+          .expect((res) => {
+            expect(res.body.views.post).toBe(initialViews + 1);
+          });
+      });
+      it('should return 404 when post is not found', () => {
+        const notExistingId = new Types.ObjectId().toString();
+        return request(app.getHttpServer())
+          .post(`/posts/${notExistingId}/view`)
+          .expect(404)
+          .expect({
+            statusCode: 404,
+            message: `Post with ID ${notExistingId} not found`,
+            error: 'Not Found',
+          });
+      });
+    });
+
+    describe('POST /posts', () => {
+      const validCreatePostDto: CreatePostDto = {
+        title: 'New Test Post',
+        desc: '<a>This is a link</a><p>This is a paragraph</p>',
+        assetType: AssetType.CONDO,
+        postType: PostType.SALE,
+        price: 5000000,
+        area: 50,
+        areaUnit: AreaUnit.SQM,
+        isDraft: false,
+        isStudio: false,
+        thumbnail: 'https://example.com/thumb.jpg',
+        images: [
+          'https://example.com/image1.jpg',
+          'https://example.com/image2.jpg',
+          'https://example.com/image3.jpg',
+        ],
+        facilities: [
+          { id: 'pool', label: 'Swimming Pool' },
+          { id: 'gym', label: 'Gym' },
+        ],
+        specs: [
+          { id: 'bedrooms', label: 'Bedrooms', value: 2 },
+          { id: 'bathrooms', label: 'Bathrooms', value: 2 },
+        ],
+        address: {
+          provinceId: '1',
+          provinceLabel: 'Bangkok',
+          districtId: '1',
+          districtLabel: 'Watthana',
+          subDistrictId: '1',
+          subDistrictLabel: 'Khlong Toei Nuea',
+          regionId: '1',
+          location: {
+            lat: 13.7374,
+            lng: 100.5605,
+          },
         },
-      },
-      condition: Condition.NEW,
-    };
-
-    it('should create a new post successfully', () => {
-      return request(app.getHttpServer())
-        .post('/posts')
-        .send(validCreatePostDto)
-        .expect(201)
-        .expect((res) => {
-          expect(res.body._id).toBe('new-post-id');
-          expect(res.body.title).toBe(validCreatePostDto.title);
-          expect(res.body.createdBy).toBe('test-user-id');
-        });
-    });
-
-    it('should return 400 when required fields are missing', () => {
-      const invalidPost = {
-        ...validCreatePostDto,
-        title: undefined,
-        price: undefined,
+        condition: Condition.NEW,
       };
 
-      return request(app.getHttpServer())
-        .post('/posts')
-        .send(invalidPost)
-        .expect(400)
-        .expect((res) => {
-          expect(res.body.message).toContain('title should not be empty');
-          expect(res.body.message).toContain('price should not be empty');
-        });
+      it('should create a new post successfully', () => {
+        return request(app.getHttpServer())
+          .post('/posts')
+          .send(validCreatePostDto)
+          .expect(201)
+          .expect((res) => {
+            expect(res.body.title).toBe(validCreatePostDto.title);
+            expect(res.body.desc).toBe(
+              'This is a link<p>This is a paragraph</p>',
+            );
+            expect(res.body.createdBy).toBe(authUserId);
+          });
+      });
+
+      it('should return 400 when required fields are missing', () => {
+        const invalidPost = {
+          ...validCreatePostDto,
+          title: undefined,
+          price: undefined,
+        };
+
+        return request(app.getHttpServer())
+          .post('/posts')
+          .send(invalidPost)
+          .expect(400)
+          .expect((res) => {
+            expect(res.body.message).toContain('title should not be empty');
+            expect(res.body.message).toContain('price should not be empty');
+          });
+      });
     });
   });
 });
