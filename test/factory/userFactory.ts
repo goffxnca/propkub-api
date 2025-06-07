@@ -4,6 +4,7 @@ import { User, UserRole } from '../../src/users/users.schema';
 // Base user template
 export const baseUser: User = {
   _id: '1',
+  cid: 1,
   name: 'John Doe',
   email: 'john.doe@example.com',
   password: '123456',
@@ -11,8 +12,7 @@ export const baseUser: User = {
   emailVerified: false,
   tosAccepted: true,
   role: UserRole.NORMAL,
-  createdBy: 'admin',
-  updatedBy: 'admin',
+  createdBy: '',
 };
 
 export const createUser = (overrides: Partial<User> = {}): User => {

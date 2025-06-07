@@ -79,7 +79,7 @@ export class User {
   createdBy: string;
 
   @Prop()
-  updatedBy: string;
+  updatedBy?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

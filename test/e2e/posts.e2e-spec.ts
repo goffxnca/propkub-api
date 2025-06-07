@@ -18,25 +18,21 @@ import { PostsModule } from '../../src/posts/posts.module';
 import { ConfigModule } from '@nestjs/config';
 import { Model, Types } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
-import { CreatePostDto } from 'src/posts/dto/createPostDto';
-
-const authUserId = new Types.ObjectId().toString();
-jest.mock('../../src/auth/guards/jwt-auth.guard', () => {
-  return {
-    JwtAuthGuard: jest.fn().mockImplementation(() => ({
-      canActivate: jest.fn().mockImplementation((context) => {
-        const request = context.switchToHttp().getRequest();
-        request.user = { userId: authUserId };
-        return true;
-      }),
-    })),
-  };
-});
+import { CreatePostDto } from '../../src/posts/dto/createPostDto';
+import { AuthModule } from '../../src/auth/auth.module';
+import { UsersModule } from '../../src/users/users.module';
+import { UsersService } from '../../src/users/users.service';
+import { authHeader, createUserAndLogIn } from '../utils/auths';
+import { User } from '../../src/users/users.schema';
+import { createUser } from '../factory/userFactory';
 
 describe('Posts (e2e)', () => {
   let app: INestApplication;
   let service: PostsService;
+  let usersService: UsersService;
   let postModel: Model<Post>;
+  let testUser: User;
+  let authToken: string;
 
   const mockPosts: Post[] = [
     createPost({
@@ -196,17 +192,31 @@ describe('Posts (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
-        ConfigModule.forRoot({ envFilePath: '.env.test' }),
+        ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env.test' }),
         rootMongooseTestModule(),
         PostsModule,
+        AuthModule,
+        UsersModule,
       ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
+
     service = moduleFixture.get<PostsService>(PostsService);
+    usersService = moduleFixture.get<UsersService>(UsersService);
     postModel = moduleFixture.get<Model<Post>>(getModelToken(Post.name));
+
     await app.init();
+
+    const [user, token] = await createUserAndLogIn(
+      createUser(),
+      app,
+      usersService,
+    );
+
+    authToken = token;
+    testUser = user;
 
     for (const post of mockPosts) {
       await service.seedTest(post);
@@ -489,78 +499,90 @@ describe('Posts (e2e)', () => {
           });
       });
     });
+  });
 
-    describe('POST /posts', () => {
-      const validCreatePostDto: CreatePostDto = {
-        title: 'New Test Post',
-        desc: '<a>This is a link</a><p>This is a paragraph</p>',
-        assetType: AssetType.CONDO,
-        postType: PostType.SALE,
-        price: 5000000,
-        area: 50,
-        areaUnit: AreaUnit.SQM,
-        isDraft: false,
-        isStudio: false,
-        thumbnail: 'https://example.com/thumb.jpg',
-        images: [
-          'https://example.com/image1.jpg',
-          'https://example.com/image2.jpg',
-          'https://example.com/image3.jpg',
-        ],
-        facilities: [
-          { id: 'pool', label: 'Swimming Pool' },
-          { id: 'gym', label: 'Gym' },
-        ],
-        specs: [
-          { id: 'bedrooms', label: 'Bedrooms', value: 2 },
-          { id: 'bathrooms', label: 'Bathrooms', value: 2 },
-        ],
-        address: {
-          provinceId: '1',
-          provinceLabel: 'Bangkok',
-          districtId: '1',
-          districtLabel: 'Watthana',
-          subDistrictId: '1',
-          subDistrictLabel: 'Khlong Toei Nuea',
-          regionId: '1',
-          location: {
-            lat: 13.7374,
-            lng: 100.5605,
-          },
+  describe('POST /posts', () => {
+    const validCreatePostDto: CreatePostDto = {
+      title: 'New Test Post',
+      desc: '<a>This is a link</a><p>This is a paragraph</p>',
+      assetType: AssetType.CONDO,
+      postType: PostType.SALE,
+      price: 5000000,
+      area: 50,
+      areaUnit: AreaUnit.SQM,
+      isDraft: false,
+      isStudio: false,
+      thumbnail: 'https://example.com/thumb.jpg',
+      images: [
+        'https://example.com/image1.jpg',
+        'https://example.com/image2.jpg',
+        'https://example.com/image3.jpg',
+      ],
+      facilities: [
+        { id: 'pool', label: 'Swimming Pool' },
+        { id: 'gym', label: 'Gym' },
+      ],
+      specs: [
+        { id: 'bedrooms', label: 'Bedrooms', value: 2 },
+        { id: 'bathrooms', label: 'Bathrooms', value: 2 },
+      ],
+      address: {
+        provinceId: '1',
+        provinceLabel: 'Bangkok',
+        districtId: '1',
+        districtLabel: 'Watthana',
+        subDistrictId: '1',
+        subDistrictLabel: 'Khlong Toei Nuea',
+        regionId: '1',
+        location: {
+          lat: 13.7374,
+          lng: 100.5605,
         },
-        condition: Condition.NEW,
+      },
+      condition: Condition.NEW,
+    };
+
+    it('should create a new post successfully when authenticated', () => {
+      return request(app.getHttpServer())
+        .post('/posts')
+        .set(authHeader(authToken))
+        .send(validCreatePostDto)
+        .expect(201)
+        .expect((res) => {
+          expect(res.body.title).toBe(validCreatePostDto.title);
+          expect(res.body.desc).toBe(
+            'This is a link<p>This is a paragraph</p>',
+          );
+          expect(res.body.createdBy).toBe(testUser._id.toString());
+        });
+    });
+
+    it('should return 401 when not authenticated', () => {
+      return request(app.getHttpServer())
+        .post('/posts')
+        .send(validCreatePostDto)
+        .expect(401)
+        .expect((res) => {
+          expect(res.body.message).toBe('Unauthorized');
+        });
+    });
+
+    it('should return 400 when required fields are missing', () => {
+      const invalidPost = {
+        ...validCreatePostDto,
+        title: undefined,
+        price: undefined,
       };
 
-      it('should create a new post successfully', () => {
-        return request(app.getHttpServer())
-          .post('/posts')
-          .send(validCreatePostDto)
-          .expect(201)
-          .expect((res) => {
-            expect(res.body.title).toBe(validCreatePostDto.title);
-            expect(res.body.desc).toBe(
-              'This is a link<p>This is a paragraph</p>',
-            );
-            expect(res.body.createdBy).toBe(authUserId);
-          });
-      });
-
-      it('should return 400 when required fields are missing', () => {
-        const invalidPost = {
-          ...validCreatePostDto,
-          title: undefined,
-          price: undefined,
-        };
-
-        return request(app.getHttpServer())
-          .post('/posts')
-          .send(invalidPost)
-          .expect(400)
-          .expect((res) => {
-            expect(res.body.message).toContain('title should not be empty');
-            expect(res.body.message).toContain('price should not be empty');
-          });
-      });
+      return request(app.getHttpServer())
+        .post('/posts')
+        .set(authHeader(authToken))
+        .send(invalidPost)
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('title should not be empty');
+          expect(res.body.message).toContain('price should not be empty');
+        });
     });
   });
 });
