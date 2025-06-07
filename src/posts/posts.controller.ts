@@ -9,6 +9,7 @@ import {
   Body,
   UseGuards,
   Request,
+  Patch,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post } from './posts.schema';
@@ -16,6 +17,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { MongoIdValidationPipe } from '../common/pipes/mongo-id.pipe';
 import { CreatePostDto } from './dto/createPostDto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UpdatePostDto } from './dto/updatePostDto';
 
 @Controller('posts')
 export class PostsController {
@@ -81,5 +83,23 @@ export class PostsController {
   ): Promise<Post> {
     console.log('createPost...');
     return this.postsService.create(createPostDto, req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async updatePost(
+    @Request() req,
+    @Param('id', MongoIdValidationPipe) id: string,
+    @Body() updatePostDto: UpdatePostDto,
+  ): Promise<Post> {
+    const post = await this.postsService.update(
+      id,
+      updatePostDto,
+      req.user.userId,
+    );
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${id} not found`);
+    }
+    return post;
   }
 }

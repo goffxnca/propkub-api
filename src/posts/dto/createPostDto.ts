@@ -2,7 +2,6 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
-  IsEmail,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -17,7 +16,6 @@ import {
   Condition,
   Facility,
   PostType,
-  PriceUnit,
   Spec,
   TimeUnit,
 } from '../posts.schema';
@@ -107,7 +105,7 @@ export class CreatePostDto {
 
   @IsOptional()
   @IsEnum({ ...AreaUnit, ...TimeUnit })
-  priceUni?: PriceUnit;
+  priceUnit?: string;
 
   @IsOptional()
   @IsString()

@@ -8,6 +8,7 @@ import { User, UserDocument } from '../users/users.schema';
 import { genSlug, genUnixEpochTime } from '../common/utils/strings';
 import { EnvironmentService } from '../environments/environment.service';
 import * as sanitizeHtml from 'sanitize-html';
+import { UpdatePostDto } from './dto/updatePostDto';
 
 interface FirebaseTimestamp {
   //TODO: Remove later once it seems to created correctly
@@ -186,5 +187,27 @@ export class PostsService implements OnModuleInit {
   async seedTest(post: Post): Promise<Post> {
     const newPost = new this.postModel(post);
     return newPost.save();
+  }
+
+  async update(
+    id: string,
+    updatePostDto: UpdatePostDto,
+    userId: string,
+  ): Promise<Post | null> {
+    const updateData = {
+      ...updatePostDto,
+      desc: updatePostDto.desc
+        ? sanitizeHtml(updatePostDto.desc, {
+            allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br'],
+          })
+        : undefined,
+      status: updatePostDto.isDraft ? PostStatus.DRAFT : PostStatus.ACTIVE,
+      updatedAt: new Date(),
+      updatedBy: userId,
+    };
+
+    return this.postModel
+      .findByIdAndUpdate(id, updateData, { new: true })
+      .exec();
   }
 }
