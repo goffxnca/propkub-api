@@ -735,5 +735,17 @@ describe('Posts (e2e)', () => {
           expect(res.body.message).toContain('title should not be empty');
         });
     });
+
+    it('should return 400 when non-nullable fields are null or empty', () => {
+      return request(app.getHttpServer())
+        .patch(`/posts/${existingPost._id}`)
+        .set(authHeader(authToken))
+        .send({ title: null, desc: '' })
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('title must be a string');
+          expect(res.body.message).toContain('desc should not be empty');
+        });
+    });
   });
 });
