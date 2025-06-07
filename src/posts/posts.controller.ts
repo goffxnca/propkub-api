@@ -81,7 +81,6 @@ export class PostsController {
     @Request() req,
     @Body() createPostDto: CreatePostDto,
   ): Promise<Post> {
-    console.log('createPost...');
     return this.postsService.create(createPostDto, req.user.userId);
   }
 

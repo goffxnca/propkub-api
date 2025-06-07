@@ -507,14 +507,14 @@ describe('Posts (e2e)', () => {
 
   describe('POST /posts', () => {
     const validCreatePostDto: CreatePostDto = {
-      title: 'New Test Post',
+      title: 'New post title',
       desc: '<a>This is a link</a><p>This is a paragraph</p>',
       assetType: AssetType.CONDO,
       postType: PostType.SALE,
-      price: 5000000,
-      area: 50,
+      price: 1000.0,
+      area: 10.0,
       areaUnit: AreaUnit.SQM,
-      isDraft: false,
+      isDraft: true,
       isStudio: false,
       thumbnail: 'https://example.com/thumb.jpg',
       images: [
@@ -527,8 +527,8 @@ describe('Posts (e2e)', () => {
         { id: 'gym', label: 'Gym' },
       ],
       specs: [
-        { id: 'bedrooms', label: 'Bedrooms', value: 2 },
-        { id: 'bathrooms', label: 'Bathrooms', value: 2 },
+        { id: 'bedrooms', label: 'Bedrooms', value: 10.121 },
+        { id: 'bathrooms', label: 'Bathrooms', value: 100.111 },
       ],
       address: {
         provinceId: '1',
@@ -539,8 +539,8 @@ describe('Posts (e2e)', () => {
         subDistrictLabel: 'Khlong Toei Nuea',
         regionId: '1',
         location: {
-          lat: 13.7374,
-          lng: 100.5605,
+          lat: 10.001,
+          lng: 100.101,
         },
       },
       condition: Condition.NEW,
@@ -586,6 +586,153 @@ describe('Posts (e2e)', () => {
         .expect((res) => {
           expect(res.body.message).toContain('title should not be empty');
           expect(res.body.message).toContain('price should not be empty');
+        });
+    });
+  });
+
+  describe('PATCH /posts/:id', () => {
+    let existingPost: Post;
+
+    beforeEach(async () => {
+      const post = await postModel.findOne();
+      if (!post) {
+        throw new Error('No test post found');
+      }
+      existingPost = post;
+    });
+
+    const validUpdateDto = {
+      title: 'Updated post title',
+      desc: '<a>This is a link22</a><p>This is a paragraph22</p>',
+      assetType: AssetType.HOUSE,
+      postType: PostType.RENT,
+      price: 99999.99,
+      area: 99.99,
+      areaUnit: AreaUnit.RAI,
+      isDraft: false,
+      isStudio: true,
+      thumbnail: 'https://example.com/thumb_updated.jpg',
+      images: [
+        'https://example.com/image1_updated.jpg',
+        'https://example.com/image2_updated.jpg',
+        'https://example.com/image3_updated.jpg',
+      ],
+      facilities: [
+        { id: 'pool', label: 'Swimming Pool_updated' },
+        { id: 'gym', label: 'Gym_updated' },
+      ],
+      specs: [
+        { id: 'bedrooms', label: 'Bedrooms', value: 99 },
+        { id: 'bathrooms', label: 'Bathrooms', value: 99.99 },
+      ],
+      address: {
+        provinceId: '1',
+        provinceLabel: 'Bangkok_updated',
+        districtId: '1',
+        districtLabel: 'Watthana_updated',
+        subDistrictId: '1',
+        subDistrictLabel: 'Khlong Toei Nuea_updated',
+        regionId: '1',
+        location: {
+          lat: 99.989,
+          lng: 999.949,
+        },
+      },
+      condition: Condition.USED,
+    };
+
+    it('should update post successfully when pass all post fields and authenticated', async () => {
+      const beforeUpdate = new Date();
+
+      const response = await request(app.getHttpServer())
+        .patch(`/posts/${existingPost._id}`)
+        .set(authHeader(authToken))
+        .send(validUpdateDto)
+        .expect(200);
+
+      expect(response.body.title).toBe(validUpdateDto.title);
+      expect(response.body.desc).toBe(
+        'This is a link22<p>This is a paragraph22</p>',
+      );
+      expect(response.body.assetType).toBe(validUpdateDto.assetType);
+      expect(response.body.postType).toBe(validUpdateDto.postType);
+      expect(response.body.price).toBe(validUpdateDto.price);
+      expect(response.body.area).toBe(validUpdateDto.area);
+      expect(response.body.areaUnit).toBe(validUpdateDto.areaUnit);
+      expect(response.body.status).toBe('active');
+      expect(response.body.isStudio).toBe(validUpdateDto.isStudio);
+      expect(response.body.thumbnail).toBe(validUpdateDto.thumbnail);
+      expect(JSON.stringify(response.body.images)).toBe(
+        JSON.stringify(validUpdateDto.images),
+      );
+      expect(JSON.stringify(response.body.facilities)).toBe(
+        JSON.stringify(validUpdateDto.facilities),
+      );
+      expect(JSON.stringify(response.body.specs)).toBe(
+        JSON.stringify(validUpdateDto.specs),
+      );
+      expect(validUpdateDto.address.provinceLabel).toBe(
+        validUpdateDto.address.provinceLabel,
+      );
+      expect(response.body.condition).toBe(validUpdateDto.condition);
+
+      expect(response.body.updatedBy).toBe(testUser._id.toString());
+      expect(new Date(response.body.updatedAt)).toBeInstanceOf(Date);
+      expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(
+        beforeUpdate.getTime(),
+      );
+
+      const updatedPost = await postModel.findById(existingPost._id);
+      expect(updatedPost).toBeDefined();
+      expect(updatedPost?.title).toBe(validUpdateDto.title);
+    });
+
+    it('should update post successfully when pass only title and authenticated', async () => {
+      const response = await request(app.getHttpServer())
+        .patch(`/posts/${existingPost._id}`)
+        .set(authHeader(authToken))
+        .send({ title: 'Title updated22' })
+        .expect(200);
+
+      expect(response.body.title).toBe('Title updated22');
+    });
+
+    it('should return 401 when not authenticated', () => {
+      return request(app.getHttpServer())
+        .patch(`/posts/${existingPost._id}`)
+        .send(validUpdateDto)
+        .expect(401)
+        .expect((res) => {
+          expect(res.body.message).toBe('Unauthorized');
+        });
+    });
+
+    it('should return 404 when post does not exist', () => {
+      const nonExistentId = new Types.ObjectId().toString();
+      return request(app.getHttpServer())
+        .patch(`/posts/${nonExistentId}`)
+        .set(authHeader(authToken))
+        .send(validUpdateDto)
+        .expect(404)
+        .expect((res) => {
+          expect(res.body.message).toBe(
+            `Post with ID ${nonExistentId} not found`,
+          );
+        });
+    });
+
+    it('should return 400 when required fields are missing', () => {
+      const invalidUpdate = {
+        title: '',
+      };
+
+      return request(app.getHttpServer())
+        .patch(`/posts/${existingPost._id}`)
+        .set(authHeader(authToken))
+        .send(invalidUpdate)
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('title should not be empty');
         });
     });
   });
