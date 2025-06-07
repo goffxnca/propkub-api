@@ -72,6 +72,7 @@ describe('AdminUsers (e2e)', () => {
   });
 
   afterAll(async () => {
+    await userModel.deleteMany();
     await app.close();
     await closeMongodConnection();
   });

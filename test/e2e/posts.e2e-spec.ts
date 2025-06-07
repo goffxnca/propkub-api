@@ -31,6 +31,7 @@ describe('Posts (e2e)', () => {
   let service: PostsService;
   let usersService: UsersService;
   let postModel: Model<Post>;
+  let userModel: Model<User>;
   let testUser: User;
   let authToken: string;
 
@@ -206,6 +207,7 @@ describe('Posts (e2e)', () => {
     service = moduleFixture.get<PostsService>(PostsService);
     usersService = moduleFixture.get<UsersService>(UsersService);
     postModel = moduleFixture.get<Model<Post>>(getModelToken(Post.name));
+    userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
 
     await app.init();
 
@@ -224,6 +226,8 @@ describe('Posts (e2e)', () => {
   });
 
   afterAll(async () => {
+    await postModel.deleteMany();
+    await userModel.deleteMany();
     await app.close();
     await closeMongodConnection();
   });

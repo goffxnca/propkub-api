@@ -602,7 +602,7 @@ describe('Auth (e2e)', () => {
     });
 
     afterAll(async () => {
-      await userModel.deleteOne({ email: verifyUser.email });
+      await userModel.deleteMany();
     });
   });
 });
