@@ -276,7 +276,7 @@ describe('Auth (e2e)', () => {
       expect(response.body.message).toBe(
         'If the email exists, a password reset link has been sent',
       );
-      expect(createTokenSpy).toHaveBeenCalledWith('nonexist@user.com');
+      expect(createTokenSpy).not.toHaveBeenCalled();
       expect(sendEmailSpy).not.toHaveBeenCalled();
     });
 
