@@ -248,12 +248,24 @@ export class AuthService {
 
   async sendPasswordResetEmail(email: string) {
     this.logger.log(`Password reset requested for email: ${truncEmail(email)}`);
+
+    const user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      return {
+        message: 'If the email exists, a password reset link has been sent',
+      };
+    }
+
+    if (user.provider !== AuthProvider.EMAIL) {
+      return {
+        message: 'If the email exists, a password reset link has been sent',
+      };
+    }
+
     const resetToken = await this.usersService.createPasswordResetToken(email);
 
     if (!resetToken) {
-      this.logger.warn(
-        `Password reset requested for non-existent email: ${truncEmail(email)}`,
-      );
       return {
         message: 'If the email exists, a password reset link has been sent',
       };
