@@ -85,6 +85,8 @@ export class AuthService {
         this.logger.debug(`Verification email sent to: ${truncEmail(email)}`);
       }
 
+      await this.usersService.updateLastLogin(user._id, AuthProvider.EMAIL);
+
       const payload = { sub: user._id };
       const accessToken = await this.jwtService.signAsync(payload);
       return { accessToken };

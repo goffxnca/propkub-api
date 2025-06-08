@@ -39,24 +39,36 @@ export class UsersService implements OnModuleInit {
           const userId = (user as any).id;
           return {
             ...user,
-            name: user?.name || user.email,
+            cid: index + 1,
+            name: user?.name || 'null',
             ___id: userId,
             password: hashedPassword,
             temp_p: tempIntialPassword,
             provider: AuthProvider.EMAIL,
-
             role: UserRole.NORMAL,
             emailVToken:
               user.emailVerified === true ? undefined : user.emailVToken,
-            createdBy: userId, //TODO: Later set to the user mongoid
-            updatedBy: userId, //TODO: Later set to the user mongoid
+            createdAt: user?.createdAt || new Date(),
+            createdBy: undefined,
+            updatedAt: undefined,
+            updatedBy: undefined,
             tosAccepted: true,
-            cid: index + 1,
           };
         }),
       );
 
       await this.userModel.insertMany(transformedUsers);
+
+      // Update createdBy to the user's id for all users
+      const users = await this.userModel.find({}, '_id');
+      const operations = users.map((user) => ({
+        updateOne: {
+          filter: { _id: user._id },
+          update: { createdBy: user._id },
+        },
+      }));
+      await this.userModel.bulkWrite(operations);
+
       console.log(`✅ Seeded ${transformedUsers.length} users.`);
     }
   }
@@ -86,7 +98,7 @@ export class UsersService implements OnModuleInit {
 
     const user = await this.findByEmail(email);
     if (user) {
-      this.logger.warn(`User creation failed: email already exists - ${email}`);
+      this.logger.warn(`Email already exists - ${email}`);
       throw new ConflictException('Email already registered');
     }
 
@@ -95,12 +107,14 @@ export class UsersService implements OnModuleInit {
       email,
       password: provider === AuthProvider.EMAIL ? password : undefined,
       provider,
-      profileImg,
+      role: UserRole.NORMAL,
       tosAccepted: true,
-      emailVToken: provider === AuthProvider.EMAIL ? uuidV4() : undefined,
+      profileImg,
       emailVerified: provider !== AuthProvider.EMAIL,
+      emailVToken: provider === AuthProvider.EMAIL ? uuidV4() : undefined,
       googleId,
       facebookId,
+      createdAt: new Date(),
     });
 
     const savedUser = await newUser.save();
@@ -156,6 +170,9 @@ export class UsersService implements OnModuleInit {
     user.emailVerified = true;
     user.emailVToken = undefined;
 
+    user.updatedAt = new Date();
+    user.updatedBy = user._id;
+
     await user.save();
     this.logger.log(`Email verified successfully for user: ${user._id}`);
     return true;
@@ -177,8 +194,11 @@ export class UsersService implements OnModuleInit {
     await this.userModel.updateOne(
       { _id: user._id },
       {
-        passwordResetToken: resetToken,
-        passwordResetExpires: expires,
+        passwordReset: {
+          token: resetToken,
+          expires: expires,
+        },
+        updatedAt: new Date(),
       },
     );
 
@@ -188,8 +208,8 @@ export class UsersService implements OnModuleInit {
 
   async resetPassword(token: string, newPassword: string): Promise<boolean> {
     const user = await this.userModel.findOne({
-      passwordResetToken: token,
-      passwordResetExpires: { $gt: new Date() },
+      'passwordReset.token': token,
+      'passwordReset.expires': { $gt: new Date() },
     });
 
     if (!user) {
@@ -199,8 +219,8 @@ export class UsersService implements OnModuleInit {
 
     user.password = newPassword;
     user.temp_p = undefined;
-    user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
+    user.passwordReset = undefined;
+    user.updatedAt = new Date();
 
     await user.save();
     this.logger.log(`Password updated successfully for user: ${user._id}`);
@@ -232,6 +252,9 @@ export class UsersService implements OnModuleInit {
 
     user.password = newPassword;
     user.temp_p = undefined;
+    user.updatedAt = new Date();
+    user.updatedBy = userId;
+
     await user.save();
     this.logger.log(`Password updated successfully for user: ${user._id}`);
     return true;

@@ -7,12 +7,12 @@ export const baseUser: User = {
   cid: 1,
   name: 'John Doe',
   email: 'john.doe@example.com',
-  password: '123456',
-  provider: AuthProvider.EMAIL,
   emailVerified: false,
-  tosAccepted: true,
+  provider: AuthProvider.EMAIL,
   role: UserRole.NORMAL,
-  createdBy: '',
+  tosAccepted: true,
+  password: '123456',
+  createdAt: new Date(),
 };
 
 export const createUser = (overrides: Partial<User> = {}): User => {

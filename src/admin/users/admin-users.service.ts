@@ -54,6 +54,7 @@ export class AdminUsersService {
       ...createUserDto,
       provider: AuthProvider.EMAIL,
       createdBy: 'admin',
+      createdAt: new Date(),
     };
 
     const createdUser = new this.userModel(userData);
@@ -62,7 +63,11 @@ export class AdminUsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User | null> {
     return this.userModel
-      .findByIdAndUpdate(id, { $set: updateUserDto }, { new: true })
+      .findByIdAndUpdate(
+        id,
+        { $set: updateUserDto, updatedAt: new Date() },
+        { new: true },
+      )
       .exec();
   }
 
@@ -71,7 +76,7 @@ export class AdminUsersService {
   }
 
   async seedTest(userData: Partial<User>): Promise<User> {
-    const newUser = new this.userModel(userData);
+    const newUser = new this.userModel({ ...userData, createdAt: new Date() });
     return newUser.save();
   }
 

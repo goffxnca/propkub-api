@@ -168,7 +168,7 @@ export class FirebaseTimestamp {
   nanoseconds: number;
 }
 
-@Schema({ timestamps: false }) //TODO: After seeded, we can turn back to true
+@Schema({ timestamps: false }) //TODO: After seeded, we can turn back to true and remove manual createdAt, updatedAt
 export class Post {
   _id: string;
 
@@ -244,7 +244,7 @@ export class Post {
   @Prop({ required: true, default: {} })
   views: Views;
 
-  // Cannot mark as required as on create mode it start with undefined and pre save hook will generate id for it
+  // Cannot mark as required as on create mode it start with undefined and pre save hook will generate id for it, can mark as required once migrated
   @Prop()
   cid: number;
 

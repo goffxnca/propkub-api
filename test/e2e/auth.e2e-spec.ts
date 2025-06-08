@@ -74,6 +74,9 @@ describe('Auth (e2e)', () => {
         });
 
       expect(sendEmailSpy).toHaveBeenCalled();
+
+      const users = await userModel.find();
+      console.log('users', users);
     });
 
     it('should return 409 when email already exists', () => {
@@ -254,8 +257,8 @@ describe('Auth (e2e)', () => {
 
       const user = await userModel.findOne({ email: testUser.email });
       expect(user).not.toBeNull();
-      expect(user?.passwordResetToken).toBeDefined();
-      expect(user?.passwordResetExpires).toBeDefined();
+      expect(user?.passwordReset?.token).toBeDefined();
+      expect(user?.passwordReset?.expires).toBeDefined();
     });
 
     it('should return same response for non-existent email', async () => {
@@ -333,8 +336,8 @@ describe('Auth (e2e)', () => {
 
       const updatedUser = await userModel.findOne({ email: testUser.email });
       expect(updatedUser).not.toBeNull();
-      expect(updatedUser?.passwordResetToken).toBeUndefined();
-      expect(updatedUser?.passwordResetExpires).toBeUndefined();
+      expect(updatedUser?.passwordReset?.token).toBeUndefined();
+      expect(updatedUser?.passwordReset?.expires).toBeUndefined();
       expect(updatedUser?.temp_p).toBeUndefined();
     });
 

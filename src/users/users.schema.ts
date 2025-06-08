@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { AuthProvider } from '../common/enums/auth-provider.enum';
+import { IsDate, IsOptional, IsString } from 'class-validator';
 
 export type UserDocument = User & Document;
 
@@ -11,12 +12,22 @@ export enum UserRole {
   NORMAL = 'normal',
 }
 
-@Schema({ timestamps: true })
+@Schema({ _id: false })
+export class PasswordReset {
+  @Prop()
+  @IsOptional()
+  @IsString()
+  token?: string;
+
+  @Prop()
+  @IsOptional()
+  @IsDate()
+  expires?: Date;
+}
+
+@Schema({ timestamps: false }) //TODO: After seeded, we can turn back to true and remove manual createdAt, updatedAt
 export class User {
   _id: string;
-
-  @Prop({ unique: true })
-  cid: number;
 
   @Prop({ required: true })
   name: string;
@@ -24,14 +35,30 @@ export class User {
   @Prop({ required: true, unique: true })
   email: string;
 
+  @Prop({ required: true, default: false })
+  emailVerified: boolean;
+
+  @Prop({ required: true, enum: AuthProvider })
+  provider: AuthProvider;
+
+  @Prop({ required: true, enum: UserRole, default: UserRole.NORMAL })
+  role: UserRole;
+
+  @Prop({ required: true, default: false })
+  tosAccepted: boolean;
+
+  // Cannot mark as required as on create mode it start with undefined and pre save hook will generate id for it, can mark as required once migrated
+  @Prop()
+  cid: number;
+
+  @Prop()
+  emailVToken?: string;
+
   @Prop()
   password?: string;
 
   @Prop()
-  temp_p?: string; //TODO: Once migrated all users, remove this field from code and users collection
-
-  @Prop({ required: true })
-  provider: AuthProvider;
+  temp_p?: string; //TODO: Assign raw password for those migrated users, Once migrated, remove this field from code and users collection
 
   @Prop()
   phone?: string;
@@ -39,29 +66,11 @@ export class User {
   @Prop()
   line?: string;
 
-  @Prop({ default: false })
-  emailVerified: boolean;
-
-  @Prop()
-  emailVToken?: string;
-
-  @Prop()
-  passwordResetToken?: string;
-
-  @Prop()
-  passwordResetExpires?: Date;
-
-  @Prop({ default: false })
-  tosAccepted: boolean;
-
-  @Prop({ enum: UserRole, default: UserRole.NORMAL })
-  role: UserRole;
-
   @Prop()
   profileImg?: string;
 
   @Prop()
-  ___id?: string; //TODO: Firebase Id, can be remove later
+  passwordReset?: PasswordReset;
 
   @Prop({ unique: true, sparse: true })
   googleId?: string;
@@ -72,14 +81,24 @@ export class User {
   @Prop({ enum: AuthProvider })
   lastLoginProvider?: AuthProvider;
 
-  @Prop()
+  @Prop({ type: Date })
   lastLoginAt?: Date;
 
+  @Prop({ required: true, type: Date })
+  createdAt: Date; //TODO: After seeded, we can remove this
+
+  // Auto-assigned to the own user id at the pre save hook
   @Prop()
-  createdBy: string;
+  createdBy?: string;
+
+  @Prop({ type: Date })
+  updatedAt?: Date; //TODO: After seeded, we can remove this
 
   @Prop()
   updatedBy?: string;
+
+  @Prop()
+  ___id?: string; //TODO: Firebase Id, can be remove later
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
@@ -91,18 +110,15 @@ UserSchema.pre('save', async function (next) {
       .findOne({}, { cid: 1 }, { sort: { cid: -1 } })
       .lean();
     this.cid = (lastUser?.cid ?? 0) + 1;
+
+    if (!this.createdBy) {
+      this.createdBy = this._id;
+    }
   }
 
   if (this.password && this.isModified('password')) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-  }
-
-  if (!this.createdBy) {
-    this.createdBy = this._id;
-  }
-  if (!this.updatedBy) {
-    this.updatedBy = this._id;
   }
 
   next();

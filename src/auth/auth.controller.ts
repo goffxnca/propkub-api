@@ -39,16 +39,22 @@ export class AuthController {
   @Get('verify-email')
   async verifyEmail(@Query() query: VerifyEmailDto) {
     const { vtoken } = query;
-    this.logger.log(`Email verification request with token: ${truncToken(vtoken)}`);
-    
+    this.logger.log(
+      `Email verification request with token: ${truncToken(vtoken)}`,
+    );
+
     const success = await this.authService.verifyEmail(vtoken);
 
     if (!success) {
-      this.logger.warn(`Email verification failed for token: ${truncToken(vtoken)}`);
+      this.logger.warn(
+        `Email verification failed for token: ${truncToken(vtoken)}`,
+      );
       throw new BadRequestException('Invalid or expired verification token.');
     }
-    
-    this.logger.log(`Email verified successfully for token: ${truncToken(vtoken)}`);
+
+    this.logger.log(
+      `Email verified successfully for token: ${truncToken(vtoken)}`,
+    );
     return { message: 'Email verified successfully' };
   }
 
@@ -70,7 +76,9 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @Get('google/redirect')
   googleAuthRedirect(@Request() req) {
-    this.logger.log(`Google OAuth callback for user: ${truncEmail(req.user.email)}`);
+    this.logger.log(
+      `Google OAuth callback for user: ${truncEmail(req.user.email)}`,
+    );
     return this.authService.loginGoogle(req.user);
   }
 
@@ -84,7 +92,9 @@ export class AuthController {
   @UseGuards(FacebookAuthGuard)
   @Get('facebook/redirect')
   facebookAuthRedirect(@Request() req) {
-    this.logger.log(`Facebook OAuth callback for user: ${truncEmail(req.user.email)}`);
+    this.logger.log(
+      `Facebook OAuth callback for user: ${truncEmail(req.user.email)}`,
+    );
     return this.authService.loginFacebook(req.user);
   }
 
@@ -98,14 +108,18 @@ export class AuthController {
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    this.logger.log(`Forgot password request for email: ${truncEmail(forgotPasswordDto.email)}`);
+    this.logger.log(
+      `Forgot password request for email: ${truncEmail(forgotPasswordDto.email)}`,
+    );
     return this.authService.sendPasswordResetEmail(forgotPasswordDto.email);
   }
 
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    this.logger.log(`Reset password request with token: ${truncToken(resetPasswordDto.token)}`);
+    this.logger.log(
+      `Reset password request with token: ${truncToken(resetPasswordDto.token)}`,
+    );
     return this.authService.resetPassword(
       resetPasswordDto.token,
       resetPasswordDto.newPassword,
