@@ -20,16 +20,17 @@ import { Model, Types } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
 import { CreatePostDto } from '../../src/posts/dto/createPostDto';
 import { AuthModule } from '../../src/auth/auth.module';
-import { UsersModule } from '../../src/users/users.module';
 import { UsersService } from '../../src/users/users.service';
 import { authHeader, createUserAndLogIn } from '../utils/auths';
 import { User } from '../../src/users/users.schema';
 import { createUser } from '../factory/userFactory';
+import { MailService } from '../../src/mail/mail.service';
 
 describe('Posts (e2e)', () => {
   let app: INestApplication;
   let service: PostsService;
   let usersService: UsersService;
+  let mailService: MailService;
   let postModel: Model<Post>;
   let userModel: Model<User>;
   let testUser: User;
@@ -197,15 +198,21 @@ describe('Posts (e2e)', () => {
         rootMongooseTestModule(),
         PostsModule,
         AuthModule,
-        UsersModule,
       ],
-    }).compile();
+    })
+      .overrideProvider(MailService)
+      .useValue({
+        sendEmail: jest.fn().mockResolvedValue(undefined),
+      })
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
     service = moduleFixture.get<PostsService>(PostsService);
     usersService = moduleFixture.get<UsersService>(UsersService);
+    mailService = moduleFixture.get<MailService>(MailService);
+
     postModel = moduleFixture.get<Model<Post>>(getModelToken(Post.name));
     userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
 
@@ -642,6 +649,8 @@ describe('Posts (e2e)', () => {
     };
 
     it('should update post successfully when pass all post fields and authenticated', async () => {
+      const sendEmailSpy = jest.spyOn(mailService, 'sendEmail');
+
       const beforeUpdate = new Date();
 
       const response = await request(app.getHttpServer())
@@ -685,6 +694,8 @@ describe('Posts (e2e)', () => {
       const updatedPost = await postModel.findById(existingPost._id);
       expect(updatedPost).toBeDefined();
       expect(updatedPost?.title).toBe(validUpdateDto.title);
+
+      expect(sendEmailSpy).toHaveBeenCalled();
     });
 
     it('should update post successfully when pass only title and authenticated', async () => {

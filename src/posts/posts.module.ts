@@ -5,6 +5,8 @@ import { PostsController } from './posts.controller';
 import { Post, PostSchema } from './posts.schema';
 import { User, UserSchema } from '../users/users.schema';
 import { EnvironmentModule } from '../environments/environment.module';
+import { MailModule } from '../mail/email.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { EnvironmentModule } from '../environments/environment.module';
       { name: Post.name, schema: PostSchema },
     ]),
     EnvironmentModule,
+    UsersModule,
+    MailModule,
   ],
   providers: [PostsService],
   controllers: [PostsController],

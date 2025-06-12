@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post, PostDocument, PostStatus } from './posts.schema';
@@ -9,6 +9,9 @@ import { genSlug, genUnixEpochTime } from '../common/utils/strings';
 import { EnvironmentService } from '../environments/environment.service';
 import * as sanitizeHtml from 'sanitize-html';
 import { UpdatePostDto } from './dto/updatePostDto';
+import { MailService } from '../mail/mail.service';
+import { EMAIL_POST_CREATED, NO_REPLY_EMAIL } from '../common/constants';
+import { UsersService } from '../users/users.service';
 
 interface FirebaseTimestamp {
   //TODO: Remove later once it seems to created correctly
@@ -36,6 +39,8 @@ export class PostsService implements OnModuleInit {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(Post.name) private readonly postModel: Model<PostDocument>,
     private readonly envService: EnvironmentService,
+    private readonly usersService: UsersService,
+    private readonly mailService: MailService,
   ) {}
 
   async onModuleInit() {
@@ -167,20 +172,38 @@ export class PostsService implements OnModuleInit {
   }
 
   async create(createPostDto: CreatePostDto, userId: string): Promise<Post> {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new NotFoundException();
+    }
+
     const postNumber = genUnixEpochTime();
-    const userData: any = {
+    const userData = {
       ...createPostDto,
       desc: sanitizeHtml(createPostDto.desc, {
         allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br'],
       }),
       status: createPostDto.isDraft ? PostStatus.DRAFT : PostStatus.ACTIVE,
-      postNumber,
+      postNumber: postNumber,
       slug: genSlug(createPostDto.title, postNumber.toString()),
       byMember: !!userId,
       createdAt: new Date(),
       createdBy: userId,
     };
     const createdPost = new this.postModel(userData);
+
+    this.mailService.sendEmail({
+      from: NO_REPLY_EMAIL,
+      to: user.email,
+      templateId: EMAIL_POST_CREATED,
+      templateData: {
+        recipientName: user.name,
+        postUrl: `https://propkub.com/property/${createdPost.slug}`,
+        postNumber: createdPost.postNumber,
+        postTitle: createdPost.title,
+      },
+    });
+
     return createdPost.save();
   }
 
