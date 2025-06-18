@@ -1,116 +1,46 @@
 [
   {
     "id": "RRlAlQY5SMBisl6u4d44",
-    "postViews": 771,
-    "createdAt": {
-      "seconds": 1662257414,
-      "nanoseconds": 812000000
-    },
-    "video": "",
-    "facilities": [
-      {
-        "id": "ac",
-        "label": "เครื่องปรับอากาศ"
-      },
-      {
-        "label": "โซฟา",
-        "id": "sofa"
-      },
-      {
-        "label": "ทีวี",
-        "id": "tv"
-      },
-      {
-        "id": "fridge",
-        "label": "ตู้เย็น"
-      },
-      {
-        "label": "ไมโครเวฟ",
-        "id": "microwave"
-      },
-      {
-        "label": "กล้องวงจรปิด",
-        "id": "cctv"
-      },
-      {
-        "id": "fitness",
-        "label": "ฟิตเนส"
-      },
-      {
-        "label": "สระว่ายน้ำ",
-        "id": "pool"
-      },
-      {
-        "id": "library",
-        "label": "ห้องสมุด"
-      }
-    ],
-    "condition": "used",
-    "title": "ให้เช่าด่วน ห้องคอนโดพาร์คแลนด์ เพชรเกษม-บางแค ราคาดีมากจองก่อนได้ก่อน8,500/เดือน ติด mrt ห้องกว้าง",
-    "subStatus": "created",
-    "land": 0,
+    "counter": 1,
     "assetType": "condo",
-    "address": {
-      "districtLabel": "บางแค",
-      "subDistrictLabel": "บางแค",
-      "provinceId": "p1",
-      "location": {
-        "lng": 100.4095128,
-        "h": 191.56,
-        "lat": 13.7107753
-      },
-      "districtId": "d1040",
-      "provinceLabel": "กรุงเทพมหานคร",
-      "regionId": "r2",
-      "subDistrictId": "s104001"
-    },
-    "area": 30,
+    "land": 0,
     "postType": "rent",
-    "slug": "ให้เช่าด่วน-ห้องคอนโดพาร์คแลนด์-เพชรเกษม-บางแค-ราคาดีมากจองก่อนได้ก่อน_RRlAlQY5SMBisl6u4d44",
-    "indexed": true,
-    "price": 8500,
-    "desc": "<p>ให้เช่าด่วน ห้องคอนโดพาร์คแลนด์ เพชรเกษม-บางแค ราคาดีมากจองก่อนได้ก่อน8,500/เดือน ติด mrt ห้องกว้าง </p><p>**หน้าคอนโดติดสถานีรถไฟฟ้าหลักสอง</p><p>**อยู่ตรงข้ามเดอะมอลล์บางแค เดินข้ามสะพานเข้าห้างได้เลย</p><p>ชั้น6 ขนาดห้อง30ตรม </p><p>ห้องกั้น</p><p>มีแอร์2ตัว,</p><p>เครื่องทำน้ำอุ่น, ตู้เย็น, ไมโครเวฟ</p><p>, เครื่องกรองน้ำ, </p><p>เตียง5ฟุต,โซฟา, </p><p>โต๊ะทานข้าว+เก้าอี้</p><p>2ตัว, ชั้นวางของ3ชั้น</p><p>,กล่องวางของในห้องนอน3กล่อง, </p><p>ทีวีพร้อมโต๊ะทีวี(เก็บของได้), </p><p>โต๊ะข้างทีวี, </p><p>0827142245 agent</p><p>Line condopp</p><p>#condoppthailand</p>",
-    "updatedAt": {
-      "seconds": 1666518154,
-      "nanoseconds": 15000000
-    },
     "refId": "",
-    "createdBy": {
-      "phone": "0812345678",
-      "line": "",
-      "userId": "D0GnI5BxfifAUlUsSjnXCXMLkhm1",
-      "name": "John",
-      "profileImg": "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/us%2FD0GnI5BxfifAUlUsSjnXCXMLkhm1%2Fi%2F40147_1662256802566.png?alt=media",
-      "role": "agent",
-      "email": "abc@gmail.com"
-    },
-    "status": "active",
-    "lineViews": 2,
-    "cid": 1,
-    "specs": [
-      {
-        "label": "ห้องนอน",
-        "id": "beds",
-        "value": 1
-      },
-      {
-        "id": "baths",
-        "value": 1,
-        "label": "ห้องน้ำ"
-      },
-      {
-        "id": "kitchens",
-        "label": "ห้องครัว",
-        "value": 1
-      }
-    ],
-    "areaUnit": "sqm",
-    "landUnit": null,
-    "updatedBy": {
-      "userId": "<ADMIN>",
-      "name": "Admin"
-    },
+    "postNumber": 1662257414510,
     "priceUnit": "month",
+    "status": "active",
+    "updatedBy": { "name": "Admin", "userId": "<ADMIN>" },
+    "video": "",
+    "areaUnit": "sqm",
+    "thumbnail": "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FRRlAlQY5SMBisl6u4d44%2Fi%2F32235_1662257413511.jpeg?alt=media",
+    "createdBy": {
+      "profileImg": "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/us%2FD0GnI5BxfifAUlUsSjnXCXMLkhm1%2Fi%2F40147_1662256802566.png?alt=media",
+      "phone": "081111111111",
+      "role": "agent",
+      "name": "AA",
+      "line": "",
+      "email": "aa@mail.com",
+      "userId": "D0GnI5BxfifAUlUsSjnXCXMLkhm1"
+    },
+    "phoneViews": 2,
+    "condition": "used",
+    "landUnit": "",
+    "desc": "<p>ให้เช่าด่วน ห้องคอนโดพาร์คแลนด์ เพชรเกษม-บางแค ราคาดีมากจองก่อนได้ก่อน8,500/เดือน ติด mrt ห้องกว้าง </p><p>**หน้าคอนโดติดสถานีรถไฟฟ้าหลักสอง</p><p>**อยู่ตรงข้ามเดอะมอลล์บางแค เดินข้ามสะพานเข้าห้างได้เลย</p><p>ชั้น6 ขนาดห้อง30ตรม </p><p>ห้องกั้น</p><p>มีแอร์2ตัว,</p><p>เครื่องทำน้ำอุ่น, ตู้เย็น, ไมโครเวฟ</p><p>, เครื่องกรองน้ำ, </p><p>เตียง5ฟุต,โซฟา, </p><p>โต๊ะทานข้าว+เก้าอี้</p><p>2ตัว, ชั้นวางของ3ชั้น</p><p>,กล่องวางของในห้องนอน3กล่อง, </p><p>ทีวีพร้อมโต๊ะทีวี(เก็บของได้), </p><p>โต๊ะข้างทีวี</p>",
+    "indexed": true,
+    "title": "ให้เช่าด่วน ห้องคอนโดพาร์คแลนด์ เพชรเกษม-บางแค ราคาดีมากจองก่อนได้ก่อน8,500/เดือน ติด mrt ห้องกว้าง",
+    "cid": 1,
+    "lineViews": 2,
+    "subStatus": "created",
+    "address": {
+      "provinceId": "p1",
+      "provinceLabel": "กรุงเทพมหานคร",
+      "location": { "lat": 13.7107753, "h": 191.56, "lng": 100.4095128 },
+      "subDistrictLabel": "บางแค",
+      "districtLabel": "บางแค",
+      "regionId": "r2",
+      "subDistrictId": "s104001",
+      "districtId": "d1040"
+    },
     "images": [
       "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FRRlAlQY5SMBisl6u4d44%2Fi%2F32235_1662257413511.jpeg?alt=media",
       "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FRRlAlQY5SMBisl6u4d44%2Fi%2F99046_1662257413512.jpeg?alt=media",
@@ -118,66 +48,45 @@
       "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FRRlAlQY5SMBisl6u4d44%2Fi%2F93464_1662257413513.jpeg?alt=media",
       "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FRRlAlQY5SMBisl6u4d44%2Fi%2F6607_1662257413513.jpeg?alt=media"
     ],
-    "thumbnail": "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FRRlAlQY5SMBisl6u4d44%2Fi%2F32235_1662257413511.jpeg?alt=media",
-    "phoneViews": 2,
-    "postNumber": 1662257414510
+    "price": 8500,
+    "facilities": [
+      { "label": "เครื่องปรับอากาศ", "id": "ac" },
+      { "label": "โซฟา", "id": "sofa" },
+      { "label": "ทีวี", "id": "tv" },
+      { "label": "ตู้เย็น", "id": "fridge" },
+      { "id": "microwave", "label": "ไมโครเวฟ" },
+      { "label": "กล้องวงจรปิด", "id": "cctv" },
+      { "label": "ฟิตเนส", "id": "fitness" },
+      { "label": "สระว่ายน้ำ", "id": "pool" },
+      { "id": "library", "label": "ห้องสมุด" }
+    ],
+    "postViews": 792,
+    "area": 30,
+    "specs": [
+      { "id": "beds", "label": "ห้องนอน", "value": 1 },
+      { "value": 1, "label": "ห้องน้ำ", "id": "baths" },
+      { "value": 1, "label": "ห้องครัว", "id": "kitchens" }
+    ],
+    "updatedAt": { "seconds": 1666518154, "nanoseconds": 15000000 },
+    "slug": "ให้เช่าด่วน-ห้องคอนโดพาร์คแลนด์-เพชรเกษม-บางแค-ราคาดีมากจองก่อนได้ก่อน_RRlAlQY5SMBisl6u4d44",
+    "createdAt": { "seconds": 1662257414, "nanoseconds": 812000000 }
   },
   {
     "id": "TgrkVd5wK6hKyjCJQpaF",
-    "subStatus": "created",
-    "priceUnit": null,
+    "counter": 2,
+    "createdBy": {
+      "profileImg": "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/us%2FD0GnI5BxfifAUlUsSjnXCXMLkhm1%2Fi%2F40147_1662256802566.png?alt=media",
+      "phone": "082222222222",
+      "role": "agent",
+      "name": "BB",
+      "line": "",
+      "email": "bb@mail.com",
+      "userId": "D0GnI5BxfifAUlUsSjnXCXMLkhm1"
+    },
     "postNumber": 1662261124075,
-    "updatedBy": {
-      "userId": "<ADMIN>",
-      "name": "Admin"
-    },
+    "postViews": 848,
     "refId": "",
-    "specs": [
-      {
-        "label": "ห้องนอน",
-        "value": 1,
-        "id": "beds"
-      },
-      {
-        "id": "baths",
-        "label": "ห้องน้ำ",
-        "value": 1
-      },
-      {
-        "label": "ห้องครัว",
-        "id": "kitchens",
-        "value": 1
-      },
-      {
-        "value": 1,
-        "label": "ที่จอดรถ",
-        "id": "parkings"
-      }
-    ],
-    "address": {
-      "districtLabel": "เมืองสมุทรปราการ",
-      "subDistrictId": "s110102",
-      "provinceId": "p2",
-      "provinceLabel": "สมุทรปราการ",
-      "subDistrictLabel": "สำโรงเหนือ",
-      "location": {
-        "lat": 13.654038646681526,
-        "lng": 100.60537046071319
-      },
-      "districtId": "d1101",
-      "regionId": "r2"
-    },
-    "updatedAt": {
-      "seconds": 1666518122,
-      "nanoseconds": 285000000
-    },
-    "createdAt": {
-      "seconds": 1662261124,
-      "nanoseconds": 384000000
-    },
-    "thumbnail": "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FTgrkVd5wK6hKyjCJQpaF%2Fi%2F25155_1662261122503.jpeg?alt=media",
-    "price": 1900000,
-    "areaUnit": "sqm",
+    "lineViews": 2,
     "images": [
       "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FTgrkVd5wK6hKyjCJQpaF%2Fi%2F25155_1662261122503.jpeg?alt=media",
       "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FTgrkVd5wK6hKyjCJQpaF%2Fi%2F33292_1662261122504.jpeg?alt=media",
@@ -190,444 +99,56 @@
       "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FTgrkVd5wK6hKyjCJQpaF%2Fi%2F57203_1662261122506.jpeg?alt=media",
       "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FTgrkVd5wK6hKyjCJQpaF%2Fi%2F74216_1662261122507.jpeg?alt=media"
     ],
+    "cid": 2,
+    "landUnit": "",
     "indexed": true,
-    "video": "",
+    "updatedAt": { "seconds": 1666518122, "nanoseconds": 285000000 },
     "area": 30.19,
-    "landUnit": null,
-    "postType": "sale",
-    "createdBy": {
-      "profileImg": "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/us%2FD0GnI5BxfifAUlUsSjnXCXMLkhm1%2Fi%2F47789_1662260534827.png?alt=media",
-      "name": "Jeff",
-      "email": "abc@gmail.com",
-      "phone": "0812345678",
-      "line": "",
-      "userId": "D0GnI5BxfifAUlUsSjnXCXMLkhm1",
-      "role": "agent"
-    },
-    "postViews": 843,
-    "desc": "<p>*** ขายด่วนนน !!! D Condo Sukhumvit 109 คอนโดตกแต่งพร้อมอยู่ &gt;&gt;หิ้วกระเป๋าเข้าอยู่ได้เลย ( เจ้าของขายเอง )))</p><p>พื้นที่ใช้สอย :</p><p>30.19 ตร.ม.</p><p>1 ห้องนอน</p><p>1 ห้องน้ำ</p><p>ชั้น 4</p><p>รายละเอียด</p><p>ขาย D Condo Sukhumvit 109 พร้อมเฟอร์นิเจอร์ + วิวสระว่ายน้ำ (ใกล้ BTS แบริ่ง, รร.เซนต์แอนดรูว์ สุขุมวิท 107, อิมพีเรียล สำโรง)</p><p>ราคาขาย : 1.9 ล้านบาท **(ฟรีค่าโอน)</p><p>อาคาร : B</p><p>ที่ตั้ง : ซ.สุขุมวิท 109</p><p>สถานีรถไฟฟ้า BTS : แบริ่ง (ประมาณ 1.2 กม.)</p><p>สถานที่ใกล้เคียง : </p><p>ตลาดมิ่ง ซ.แบริ่ง 3 // รร.นานาชาติเซนต์แอนดรูว์ สุขุมวิท 107 // อิมพีเรียลเวิลด์ สำโรง // บิ๊กซี สำโรง // เมเจอร์ซีเนเพล็กซ์ สำโรง // รพ.สำโรงการแพทย์ // ตลาดสำโรงเซ็นเตอร์ // ตลาดเอี่ยมเจริญ // รร.วัดด่านสำโรง // รร.ไทยซิกข์นานาชาติ // รพ.มนารมย์ // กรมอุตุนิยมวิทยา // ไบเทค บางนา // รร.บางกอกพัฒนา // รร.เซนต์โยเซฟ บางนา // ทางด่วน (ด่านบางนา)</p><p>รายละเอียด :</p><p>- พื้นที่ใช้สอย 30.19ตร.ม., ชั้น 4 วิวสระว่ายน้ำ, 1 ห้องนอน, 1 ห้องน้ำ, ห้องครัวแยกเป็นสัดส่วน พร้อมเคาน์เตอร์และตู้เก็บของบิวท์อิน, เฟอร์นิเจอร์ตกแต่งใหม่, ผ้าม่านกันแสงอย่างดี (แอร์ 1 เครื่อง, เครื่องทำน้ำอุ่น), ห้องนอน-ระเบียงหันไปทางเหนือ ไม่รับแดดตรงๆ ทั้งช่วงเช้าและบ่าย ห้องไม่ร้อน</p><p>ข้อมูลโครงการ :</p><p>- คอนโดแบบ low rise โดยแสนสิริ ตั้งอยู่ใน ซ.สุขุมวิท 109 (สูง 8 ชั้น, จำนวน 2 อาคาร) ไม่ไกลจากสถานีรถไฟฟ้า BTS, รร.นานาชาติเซนต์แอนดรูว์ สุขุมวิท 107 จากตัวคอนโดสามารถเข้า-ออกได้ทั้งทาง ซ.สุขุมวิท 109, ซ.สุขุมวิท 107 เข้าซอยย่อย (แบริ่ง 12 - สันติคาม 11) และ ซ.สุขุมวิท 113 เข้าซอยย่อย (ซ.สำโรงเหนือ 7 ก่อนเข้า ซ.สันติคาม 8 หรือ 10) จากคอนโดประมาณ 150 ม. มีร้าน 7-11, ร้านอาหาร, ร้านน้ำผลไม้ปั่น-กาแฟ และยังมีตลาดนัดขายอาหารเล็กๆ แบบใส่ถุงกลับบ้านอีกด้วย พร้อมสิ่งอำนวยความสะดวกในโครงการ เช่น สระว่ายน้ำ, ฟิตเนส, สวนหย่อม และมุมนั่นเล่นรับลม, ห้องซักล้างส่วนกลาง มีตู้น้ำดื่มหยอดเหรียญให้บริการ, ล้อบบี้ (มีทั้ง 2 อาคาร), ลิฟท์, ลานจอดรถยนต์ (1 คัน/1 ห้อง - ไม่ฟิคที่ประจำ), เจ้าหน้าที่รักษาความปลอดภัยตลอด 24 ชม. พร้อมระบบกล้อง CCTV และเข้า-ออกอาคารด้วยคีย์การ์ด</p><p>- ค่าส่วนกลางคือ 45 บาท/ตร.ม./เดือน</p><p><br /></p><p> เจ้าของขายเอง นัดดูห้องได้ทุกวัน </p><p> : 097-2364563 [ แนน ]</p><p> Line : nan245636 </p><p>***เฟอร์นิเจอร์ที่เห็นให้ทุกอย่างนะคะ ยกเว้นพวกเครื่องใช้ไฟฟ้าคะ</p>",
-    "phoneViews": 1,
-    "status": "active",
-    "lineViews": 2,
-    "facilities": [
-      {
-        "label": "เครื่องปรับอากาศ",
-        "id": "ac"
-      },
-      {
-        "id": "wardrobe",
-        "label": "ตู้เสื้อผ้า"
-      },
-      {
-        "id": "sofa",
-        "label": "โซฟา"
-      },
-      {
-        "label": "ทีวี",
-        "id": "tv"
-      },
-      {
-        "label": "ตู้เย็น",
-        "id": "fridge"
-      },
-      {
-        "label": "เครื่องซักผ้า",
-        "id": "laundry"
-      },
-      {
-        "label": "ไมโครเวฟ",
-        "id": "microwave"
-      },
-      {
-        "id": "cctv",
-        "label": "กล้องวงจรปิด"
-      },
-      {
-        "id": "guard",
-        "label": "ยามรักษาความปลอดภัย"
-      },
-      {
-        "id": "fitness",
-        "label": "ฟิตเนส"
-      },
-      {
-        "id": "pool",
-        "label": "สระว่ายน้ำ"
-      }
+    "specs": [
+      { "value": 1, "label": "ห้องนอน", "id": "beds" },
+      { "label": "ห้องน้ำ", "value": 1, "id": "baths" },
+      { "value": 1, "id": "kitchens", "label": "ห้องครัว" },
+      { "label": "ที่จอดรถ", "id": "parkings", "value": 1 }
     ],
     "slug": "ขายด่วนนน-d-condo-sukhumvit-109-คอนโดตกแต่งพร้อมอยู่-แอนด์gtแอนด์gtหิ้_TgrkVd5wK6hKyjCJQpaF",
-    "condition": "used",
-    "land": 0,
-    "cid": 2,
-    "assetType": "condo",
-    "title": "ขายด่วนนน !!! D Condo Sukhumvit 109 คอนโดตกแต่งพร้อมอยู่หิ้วกระเป๋าเข้าอยู่ได้เลยจ้าของขายเอง"
-  },
-  {
-    "id": "wSnuodlvUIE4kFih6odh",
-    "postViews": 747,
-    "specs": [
-      {
-        "label": "ห้องนอน",
-        "value": 2,
-        "id": "beds"
-      },
-      {
-        "id": "baths",
-        "value": 2,
-        "label": "ห้องน้ำ"
-      },
-      {
-        "label": "ห้องครัว",
-        "value": 1,
-        "id": "kitchens"
-      },
-      {
-        "id": "parkings",
-        "value": 1,
-        "label": "ที่จอดรถ"
-      }
-    ],
-    "thumbnail": "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FwSnuodlvUIE4kFih6odh%2Fi%2F92297_1662265881318.jpeg?alt=media",
-    "cid": 3,
-    "postNumber": 1662265882695,
-    "land": 0,
-    "price": 23000,
-    "indexed": true,
-    "areaUnit": "sqm",
-    "priceUnit": "month",
-    "createdAt": {
-      "seconds": 1662265883,
-      "nanoseconds": 58000000
-    },
-    "subStatus": "created",
     "address": {
-      "location": {
-        "lng": 100.54351183656233,
-        "lat": 13.791006706997248
-      },
-      "subDistrictId": "s101401",
+      "provinceLabel": "สมุทรปราการ",
       "regionId": "r2",
-      "districtId": "d1014",
-      "districtLabel": "พญาไท",
-      "subDistrictLabel": "สามเสนใน",
-      "provinceId": "p1",
-      "provinceLabel": "กรุงเทพมหานคร"
+      "subDistrictLabel": "สำโรงเหนือ",
+      "districtId": "d1101",
+      "location": { "lng": 100.60537046071319, "lat": 13.654038646681526 },
+      "districtLabel": "เมืองสมุทรปราการ",
+      "subDistrictId": "s110102",
+      "provinceId": "p2"
     },
-    "postType": "rent",
-    "area": 65,
-    "condition": "new",
-    "lineViews": 2,
     "assetType": "condo",
-    "desc": "<p>ให้เช่า และ ขาย คอนโดลุมพินีเพลส พหล-สะพานควาย</p><p><br /></p><p>ใกล้ BTS สะพานควาย MRT กำแพงเพชร</p><p>ราคาเช่า 23,000  บาท/เดือน (สัญญา 1ปี)</p><p>2 ห้องนอน 2 ห้องน้ำ 1ห้องครัว  ขนาดห้อง 65 ตร.ม.</p><p>อาคาร B ชั้น 21</p><p>สิ่งอำนวยความสะดวก</p><p> มีเฟอร์นิเจอร์</p><p> เครื่องใช้ไฟฟ้า : เครื่องปรับอากาศ, ทีวี, ตู้เย็น, ไมโครเวฟ, เตาไฟฟ้า, ที่ดูดควัน, เครื่องทำน้ำอุ่น</p><p>ที่จอดรถ 1 คัน ไม่กำหนดตำแหน่ง</p><p>สระว่ายน้ำ Fitness สนามบาส สนามแบด</p><p>ที่ล้างรถยนต์</p><p>รปภ.</p><p>ร้านอาหาร ร้านสะดวกซื้อ ร้านกาแฟ</p><p>ติดต่อ : 081-913-2983 ก้องภัค (ก้อง) AG</p><p>id  line : 0819132983</p>",
-    "landUnit": null,
-    "status": "active",
-    "phoneViews": 2,
-    "facilities": [
-      {
-        "label": "เครื่องปรับอากาศ",
-        "id": "ac"
-      },
-      {
-        "label": "ทีวี",
-        "id": "tv"
-      },
-      {
-        "id": "microwave",
-        "label": "ไมโครเวฟ"
-      },
-      {
-        "label": "กล้องวงจรปิด",
-        "id": "cctv"
-      },
-      {
-        "id": "guard",
-        "label": "ยามรักษาความปลอดภัย"
-      },
-      {
-        "id": "fitness",
-        "label": "ฟิตเนส"
-      },
-      {
-        "label": "สระว่ายน้ำ",
-        "id": "pool"
-      },
-      {
-        "id": "playground",
-        "label": "สนามเด็กเล่น"
-      }
-    ],
-    "updatedAt": {
-      "seconds": 1666518089,
-      "nanoseconds": 702000000
-    },
-    "images": [
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FwSnuodlvUIE4kFih6odh%2Fi%2F92297_1662265881318.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FwSnuodlvUIE4kFih6odh%2Fi%2F73333_1662265881319.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FwSnuodlvUIE4kFih6odh%2Fi%2F23153_1662265881319.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FwSnuodlvUIE4kFih6odh%2Fi%2F45956_1662265881320.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FwSnuodlvUIE4kFih6odh%2Fi%2F6025_1662265881320.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FwSnuodlvUIE4kFih6odh%2Fi%2F19553_1662265881320.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FwSnuodlvUIE4kFih6odh%2Fi%2F95452_1662265881321.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FwSnuodlvUIE4kFih6odh%2Fi%2F5671_1662265881321.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FwSnuodlvUIE4kFih6odh%2Fi%2F80557_1662265881321.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FwSnuodlvUIE4kFih6odh%2Fi%2F34400_1662265881322.jpeg?alt=media"
-    ],
-    "slug": "ให้เช่า-และ-ขาย-คอนโดลุมพินีเพลส-พหล-สะพานควาย-ใกล้-bts-สะพานควาย-mrt-_wSnuodlvUIE4kFih6odh",
-    "refId": "",
+    "price": 1900000,
+    "thumbnail": "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FTgrkVd5wK6hKyjCJQpaF%2Fi%2F25155_1662261122503.jpeg?alt=media",
+    "areaUnit": "sqm",
+    "land": 0,
+    "createdAt": { "seconds": 1662261124, "nanoseconds": 384000000 },
+    "title": "ขายด่วนนน !!! D Condo Sukhumvit 109 คอนโดตกแต่งพร้อมอยู่หิ้วกระเป๋าเข้าอยู่ได้เลยจ้าของขายเอง",
     "video": "",
-    "updatedBy": {
-      "userId": "<ADMIN>",
-      "name": "Admin"
-    },
-    "createdBy": {
-      "role": "agent",
-      "phone": "0812345678",
-      "line": "",
-      "profileImg": "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/us%2FD0GnI5BxfifAUlUsSjnXCXMLkhm1%2Fi%2F47789_1662260534827.png?alt=media",
-      "email": "abc@gmail.com",
-      "userId": "m0tQ6o9EKkexZELj24cv6jZzKiA2",
-      "name": "Jane"
-    },
-    "title": "ให้เช่า และ ขาย คอนโดลุมพินีเพลส พหล-สะพานควาย ใกล้ BTS สะพานควาย MRT กำแพงเพชร"
-  },
-  {
-    "id": "2EmfH61csezpSHlGJTN6",
     "phoneViews": 1,
-    "createdAt": {
-      "seconds": 1662271567,
-      "nanoseconds": 283000000
-    },
-    "price": 3490000,
-    "postViews": 672,
-    "title": "ขายเดอะทรัสต์ ทาวน์ ราชพฤกษ์ รัตนาธิเบศร์ (ห้องริม) โครงการติดถนนราชพฤกษ์",
-    "images": [
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2F2EmfH61csezpSHlGJTN6%2Fi%2F7500_1662271565193.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2F2EmfH61csezpSHlGJTN6%2Fi%2F63054_1662271565194.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2F2EmfH61csezpSHlGJTN6%2Fi%2F78349_1662271565194.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2F2EmfH61csezpSHlGJTN6%2Fi%2F73029_1662271565195.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2F2EmfH61csezpSHlGJTN6%2Fi%2F27960_1662271565195.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2F2EmfH61csezpSHlGJTN6%2Fi%2F10471_1662271565195.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2F2EmfH61csezpSHlGJTN6%2Fi%2F82722_1662271565196.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2F2EmfH61csezpSHlGJTN6%2Fi%2F98126_1662271565196.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2F2EmfH61csezpSHlGJTN6%2Fi%2F91224_1662271565196.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2F2EmfH61csezpSHlGJTN6%2Fi%2F52220_1662271565197.jpeg?alt=media"
-    ],
-    "facilities": [
-      {
-        "label": "กล้องวงจรปิด",
-        "id": "cctv"
-      },
-      {
-        "label": "ยามรักษาความปลอดภัย",
-        "id": "guard"
-      },
-      {
-        "label": "คลับ/สโมสร",
-        "id": "club"
-      },
-      {
-        "id": "fitness",
-        "label": "ฟิตเนส"
-      },
-      {
-        "id": "pool",
-        "label": "สระว่ายน้ำ"
-      },
-      {
-        "label": "สนามเด็กเล่น",
-        "id": "playground"
-      }
-    ],
-    "desc": "<p>เดอะทรัสต์ ทาวน์ ราชพฤกษ์ รัตนาธิเบศร์ (ห้องริม) โครงการติดถนนราชพฤกษ์</p><p>- เนื้อที่ 38.3 ตร.ว.พื้นที่ใช้สอย 120 ตร.ม.(ห้องริม)</p><p>- 4 ห้องนอน 2 ห้องน้ำ 1 ห้องรับแขก 1 ห้องครัว 2 ที่จอดรถ</p><p>- มีการต่อเติมห้องเพิ่มด้านหลัง พร้อมทั้งพื้นที่เอนกประสงค์ด้านข้างหน้าบ้าน</p><p>- สามารถจอดรถหน้าบ้านได้อีก 1 คัน เพราะเป็นห้องริม</p><p>- ห้องครัวบิวท์ไว้เรียบร้อย ทำหลังคาโรงรถ พร้อมอยู่ </p><p>- พื้นชั้นล่าง แกรนิตโต้ พื้นชั้นบน ลามิเนต</p><p>- หน้าบ้านหันทิศใต้</p><p>แผนที่ :  https://goo.gl/maps/MgprXGemPXLVHdT57</p><p>ราคา 3,490,000 บาท</p><p><br /></p><p><strong>ศูนย์การค้า</strong></p><ul><li>บุญถาวร ราชพฤกษ์</li><li>Central Plaza รัตนาธิเบศร์</li><li>ตลาดพิมลราช เซ็นเตอร์</li><li>The Square บางใหญ่</li><li>Chic Republic ราชพฤกษ์</li><li>Big C Extra</li><li>Central Plaza Westgate</li><li>บางใหญ่ ไนท์พลาซ่า</li><li>สัมมากรเพลส ราชพฤกษ์ (Pure Place)</li><li>The Crystal PTT ชัยพฤกษ์</li><li>The Crystal PTT ชัยพฤกษ์</li><li>Makro บางบัวทอง</li><li>ไทวัสดุ บางบัวทอง</li><li>Homepro ชัยพฤกษ์</li><li>Index Living Mall ชัยพฤกษ์</li><li>ตลาดสดเทศบาลเมืองบางบัวทอง</li></ul><p><br /></p><p><br /></p><p>สนใจติดต่อ</p><p>Mobile / Line : 064-178-7944  </p><p>#เดอะทรัสต์ทาวน์ #ราชพฤกษ์ #รัตนาธิเบศร์ #ทาวน์โฮมนนทบุรี #โครงการติดถนนใหญ่ #บ้านมือสองนนทบุรี #ขายบ้านมือสอง #ทาวน์เฮ้าส์มือสอง #บ้านมือสองราคาถูก #รับฝากขายบ้าน #realestateagent</p>",
-    "cid": 4,
-    "createdBy": {
-      "email": "abc@gmail.com",
-      "role": "agent",
-      "phone": "0812345678",
-      "name": "Kate",
-      "line": "",
-      "userId": "D0GnI5BxfifAUlUsSjnXCXMLkhm1",
-      "profileImg": "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/us%2FD0GnI5BxfifAUlUsSjnXCXMLkhm1%2Fi%2F47789_1662260534827.png?alt=media"
-    },
-    "status": "active",
-    "assetType": "townhome",
-    "video": "",
-    "specs": [
-      {
-        "id": "beds",
-        "label": "ห้องนอน",
-        "value": 4
-      },
-      {
-        "value": 2,
-        "label": "ห้องน้ำ",
-        "id": "baths"
-      },
-      {
-        "value": 1,
-        "id": "kitchens",
-        "label": "ห้องครัว"
-      },
-      {
-        "id": "parkings",
-        "label": "ที่จอดรถ",
-        "value": 2
-      }
-    ],
-    "postNumber": 1662271567061,
-    "thumbnail": "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2F2EmfH61csezpSHlGJTN6%2Fi%2F7500_1662271565193.jpeg?alt=media",
-    "land": 38.3,
-    "area": 120,
-    "priceUnit": null,
-    "updatedAt": {
-      "seconds": 1666518057,
-      "nanoseconds": 604000000
-    },
-    "lineViews": 1,
-    "slug": "ขายเดอะทรัสต์-ทาวน์-ราชพฤกษ์-รัตนาธิเบศร์-ห้องริม-โครงการติดถนนราชพฤกษ_2EmfH61csezpSHlGJTN6",
     "condition": "used",
-    "subStatus": "created",
-    "landUnit": "sqw",
-    "address": {
-      "districtLabel": "ปากเกร็ด",
-      "subDistrictId": "s120609",
-      "subDistrictLabel": "อ้อมเกร็ด",
-      "regionId": "r2",
-      "location": {
-        "lng": 100.44924121779097,
-        "lat": 13.904223800000002
-      },
-      "provinceId": "p3",
-      "districtId": "d1206",
-      "provinceLabel": "นนทบุรี"
-    },
+    "status": "active",
+    "updatedBy": { "userId": "<ADMIN>", "name": "Admin" },
     "postType": "sale",
-    "refId": "",
-    "indexed": true,
-    "areaUnit": "sqm",
-    "updatedBy": {
-      "userId": "<ADMIN>",
-      "name": "Admin"
-    }
-  },
-  {
-    "id": "fQloSsWI2lf8QOxFjdMP",
-    "postViews": 789,
-    "specs": [
-      {
-        "id": "beds",
-        "value": 2,
-        "label": "ห้องนอน"
-      },
-      {
-        "label": "ห้องน้ำ",
-        "value": 2,
-        "id": "baths"
-      },
-      {
-        "id": "kitchens",
-        "value": 1,
-        "label": "ห้องครัว"
-      },
-      {
-        "id": "parkings",
-        "value": 1,
-        "label": "ที่จอดรถ"
-      }
-    ],
-    "thumbnail": "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FfQloSsWI2lf8QOxFjdMP%2Fi%2F47554_1662362967352.jpeg?alt=media",
-    "cid": 5,
-    "postNumber": 1662362968325,
-    "land": 0,
-    "price": 16000,
-    "indexed": true,
-    "areaUnit": "sqm",
-    "createdAt": {
-      "seconds": 1662362968,
-      "nanoseconds": 656000000
-    },
-    "priceUnit": "month",
+    "priceUnit": "",
     "subStatus": "created",
-    "address": {
-      "subDistrictLabel": "สามเสนนอก",
-      "districtId": "d1017",
-      "provinceId": "p1",
-      "subDistrictId": "s101704",
-      "provinceLabel": "กรุงเทพมหานคร",
-      "districtLabel": "ห้วยขวาง",
-      "location": {
-        "lng": 100.58565026441802,
-        "lat": 13.783858569516516
-      },
-      "regionId": "r2"
-    },
-    "postType": "rent",
-    "area": 66,
-    "condition": "used",
-    "lineViews": 2,
-    "desc": "<p>Happy Condo รัชดา18</p><p>ใกล้ทั้ง Mrtห้วยขวาง และ Mrtสุทธิสาร</p><p>เดินทางสะดวก ซอยไม่เปลี่ยว ใกล้แหล่งของกิน</p><p>ใกล้เซเว่น มีวินหน้าโครงการ มีสนามฟุตบอล</p><p>2ห้องนอน 2ห้องน้ำ 1ห้องแต่งตัว</p><p>ขนาดพื้นที่ใช้สอยกว้างมาก 66ตรม</p><p>ชั้น 3 ห้องมุม ตึก D</p><p><br /></p><p>16,000/เดือน</p><p> ราคานี้หาไม่ได้อีกแล้ว</p><p><br /></p><p>สัญญา 1ปี มัดจำ2เดือน ล่วงหน้า1เดือน</p><p>เฟอร์นิเจอร์ครบตามภาพ หิ้วกระเป๋าเข้าอยู่ได้เลย</p><p>ทำความสะอาดตลอด ห้องไม่เก่า</p><p> เตียง +ที่นอน5ฟุต</p><p>ตู้เสื้อผ้าบิ้วอิน ทั้งสองห้อง</p><p>ชั้นวางทีวี ชั้นวางของ</p><p>โต๊ะกินข้าว</p><p>โซฟา</p><p>ครัวบิ้วอิน</p><p>เครื่องใช้ไฟฟ้า</p><p>ทีวี</p><p>แอร์ 3ตัว</p><p>ตู้เย็น</p><p>เครื่องทำน้ำอุ่น</p><p>ไมโครเวฟ</p><p>16,000/เดือน</p><p><br /></p><p>สัญญา 1 ปี / ประกัน 2 เดือน + ล่วงหน้า 1 เดือน</p><p>สนใจนัดดูห้อง หรือคุยรายละเอียดเพิ่มเติม</p><p>094-9991624</p><p>เจเจ</p><p>ไลน์ </p><p>https://line.me/ti/p/s3WQ8y7MEZ</p><p><br /></p><p>Facebook &gt; JJay Apichaya</p>",
-    "assetType": "condo",
-    "landUnit": null,
-    "status": "active",
-    "phoneViews": 2,
+    "desc": "<p>*** ขายด่วนนน !!! D Condo Sukhumvit 109 คอนโดตกแต่งพร้อมอยู่ &gt;&gt;หิ้วกระเป๋าเข้าอยู่ได้เลย ( เจ้าของขายเอง )))</p><p>พื้นที่ใช้สอย :</p><p>30.19 ตร.ม.</p><p>1 ห้องนอน</p><p>1 ห้องน้ำ</p><p>ชั้น 4</p><p>รายละเอียด</p><p>ขาย D Condo Sukhumvit 109 พร้อมเฟอร์นิเจอร์ + วิวสระว่ายน้ำ (ใกล้ BTS แบริ่ง, รร.เซนต์แอนดรูว์ สุขุมวิท 107, อิมพีเรียล สำโรง)</p><p>ราคาขาย : 1.9 ล้านบาท **(ฟรีค่าโอน)</p><p>อาคาร : B</p><p>ที่ตั้ง : ซ.สุขุมวิท 109</p><p>สถานีรถไฟฟ้า BTS : แบริ่ง (ประมาณ 1.2 กม.)</p><p>สถานที่ใกล้เคียง : </p><p>ตลาดมิ่ง ซ.แบริ่ง 3 // รร.นานาชาติเซนต์แอนดรูว์ สุขุมวิท 107 // อิมพีเรียลเวิลด์ สำโรง // บิ๊กซี สำโรง // เมเจอร์ซีเนเพล็กซ์ สำโรง // รพ.สำโรงการแพทย์ // ตลาดสำโรงเซ็นเตอร์ // ตลาดเอี่ยมเจริญ // รร.วัดด่านสำโรง // รร.ไทยซิกข์นานาชาติ // รพ.มนารมย์ // กรมอุตุนิยมวิทยา // ไบเทค บางนา // รร.บางกอกพัฒนา // รร.เซนต์โยเซฟ บางนา // ทางด่วน (ด่านบางนา)</p><p>รายละเอียด :</p><p>- พื้นที่ใช้สอย 30.19ตร.ม., ชั้น 4 วิวสระว่ายน้ำ, 1 ห้องนอน, 1 ห้องน้ำ, ห้องครัวแยกเป็นสัดส่วน พร้อมเคาน์เตอร์และตู้เก็บของบิวท์อิน, เฟอร์นิเจอร์ตกแต่งใหม่, ผ้าม่านกันแสงอย่างดี (แอร์ 1 เครื่อง, เครื่องทำน้ำอุ่น), ห้องนอน-ระเบียงหันไปทางเหนือ ไม่รับแดดตรงๆ ทั้งช่วงเช้าและบ่าย ห้องไม่ร้อน</p><p>ข้อมูลโครงการ :</p><p>- คอนโดแบบ low rise โดยแสนสิริ ตั้งอยู่ใน ซ.สุขุมวิท 109 (สูง 8 ชั้น, จำนวน 2 อาคาร) ไม่ไกลจากสถานีรถไฟฟ้า BTS, รร.นานาชาติเซนต์แอนดรูว์ สุขุมวิท 107 จากตัวคอนโดสามารถเข้า-ออกได้ทั้งทาง ซ.สุขุมวิท 109, ซ.สุขุมวิท 107 เข้าซอยย่อย (แบริ่ง 12 - สันติคาม 11) และ ซ.สุขุมวิท 113 เข้าซอยย่อย (ซ.สำโรงเหนือ 7 ก่อนเข้า ซ.สันติคาม 8 หรือ 10) จากคอนโดประมาณ 150 ม. มีร้าน 7-11, ร้านอาหาร, ร้านน้ำผลไม้ปั่น-กาแฟ และยังมีตลาดนัดขายอาหารเล็กๆ แบบใส่ถุงกลับบ้านอีกด้วย พร้อมสิ่งอำนวยความสะดวกในโครงการ เช่น สระว่ายน้ำ, ฟิตเนส, สวนหย่อม และมุมนั่นเล่นรับลม, ห้องซักล้างส่วนกลาง มีตู้น้ำดื่มหยอดเหรียญให้บริการ, ล้อบบี้ (มีทั้ง 2 อาคาร), ลิฟท์, ลานจอดรถยนต์ (1 คัน/1 ห้อง - ไม่ฟิคที่ประจำ), เจ้าหน้าที่รักษาความปลอดภัยตลอด 24 ชม. พร้อมระบบกล้อง CCTV และเข้า-ออกอาคารด้วยคีย์การ์ด</p><p>- ค่าส่วนกลางคือ 45 บาท/ตร.ม./เดือน</p><p><br /></p><p> เจ้าของขายเอง นัดดูห้องได้ทุกวัน</p>",
     "facilities": [
-      {
-        "label": "เครื่องปรับอากาศ",
-        "id": "ac"
-      },
-      {
-        "id": "wardrobe",
-        "label": "ตู้เสื้อผ้า"
-      },
-      {
-        "id": "sofa",
-        "label": "โซฟา"
-      },
-      {
-        "id": "tv",
-        "label": "ทีวี"
-      },
-      {
-        "label": "ตู้เย็น",
-        "id": "fridge"
-      },
-      {
-        "label": "ไมโครเวฟ",
-        "id": "microwave"
-      }
-    ],
-    "updatedAt": {
-      "seconds": 1666518007,
-      "nanoseconds": 482000000
-    },
-    "images": [
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FfQloSsWI2lf8QOxFjdMP%2Fi%2F47554_1662362967352.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FfQloSsWI2lf8QOxFjdMP%2Fi%2F80018_1662362967353.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FfQloSsWI2lf8QOxFjdMP%2Fi%2F57820_1662362967354.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FfQloSsWI2lf8QOxFjdMP%2Fi%2F46153_1662362967354.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FfQloSsWI2lf8QOxFjdMP%2Fi%2F88764_1662362967355.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FfQloSsWI2lf8QOxFjdMP%2Fi%2F43183_1662362967355.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FfQloSsWI2lf8QOxFjdMP%2Fi%2F80518_1662362967355.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FfQloSsWI2lf8QOxFjdMP%2Fi%2F42616_1662362967355.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FfQloSsWI2lf8QOxFjdMP%2Fi%2F78427_1662362967356.jpeg?alt=media",
-      "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/po%2FfQloSsWI2lf8QOxFjdMP%2Fi%2F64406_1662362967356.jpeg?alt=media"
-    ],
-    "slug": "ให้เช่า-happy-condo-รัชดา18-ใกล้ทั้ง-mrtห้วยขวาง-และ-mrtสุทธิสาร_fQloSsWI2lf8QOxFjdMP",
-    "video": "",
-    "refId": "",
-    "updatedBy": {
-      "name": "Admin",
-      "userId": "<ADMIN>"
-    },
-    "createdBy": {
-      "userId": "SvSZMDCoZcaYYY9ycxW6D6MHKIl1",
-      "email": "abc@gmail.com",
-      "profileImg": "https://firebasestorage.googleapis.com/v0/b/hahome-prod.appspot.com/o/us%2FD0GnI5BxfifAUlUsSjnXCXMLkhm1%2Fi%2F47789_1662260534827.png?alt=media",
-      "role": "agent",
-      "name": "Joe",
-      "line": "",
-      "phone": "0812345678"
-    },
-    "title": "ให้เช่า Happy Condo รัชดา18 ใกล้ทั้ง Mrtห้วยขวาง และ Mrtสุทธิสาร "
+      { "id": "ac", "label": "เครื่องปรับอากาศ" },
+      { "id": "wardrobe", "label": "ตู้เสื้อผ้า" },
+      { "id": "sofa", "label": "โซฟา" },
+      { "label": "ทีวี", "id": "tv" },
+      { "id": "fridge", "label": "ตู้เย็น" },
+      { "id": "laundry", "label": "เครื่องซักผ้า" },
+      { "id": "microwave", "label": "ไมโครเวฟ" },
+      { "id": "cctv", "label": "กล้องวงจรปิด" },
+      { "id": "guard", "label": "ยามรักษาความปลอดภัย" },
+      { "id": "fitness", "label": "ฟิตเนส" },
+      { "id": "pool", "label": "สระว่ายน้ำ" }
+    ]
   }
 ]
