@@ -119,11 +119,12 @@ export type PostDocument = Post & Document;
 
 export enum PostStatus {
   DRAFT = 'draft',
-  REVIEW = 'review',
   ACTIVE = 'active',
+  HOLD = 'hold',
   SOLD = 'sold',
-  EXPIRED = 'expired',
   CLOSED = 'closed',
+  __EMPTY = '<empty>',
+  __CURRENT = '<current>',
 }
 
 export enum AssetType {
@@ -193,9 +194,6 @@ export class Post {
   @Prop({ required: true })
   area: number;
 
-  @Prop({ required: true, enum: AreaUnit })
-  areaUnit: AreaUnit;
-
   @Prop({ required: true, enum: PostStatus })
   status: PostStatus;
 
@@ -221,20 +219,12 @@ export class Post {
   @Prop({
     type: [Facility],
     required: true,
-    validate: {
-      validator: (array: Facility[]) => array.length >= 1,
-      message: 'Facilities must have at least 1 item',
-    },
   })
   facilities: Facility[];
 
   @Prop({
     type: [Spec],
     required: true,
-    validate: {
-      validator: (array: Spec[]) => array.length >= 1,
-      message: 'Specs must have at least 1 item',
-    },
   })
   specs: Spec[];
 
@@ -251,9 +241,6 @@ export class Post {
   @Prop({ required: true })
   postNumber: string;
 
-  @Prop({ required: true, enum: Condition })
-  condition: Condition;
-
   @Prop()
   video?: string;
 
@@ -263,10 +250,16 @@ export class Post {
   @Prop({ enum: AreaUnit })
   landUnit?: AreaUnit;
 
+  @Prop({ enum: AreaUnit })
+  areaUnit?: AreaUnit;
+
   @Prop({
     enum: [...Object.values(AreaUnit), ...Object.values(TimeUnit)],
   })
   priceUnit?: PriceUnit;
+
+  @Prop({ enum: Condition })
+  condition?: Condition;
 
   @Prop()
   refId?: string;

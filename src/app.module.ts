@@ -8,18 +8,20 @@ import { PostsModule } from './posts/posts.module';
 import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { PostActionsModule } from './postActions/postActions.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot(process.env.MONGODB_URI || ''),
+    UsersModule,
+    AuthModule,
     ProvincesModule,
     DistrictsModule,
     SubDistrictsModule,
     PostsModule,
-    UsersModule,
+    PostActionsModule,
     AdminModule,
-    AuthModule,
   ],
 })
 export class AppModule {}

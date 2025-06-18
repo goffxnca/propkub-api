@@ -47,10 +47,6 @@ export class CreatePostDto {
   area: number;
 
   @IsNotEmpty()
-  @IsEnum(AreaUnit)
-  areaUnit: string;
-
-  @IsNotEmpty()
   @IsBoolean()
   isDraft: boolean;
 
@@ -70,14 +66,12 @@ export class CreatePostDto {
 
   @IsNotEmpty()
   @IsArray()
-  @ArrayMinSize(1)
   @ValidateNested()
   @Type(() => Facility)
   facilities: Facility[];
 
   @IsNotEmpty()
   @IsArray()
-  @ArrayMinSize(1)
   @ValidateNested()
   @Type(() => Spec)
   specs: Spec[];
@@ -86,10 +80,6 @@ export class CreatePostDto {
   @ValidateNested()
   @Type(() => Address)
   address: Address;
-
-  @IsNotEmpty()
-  @IsEnum(Condition)
-  condition: string;
 
   @IsOptional()
   @IsString()
@@ -101,11 +91,19 @@ export class CreatePostDto {
 
   @IsOptional()
   @IsEnum(AreaUnit)
+  areaUnit?: string;
+
+  @IsOptional()
+  @IsEnum(AreaUnit)
   landUnit?: string;
 
   @IsOptional()
   @IsEnum({ ...AreaUnit, ...TimeUnit })
   priceUnit?: string;
+
+  @IsOptional()
+  @IsEnum(Condition)
+  condition?: string;
 
   @IsOptional()
   @IsString()

@@ -28,8 +28,6 @@ interface PostWithFirebaseTimestamps {
 interface PostWithDates {
   createdAt: Date;
   updatedAt?: Date;
-  ___createdAt: FirebaseTimestamp;
-  ___updatedAt?: FirebaseTimestamp;
   [key: string]: any;
 }
 
@@ -47,51 +45,41 @@ export class PostsService implements OnModuleInit {
     if (this.envService.isTest()) {
       return;
     }
-
     const count = await this.postModel.estimatedDocumentCount();
-
     const uniqueFirebaseCreatedByIdsFromPosts = [
-      ...new Set(postsData.map((post) => post.createdBy.userId)),
+      ...new Set(postsData.map((post: any) => post.createdBy.userId)),
     ];
     // console.log(
     //   'uniqueFirebaseCreatedByIdsFromPosts',
     //   uniqueFirebaseCreatedByIdsFromPosts,
     // );
-
     const allUsersMatchedPostsCreatedBy = await this.userModel
       .find({
         ___id: { $in: uniqueFirebaseCreatedByIdsFromPosts },
       })
       .lean();
     // console.log('allUsersMatchedPostsCreatedBy', allUsersMatchedPostsCreatedBy);
-
     const userIdMap = {};
     allUsersMatchedPostsCreatedBy.forEach((user) => {
       userIdMap[user.___id!] = user._id;
     });
-
     console.log('userIdMap', userIdMap);
-
     if (count === 0) {
       const convertedPosts = (postsData as PostWithFirebaseTimestamps[]).map(
         (post, index) => {
           const createdByFirebaseUserId = post.createdBy.userId;
           if (!createdByFirebaseUserId) {
-            console.error(
+            throw new Error(
               `Pos ID ${post.id} does not contain created by firebase id`,
             );
-            return null;
           }
-          const mongoUserId = userIdMap[post.createdBy.userId];
+          const mongoUserId = userIdMap[createdByFirebaseUserId];
           if (!mongoUserId) {
-            console.error(
-              `User with Firebase ID ${post.createdBy.userId} not found`,
+            throw new Error(
+              `User with Firebase ID ${createdByFirebaseUserId} not found`,
             );
-            return null;
           }
-
           const postStatus = post.subStatus;
-
           const convertedPost: PostWithDates = {
             ...post,
             cid: index + 1,
@@ -110,8 +98,10 @@ export class PostsService implements OnModuleInit {
             },
             postNumber: post.id,
             video: post?.video || undefined,
-            priceUnit: post?.priceUnit || undefined,
             landUnit: post?.landUnit || undefined,
+            areaUnit: post?.areaUnit || undefined,
+            priceUnit: post?.priceUnit || undefined,
+            condition: post?.condition || undefined,
             refId: post?.refId || undefined,
             createdAt: new Date(
               post.createdAt.seconds * 1000 +
@@ -121,15 +111,11 @@ export class PostsService implements OnModuleInit {
             updatedAt: undefined,
             updatedBy: undefined,
             ___createdById: post.createdBy.userId,
-            ___createdAt: post.createdAt,
-            ___updatedAt: undefined,
             ___id: post.id,
           };
-
           return convertedPost;
         },
       );
-
       await this.postModel.insertMany(convertedPosts);
       console.log(`✅ Seeded ${convertedPosts.length} posts.`);
     }
