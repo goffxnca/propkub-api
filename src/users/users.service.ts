@@ -48,7 +48,10 @@ export class UsersService implements OnModuleInit {
             role: UserRole.NORMAL,
             emailVToken:
               user.emailVerified === true ? undefined : user.emailVToken,
-            createdAt: user?.createdAt || new Date(),
+            createdAt: new Date(
+              (user.createdAt as any).seconds * 1000 +
+                (user.createdAt as any).nanoseconds / 1000000,
+            ),
             createdBy: undefined,
             updatedAt: undefined,
             updatedBy: undefined,
