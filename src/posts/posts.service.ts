@@ -12,8 +12,8 @@ import { UpdatePostDto } from './dto/updatePostDto';
 import { MailService } from '../mail/mail.service';
 import { EMAIL_POST_CREATED, NO_REPLY_EMAIL } from '../common/constants';
 import { UsersService } from '../users/users.service';
-import { PostActionsService } from 'src/postActions/postActions.service';
-import { PostActionType } from 'src/postActions/postActions.schema';
+import { PostActionsService } from '../postActions/postActions.service';
+import { PostActionType } from '../postActions/postActions.schema';
 
 interface FirebaseTimestamp {
   //TODO: Remove later once it seems to created correctly
@@ -209,7 +209,7 @@ export class PostsService implements OnModuleInit {
   ): Promise<Post | null> {
     const post = await this.postModel.findById(id);
     if (!post) {
-      throw new NotFoundException(`Post id:${id} not found`);
+      throw new NotFoundException(`Post with ID ${id} not found`);
     }
 
     const updateData = {
