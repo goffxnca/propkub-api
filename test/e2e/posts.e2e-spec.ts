@@ -8,6 +8,7 @@ import {
   Post,
   PostType,
   AssetType,
+  PostStatus,
 } from '../../src/posts/posts.schema';
 import { createPost } from '../factory/postFactory';
 import {
@@ -25,6 +26,11 @@ import { authHeader, createUserAndLogIn } from '../utils/auths';
 import { User } from '../../src/users/users.schema';
 import { createUser } from '../factory/userFactory';
 import { MailService } from '../../src/mail/mail.service';
+import {
+  PostActions,
+  PostActionType,
+} from '../../src/postActions/postActions.schema';
+import { POST_ACTIONS_FLOW } from '../../src/common/postActionsFlow';
 
 describe('Posts (e2e)', () => {
   let app: INestApplication;
@@ -33,6 +39,7 @@ describe('Posts (e2e)', () => {
   let mailService: MailService;
   let postModel: Model<Post>;
   let userModel: Model<User>;
+  let postActionsModel: Model<PostActions>;
   let testUser: User;
   let authToken: string;
 
@@ -215,6 +222,9 @@ describe('Posts (e2e)', () => {
 
     postModel = moduleFixture.get<Model<Post>>(getModelToken(Post.name));
     userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
+    postActionsModel = moduleFixture.get<Model<PostActions>>(
+      getModelToken(PostActions.name),
+    );
 
     await app.init();
 
@@ -233,6 +243,7 @@ describe('Posts (e2e)', () => {
   });
 
   afterAll(async () => {
+    await postActionsModel.deleteMany();
     await postModel.deleteMany();
     await userModel.deleteMany();
     await app.close();
@@ -553,19 +564,40 @@ describe('Posts (e2e)', () => {
       condition: Condition.NEW,
     };
 
-    it('should create a new post successfully when authenticated', () => {
-      return request(app.getHttpServer())
+    it('should create a new post successfully when authenticated', async () => {
+      const response = await request(app.getHttpServer())
         .post('/posts')
         .set(authHeader(authToken))
         .send(validCreatePostDto)
-        .expect(201)
-        .expect((res) => {
-          expect(res.body.title).toBe(validCreatePostDto.title);
-          expect(res.body.desc).toBe(
-            'This is a link<p>This is a paragraph</p>',
-          );
-          expect(res.body.createdBy).toBe(testUser._id.toString());
-        });
+        .expect(201);
+
+      expect(response.body.title).toBe(validCreatePostDto.title);
+      expect(response.body.desc).toBe(
+        'This is a link<p>This is a paragraph</p>',
+      );
+      expect(response.body.status).toBe('draft');
+      expect(response.body.createdBy).toBe(testUser._id.toString());
+
+      const createdPostId = response.body._id;
+      const postAction = await postActionsModel
+        .findOne({
+          postId: createdPostId,
+        })
+        .sort({ createdAt: -1 });
+      expect(postAction).toBeDefined();
+
+      const expectedAction = POST_ACTIONS_FLOW.find(
+        (paf) => paf.action === PostActionType.DRAFT,
+      );
+      expect(expectedAction).toBeDefined();
+
+      expect(postAction!.type).toBe(PostActionType.DRAFT);
+      expect(postAction!.label).toBe(expectedAction!.actionLabel);
+      expect(postAction!.from).toBe(PostStatus.__EMPTY);
+      expect(postAction!.to).toBe(PostStatus.DRAFT);
+      expect(postAction!.postId.toString()).toBe(createdPostId);
+      expect(postAction!.createdBy.toString()).toBe(testUser._id.toString());
+      expect(postAction!.note).toBe('');
     });
 
     it('should return 401 when not authenticated', () => {
@@ -608,7 +640,7 @@ describe('Posts (e2e)', () => {
       existingPost = post;
     });
 
-    const validUpdateDto = {
+    const validUpdatePostDto = {
       title: 'Updated post title',
       desc: '<a>This is a link22</a><p>This is a paragraph22</p>',
       assetType: AssetType.HOUSE,
@@ -656,34 +688,34 @@ describe('Posts (e2e)', () => {
       const response = await request(app.getHttpServer())
         .patch(`/posts/${existingPost._id}`)
         .set(authHeader(authToken))
-        .send(validUpdateDto)
+        .send(validUpdatePostDto)
         .expect(200);
 
-      expect(response.body.title).toBe(validUpdateDto.title);
+      expect(response.body.title).toBe(validUpdatePostDto.title);
       expect(response.body.desc).toBe(
         'This is a link22<p>This is a paragraph22</p>',
       );
-      expect(response.body.assetType).toBe(validUpdateDto.assetType);
-      expect(response.body.postType).toBe(validUpdateDto.postType);
-      expect(response.body.price).toBe(validUpdateDto.price);
-      expect(response.body.area).toBe(validUpdateDto.area);
-      expect(response.body.areaUnit).toBe(validUpdateDto.areaUnit);
+      expect(response.body.assetType).toBe(validUpdatePostDto.assetType);
+      expect(response.body.postType).toBe(validUpdatePostDto.postType);
+      expect(response.body.price).toBe(validUpdatePostDto.price);
+      expect(response.body.area).toBe(validUpdatePostDto.area);
+      expect(response.body.areaUnit).toBe(validUpdatePostDto.areaUnit);
       expect(response.body.status).toBe('active');
-      expect(response.body.isStudio).toBe(validUpdateDto.isStudio);
-      expect(response.body.thumbnail).toBe(validUpdateDto.thumbnail);
+      expect(response.body.isStudio).toBe(validUpdatePostDto.isStudio);
+      expect(response.body.thumbnail).toBe(validUpdatePostDto.thumbnail);
       expect(JSON.stringify(response.body.images)).toBe(
-        JSON.stringify(validUpdateDto.images),
+        JSON.stringify(validUpdatePostDto.images),
       );
       expect(JSON.stringify(response.body.facilities)).toBe(
-        JSON.stringify(validUpdateDto.facilities),
+        JSON.stringify(validUpdatePostDto.facilities),
       );
       expect(JSON.stringify(response.body.specs)).toBe(
-        JSON.stringify(validUpdateDto.specs),
+        JSON.stringify(validUpdatePostDto.specs),
       );
-      expect(validUpdateDto.address.provinceLabel).toBe(
-        validUpdateDto.address.provinceLabel,
+      expect(validUpdatePostDto.address.provinceLabel).toBe(
+        validUpdatePostDto.address.provinceLabel,
       );
-      expect(response.body.condition).toBe(validUpdateDto.condition);
+      expect(response.body.condition).toBe(validUpdatePostDto.condition);
 
       expect(response.body.updatedBy).toBe(testUser._id.toString());
       expect(new Date(response.body.updatedAt)).toBeInstanceOf(Date);
@@ -693,7 +725,28 @@ describe('Posts (e2e)', () => {
 
       const updatedPost = await postModel.findById(existingPost._id);
       expect(updatedPost).toBeDefined();
-      expect(updatedPost?.title).toBe(validUpdateDto.title);
+      expect(updatedPost?.title).toBe(validUpdatePostDto.title);
+
+      const updatedPostId = response.body._id;
+      const postAction = await postActionsModel
+        .findOne({
+          postId: updatedPostId,
+        })
+        .sort({ createdAt: -1 });
+      expect(postAction).toBeDefined();
+
+      const expectedAction = POST_ACTIONS_FLOW.find(
+        (paf) => paf.action === PostActionType.UDPATE,
+      );
+      expect(expectedAction).toBeDefined();
+
+      expect(postAction!.type).toBe(PostActionType.UDPATE);
+      expect(postAction!.label).toBe(expectedAction!.actionLabel);
+      expect(postAction!.from).toBe(PostStatus.ACTIVE);
+      expect(postAction!.to).toBe(PostStatus.ACTIVE);
+      expect(postAction!.postId.toString()).toBe(updatedPostId);
+      expect(postAction!.createdBy.toString()).toBe(testUser._id.toString());
+      expect(postAction!.note).toBe('');
 
       expect(sendEmailSpy).toHaveBeenCalled();
     });
@@ -711,7 +764,7 @@ describe('Posts (e2e)', () => {
     it('should return 401 when not authenticated', () => {
       return request(app.getHttpServer())
         .patch(`/posts/${existingPost._id}`)
-        .send(validUpdateDto)
+        .send(validUpdatePostDto)
         .expect(401)
         .expect((res) => {
           expect(res.body.message).toBe('Unauthorized');
@@ -723,7 +776,7 @@ describe('Posts (e2e)', () => {
       return request(app.getHttpServer())
         .patch(`/posts/${nonExistentId}`)
         .set(authHeader(authToken))
-        .send(validUpdateDto)
+        .send(validUpdatePostDto)
         .expect(404)
         .expect((res) => {
           expect(res.body.message).toBe(
