@@ -12,6 +12,8 @@ import { UpdatePostDto } from './dto/updatePostDto';
 import { MailService } from '../mail/mail.service';
 import { EMAIL_POST_CREATED, NO_REPLY_EMAIL } from '../common/constants';
 import { UsersService } from '../users/users.service';
+import { PostActionsService } from 'src/postActions/postActions.service';
+import { PostActionType } from 'src/postActions/postActions.schema';
 
 interface FirebaseTimestamp {
   //TODO: Remove later once it seems to created correctly
@@ -39,6 +41,7 @@ export class PostsService implements OnModuleInit {
     private readonly envService: EnvironmentService,
     private readonly usersService: UsersService,
     private readonly mailService: MailService,
+    private readonly postActionService: PostActionsService,
   ) {}
 
   async onModuleInit() {
@@ -178,6 +181,12 @@ export class PostsService implements OnModuleInit {
     };
     const createdPost = new this.postModel(userData);
 
+    this.postActionService.create(
+      createPostDto.isDraft ? PostActionType.DRAFT : PostActionType.PUBLISH,
+      createdPost.id,
+      userId,
+    );
+
     this.mailService.sendEmail({
       from: NO_REPLY_EMAIL,
       to: user.email,
@@ -193,16 +202,16 @@ export class PostsService implements OnModuleInit {
     return createdPost.save();
   }
 
-  async seedTest(post: Post): Promise<Post> {
-    const newPost = new this.postModel(post);
-    return newPost.save();
-  }
-
   async update(
     id: string,
     updatePostDto: UpdatePostDto,
     userId: string,
   ): Promise<Post | null> {
+    const post = await this.postModel.findById(id);
+    if (!post) {
+      throw new NotFoundException(`Post id:${id} not found`);
+    }
+
     const updateData = {
       ...updatePostDto,
       desc: updatePostDto.desc
@@ -210,13 +219,21 @@ export class PostsService implements OnModuleInit {
             allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br'],
           })
         : undefined,
-      status: updatePostDto.isDraft ? PostStatus.DRAFT : PostStatus.ACTIVE,
       updatedAt: new Date(),
       updatedBy: userId,
     };
 
-    return this.postModel
+    const updatedPost = this.postModel
       .findByIdAndUpdate(id, updateData, { new: true })
       .exec();
+
+    this.postActionService.create(PostActionType.UDPATE, id, userId);
+
+    return updatedPost;
+  }
+
+  async seedTest(post: Post): Promise<Post> {
+    const newPost = new this.postModel(post);
+    return newPost.save();
   }
 }

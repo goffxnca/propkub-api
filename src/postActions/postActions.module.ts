@@ -14,5 +14,6 @@ import { Post, PostSchema } from '../posts/posts.schema';
     EnvironmentModule,
   ],
   providers: [PostActionsService],
+  exports: [PostActionsService],
 })
 export class PostActionsModule {}

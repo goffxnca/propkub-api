@@ -7,6 +7,7 @@ import { User, UserSchema } from '../users/users.schema';
 import { EnvironmentModule } from '../environments/environment.module';
 import { MailModule } from '../mail/email.module';
 import { UsersModule } from '../users/users.module';
+import { PostActionsModule } from 'src/postActions/postActions.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UsersModule } from '../users/users.module';
     EnvironmentModule,
     UsersModule,
     MailModule,
+    PostActionsModule,
   ],
   providers: [PostsService],
   controllers: [PostsController],
