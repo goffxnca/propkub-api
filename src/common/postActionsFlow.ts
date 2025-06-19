@@ -29,16 +29,16 @@ const POST_ACTIONS_FLOW: PostActionFlow[] = [
     action: PostActionType.PUBLISH,
     actionLabel: 'เผยแพร่ประกาศ',
     fromStatus: PostStatus.__CURRENT,
-    fromSeedStatus: PostStatus.DRAFT,
+    fromSeedStatus: PostStatus.__EMPTY,
     toStatus: PostStatus.ACTIVE,
     __firebasePostAction: 'CreatePost',
   },
   {
     action: PostActionType.UDPATE, // TODO: Can set to __CURRENT from/to later
     actionLabel: 'อัพเดทประกาศ',
-    fromStatus: PostStatus.ACTIVE,
+    fromStatus: PostStatus.__CURRENT,
     fromSeedStatus: PostStatus.ACTIVE,
-    toStatus: PostStatus.ACTIVE,
+    toStatus: PostStatus.__CURRENT,
     __firebasePostAction: 'UpdatePost',
   },
   {
