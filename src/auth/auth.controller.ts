@@ -31,9 +31,9 @@ export class AuthController {
 
   @Post('register')
   signup(@Body() signupDto: SignupDto) {
-    const { name, email, password } = signupDto;
+    const { name, email, password, isAgent } = signupDto;
     this.logger.log(`Registration request for email: ${truncEmail(email)}`);
-    return this.authService.signup(name, email, password);
+    return this.authService.signup(name, email, password, isAgent);
   }
 
   @Get('verify-email')

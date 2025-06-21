@@ -7,9 +7,9 @@ import { IsDate, IsOptional, IsString } from 'class-validator';
 export type UserDocument = User & Document;
 
 export enum UserRole {
-  // AGENT = 'agent',
-  ADMIN = 'admin',
   NORMAL = 'normal',
+  AGENT = 'agent',
+  ADMIN = 'admin',
 }
 
 @Schema({ _id: false })

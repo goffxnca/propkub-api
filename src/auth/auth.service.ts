@@ -17,6 +17,7 @@ import {
 import { MailService } from '../mail/mail.service';
 import { EnvironmentService } from '../environments/environment.service';
 import { truncEmail, truncToken } from '../common/utils/strings';
+import { UserRole } from '../users/users.schema';
 
 @Injectable()
 export class AuthService {
@@ -54,7 +55,12 @@ export class AuthService {
     }
   }
 
-  async signup(name: string, email: string, password: string) {
+  async signup(
+    name: string,
+    email: string,
+    password: string,
+    isAgent: boolean,
+  ) {
     this.logger.log(`Creating new user account: ${truncEmail(email)}`);
 
     try {
@@ -62,6 +68,7 @@ export class AuthService {
         name,
         email,
         password,
+        isAgent ? UserRole.AGENT : UserRole.NORMAL,
         AuthProvider.EMAIL,
       );
 
@@ -159,6 +166,7 @@ export class AuthService {
         name,
         email,
         '',
+        UserRole.NORMAL,
         AuthProvider.GOOGLE,
         profileImg,
         googleId,
@@ -213,6 +221,7 @@ export class AuthService {
         name,
         email,
         '',
+        UserRole.NORMAL,
         AuthProvider.FACEBOOK,
         profileImg,
         undefined,
