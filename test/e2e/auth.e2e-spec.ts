@@ -56,12 +56,13 @@ describe('Auth (e2e)', () => {
   });
 
   describe('POST /auth/register', () => {
-    it('should create a new user and return JWT token', async () => {
+    it('should create a new normal user and return JWT token', async () => {
       const sendEmailSpy = jest.spyOn(mailService, 'sendEmail');
       const signupDto: SignupDto = {
         name: testUser.name,
         email: testUser.email,
         password: testUser.password,
+        isAgent: false,
       };
 
       await request(app.getHttpServer())
@@ -75,18 +76,49 @@ describe('Auth (e2e)', () => {
 
       expect(sendEmailSpy).toHaveBeenCalled();
 
-      const users = await userModel.find();
-      console.log('users', users);
+      const user = await userModel.findOne({ email: testUser.email });
+      expect(user).toBeDefined();
+      expect(user?.role!).toBe(UserRole.NORMAL);
+    });
+
+    it('should create a new agent user and return JWT token', async () => {
+      const sendEmailSpy = jest.spyOn(mailService, 'sendEmail');
+
+      const agentEmail = 'agent@mail.com';
+      const signupDto: SignupDto = {
+        name: testUser.name,
+        email: agentEmail,
+        password: testUser.password,
+        isAgent: true,
+      };
+
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send(signupDto)
+        .expect(201)
+        .expect((res) => {
+          expect(res.body.accessToken).toBeDefined();
+          expect(res.body.accessToken).toContain('eyJhb');
+        });
+
+      expect(sendEmailSpy).toHaveBeenCalled();
+
+      const user = await userModel.findOne({ email: agentEmail });
+      expect(user).toBeDefined();
+      expect(user?.role!).toBe(UserRole.AGENT);
     });
 
     it('should return 409 when email already exists', () => {
+      const data: SignupDto = {
+        name: 'Duplicate User',
+        email: testUser.email,
+        password: testUser.password,
+        isAgent: false,
+      };
+
       return request(app.getHttpServer())
         .post('/auth/register')
-        .send({
-          name: 'Duplicate User',
-          email: testUser.email,
-          password: testUser.password,
-        })
+        .send(data)
         .expect(409);
     });
 
@@ -537,19 +569,23 @@ describe('Auth (e2e)', () => {
 
   describe('GET /auth/verify-email', () => {
     let verificationToken: string;
-    const verifyUser = {
+
+    const toBeVerifiedUser: SignupDto = {
       name: 'Verify Test User',
       email: 'verify@test.com',
       password: 'password123',
+      isAgent: false,
     };
 
     beforeAll(async () => {
       await request(app.getHttpServer())
         .post('/auth/register')
-        .send(verifyUser)
+        .send(toBeVerifiedUser)
         .expect(201);
 
-      const newUser = await userModel.findOne({ email: verifyUser.email });
+      const newUser = await userModel.findOne({
+        email: toBeVerifiedUser.email,
+      });
       expect(newUser).not.toBeNull();
       expect(newUser?.emailVerified).toBe(false);
       verificationToken = newUser?.emailVToken!;
@@ -564,7 +600,7 @@ describe('Auth (e2e)', () => {
         });
 
       const updatedUser = await userModel.findOne({
-        email: verifyUser.email,
+        email: toBeVerifiedUser.email,
       });
       expect(updatedUser).not.toBeNull();
       expect(updatedUser?.emailVerified).toBe(true);

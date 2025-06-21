@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { User } from '../../src/users/users.schema';
+import { User, UserRole } from '../../src/users/users.schema';
 import { UsersService } from '../../src/users/users.service';
 import { AuthProvider } from '../../src/common/enums/auth-provider.enum';
 
@@ -13,6 +13,7 @@ export const createUserAndLogIn = async (
     user.name,
     user.email,
     user.password!,
+    user.role,
     AuthProvider.EMAIL,
   );
 
