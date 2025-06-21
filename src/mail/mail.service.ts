@@ -22,7 +22,7 @@ export class MailService {
   async sendEmail(options: SendEmailOptions): Promise<void> {
     this.logger.log('Sending email...');
 
-    if (this.envService.isTest()) {
+    if (!this.envService.isProd()) {
       return;
     }
 
