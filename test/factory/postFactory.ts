@@ -3,9 +3,6 @@ import {
   PostStatus,
   PostType,
   AssetType,
-  AreaUnit,
-  TimeUnit,
-  Condition,
 } from '../../src/posts/posts.schema';
 import { faker } from '@faker-js/faker';
 import { Types } from 'mongoose';
@@ -22,7 +19,6 @@ export const basePost: Post = {
   postType: PostType.SALE,
   price: 5000000,
   area: 100,
-  areaUnit: AreaUnit.SQM,
   status: PostStatus.ACTIVE,
   byMember: true,
   isStudio: false,
@@ -56,7 +52,6 @@ export const basePost: Post = {
   },
   cid: 1,
   postNumber: 'P001',
-  condition: Condition.NEW,
   createdAt: now,
   createdBy: new Types.ObjectId().toString(),
 };
