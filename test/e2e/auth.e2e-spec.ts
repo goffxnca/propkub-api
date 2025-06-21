@@ -172,12 +172,12 @@ describe('Auth (e2e)', () => {
         .send({
           name: 'New User',
           email: 'new.user4@test.com',
-          password: '1234567',
+          password: '12345',
         })
         .expect(400)
         .expect((res) => {
           expect(res.body.message).toContain(
-            'password must be longer than or equal to 8 characters',
+            'password must be longer than or equal to 6 characters',
           );
         });
     });
@@ -416,12 +416,12 @@ describe('Auth (e2e)', () => {
         .post('/auth/reset-password')
         .send({
           token: resetToken,
-          newPassword: '1234567',
+          newPassword: '12345',
         })
         .expect(400)
         .expect((res) => {
           expect(res.body.message).toContain(
-            'newPassword must be longer than or equal to 8 characters',
+            'newPassword must be longer than or equal to 6 characters',
           );
         });
     });
