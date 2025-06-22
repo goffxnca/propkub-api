@@ -153,7 +153,15 @@ export class UsersService implements OnModuleInit {
 
   async linkFacebookId(userId: string, facebookId: string) {
     this.logger.debug(`Linking Facebook ID for user: ${userId}`);
-    await this.userModel.findByIdAndUpdate(userId, { facebookId });
+    await this.userModel.findByIdAndUpdate(userId, {
+      $set: {
+        facebookId,
+        emailVerified: true,
+      },
+      $unset: {
+        emailVToken: 1,
+      },
+    });
   }
 
   async verifyEmail(vtoken: string): Promise<boolean> {
