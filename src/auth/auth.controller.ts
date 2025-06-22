@@ -101,11 +101,20 @@ export class AuthController {
 
   @UseGuards(FacebookAuthGuard)
   @Get('facebook/redirect')
-  facebookAuthRedirect(@Request() req) {
+  async facebookAuthRedirect(@Request() req, @Response() res) {
     this.logger.log(
       `Facebook OAuth callback for user: ${truncEmail(req.user.email)}`,
     );
-    return this.authService.loginFacebook(req.user);
+
+    try {
+      const result = await this.authService.loginFacebook(req.user);
+      const { accessToken } = result;
+
+      res.redirect(`http://localhost:65432/auth/callback?token=${accessToken}`);
+    } catch (error) {
+      this.logger.error(`Google OAuth callback error:`, error);
+      res.redirect(`http://localhost:65432/auth/callback?error=oauth_failed`);
+    }
   }
 
   @UseGuards(JwtAuthGuard)
