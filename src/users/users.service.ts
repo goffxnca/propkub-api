@@ -140,7 +140,15 @@ export class UsersService implements OnModuleInit {
 
   async linkGoogleId(userId: string, googleId: string) {
     this.logger.debug(`Linking Google ID for user: ${userId}`);
-    await this.userModel.findByIdAndUpdate(userId, { googleId });
+    await this.userModel.findByIdAndUpdate(userId, {
+      $set: {
+        googleId,
+        emailVerified: true,
+      },
+      $unset: {
+        emailVToken: 1,
+      },
+    });
   }
 
   async linkFacebookId(userId: string, facebookId: string) {
