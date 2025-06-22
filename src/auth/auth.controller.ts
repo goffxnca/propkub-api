@@ -10,6 +10,7 @@ import {
   Query,
   BadRequestException,
   Logger,
+  Response,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signupDto';
@@ -75,11 +76,20 @@ export class AuthController {
 
   @UseGuards(GoogleAuthGuard)
   @Get('google/redirect')
-  googleAuthRedirect(@Request() req) {
+  async googleAuthRedirect(@Request() req, @Response() res) {
     this.logger.log(
       `Google OAuth callback for user: ${truncEmail(req.user.email)}`,
     );
-    return this.authService.loginGoogle(req.user);
+
+    try {
+      const result = await this.authService.loginGoogle(req.user);
+      const { accessToken } = result;
+
+      res.redirect(`http://localhost:65432/auth/callback?token=${accessToken}`);
+    } catch (error) {
+      this.logger.error(`Google OAuth callback error:`, error);
+      res.redirect(`http://localhost:65432/auth/callback?error=oauth_failed`);
+    }
   }
 
   @UseGuards(FacebookAuthGuard)
