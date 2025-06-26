@@ -267,8 +267,10 @@ export class AuthService {
     }
 
     if (user.provider !== AuthProvider.EMAIL) {
+      const providerName =
+        user.provider === AuthProvider.GOOGLE ? 'Google' : 'Facebook';
       return {
-        message: 'If the email exists, a password reset link has been sent',
+        message: `This account was registered with ${providerName}`,
       };
     }
 
