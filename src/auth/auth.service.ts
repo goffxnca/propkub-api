@@ -259,11 +259,9 @@ export class AuthService {
     this.logger.log(`Password reset requested for email: ${truncEmail(email)}`);
 
     const user = await this.usersService.findByEmail(email);
-
+    const message = 'If the email exists, a password reset link has been sent';
     if (!user) {
-      return {
-        message: 'If the email exists, a password reset link has been sent',
-      };
+      return { message };
     }
 
     if (user.provider !== AuthProvider.EMAIL) {
@@ -277,9 +275,7 @@ export class AuthService {
     const resetToken = await this.usersService.createPasswordResetToken(email);
 
     if (!resetToken) {
-      return {
-        message: 'If the email exists, a password reset link has been sent',
-      };
+      return { message };
     }
 
     const resetUrl = `${this.envService.webDomain()}/auth/reset-password?token=${resetToken}`;
@@ -296,9 +292,7 @@ export class AuthService {
       },
     });
 
-    return {
-      message: 'If the email exists, a password reset link has been sent',
-    };
+    return { message };
   }
 
   async resetPassword(token: string, newPassword: string) {
