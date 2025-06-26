@@ -22,6 +22,7 @@ import { VerifyEmailDto } from './dto/verifyEmailDto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { ValidateResetTokenDto } from './dto/validate-reset-token.dto';
 import { truncEmail, truncToken } from '../common/utils/strings';
 
 @Controller('auth')
@@ -131,6 +132,14 @@ export class AuthController {
       `Forgot password request for email: ${truncEmail(forgotPasswordDto.email)}`,
     );
     return this.authService.sendPasswordResetEmail(forgotPasswordDto.email);
+  }
+
+  @Get('validate-reset-token')
+  validateResetToken(@Query() validateResetTokenDto: ValidateResetTokenDto) {
+    this.logger.log(
+      `Reset token validation request: ${truncToken(validateResetTokenDto.token)}`,
+    );
+    return this.authService.validateResetToken(validateResetTokenDto.token);
   }
 
   @Post('reset-password')

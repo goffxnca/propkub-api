@@ -295,6 +295,21 @@ export class AuthService {
     return { message };
   }
 
+  async validateResetToken(token: string) {
+    this.logger.log(`Validating reset token: ${truncToken(token)}`);
+    const isValid = await this.usersService.validateResetToken(token);
+
+    if (!isValid) {
+      this.logger.warn(
+        `Reset token validation failed: ${truncToken(token)}`,
+      );
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    this.logger.log(`Reset token validation successful: ${truncToken(token)}`);
+    return { message: 'Reset token is valid' };
+  }
+
   async resetPassword(token: string, newPassword: string) {
     this.logger.log(`Password reset attempt with token: ${truncToken(token)}`);
     const success = await this.usersService.resetPassword(token, newPassword);

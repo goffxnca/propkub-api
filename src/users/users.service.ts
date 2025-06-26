@@ -226,6 +226,15 @@ export class UsersService implements OnModuleInit {
     return resetToken;
   }
 
+  async validateResetToken(token: string): Promise<boolean> {
+    const user = await this.userModel.findOne({
+      'passwordReset.token': token,
+      'passwordReset.expires': { $gt: new Date() },
+    });
+
+    return !!user;
+  }
+
   async resetPassword(token: string, newPassword: string): Promise<boolean> {
     const user = await this.userModel.findOne({
       'passwordReset.token': token,
