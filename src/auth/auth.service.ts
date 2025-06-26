@@ -80,7 +80,7 @@ export class AuthService {
         this.logger.debug(
           `Sending verification email to: ${truncEmail(email)}`,
         );
-        const verificationUrl = `${this.envService.siteDomain()}/auth/verify-email?vtoken=${user.emailVToken}`;
+        const verificationUrl = `${this.envService.webDomain()}/auth/verify-email?vtoken=${user.emailVToken}`;
         this.mailService.sendEmail({
           from: NO_REPLY_EMAIL,
           to: user.email,
@@ -280,7 +280,7 @@ export class AuthService {
       };
     }
 
-    const resetUrl = `${this.envService.siteDomain()}/auth/reset-password?token=${resetToken}`;
+    const resetUrl = `${this.envService.webDomain()}/auth/reset-password?token=${resetToken}`;
     this.logger.log(
       `Password reset token generated for email: ${truncEmail(email)}`,
     );

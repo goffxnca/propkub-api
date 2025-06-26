@@ -17,10 +17,20 @@ export class EnvironmentService {
     return this.configService.get<string>('NODE_ENV') === 'prod';
   }
 
-  siteDomain(): string {
-    return (
-      this.configService.get<string>('SITE_DOMAIN') ?? 'http://localhost:3000'
-    );
+  apiDomain(): string {
+    const apiDomain = this.configService.get<string>('API_DOMAIN');
+    if (!apiDomain) {
+      throw new Error('API_DOMAIN env is missing.');
+    }
+    return apiDomain;
+  }
+
+  webDomain(): string {
+    const webDomain = this.configService.get<string>('WEB_DOMAIN');
+    if (!webDomain) {
+      throw new Error('WEB_DOMAIN env is missing.');
+    }
+    return webDomain;
   }
 
   sendGridApiKey(): string {
