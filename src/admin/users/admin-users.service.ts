@@ -9,6 +9,10 @@ import {
   EMAIL_SET_NEW_PASSWORD_UPGRADE_AUTH_PRE,
   NO_REPLY_EMAIL,
 } from '../../common/constants';
+import {
+  USER_SAFE_PROJECTION,
+  USER_SAFE_SELECT,
+} from '../../users/constants/user-security.constants';
 
 @Injectable()
 export class AdminUsersService {
@@ -19,7 +23,7 @@ export class AdminUsersService {
 
   async findAll(limit?: number, offset?: number): Promise<User[]> {
     console.log('SENDGRID_API_KEY', process.env.SENDGRID_API_KEY);
-    const query = this.userModel.find();
+    const query = this.userModel.find({}, USER_SAFE_PROJECTION);
 
     if (offset) {
       query.skip(offset);
@@ -33,11 +37,11 @@ export class AdminUsersService {
   }
 
   async findOne(id: string): Promise<User | null> {
-    return this.userModel.findById(id).exec();
+    return this.userModel.findById(id, USER_SAFE_PROJECTION).exec();
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.userModel.findOne({ email }).exec();
+    return this.userModel.findOne({ email }, USER_SAFE_PROJECTION).exec();
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -58,7 +62,12 @@ export class AdminUsersService {
     };
 
     const createdUser = new this.userModel(userData);
-    return createdUser.save(); //TODO: Exclude password
+    const savedUser = await createdUser.save();
+
+    const safeUser = await this.userModel
+      .findById(savedUser._id, USER_SAFE_PROJECTION)
+      .exec();
+    return safeUser!;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User | null> {
@@ -66,18 +75,28 @@ export class AdminUsersService {
       .findByIdAndUpdate(
         id,
         { $set: updateUserDto, updatedAt: new Date() },
-        { new: true },
+        {
+          new: true,
+          select: USER_SAFE_SELECT,
+        },
       )
       .exec();
   }
 
   async remove(id: string): Promise<User | null> {
-    return this.userModel.findByIdAndDelete(id).exec();
+    return this.userModel
+      .findByIdAndDelete(id, { select: USER_SAFE_SELECT })
+      .exec();
   }
 
   async seedTest(userData: Partial<User>): Promise<User> {
     const newUser = new this.userModel({ ...userData, createdAt: new Date() });
-    return newUser.save();
+    const savedUser = await newUser.save();
+
+    const safeUser = await this.userModel
+      .findById(savedUser._id, USER_SAFE_PROJECTION)
+      .exec();
+    return safeUser!;
   }
 
   async sendEamilSetNewPasswordPre(cidFrom: number, cidTo: number) {

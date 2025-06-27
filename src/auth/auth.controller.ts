@@ -23,6 +23,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { ValidateResetTokenDto } from './dto/validate-reset-token.dto';
+import { ProfileResponseDto } from './dto/profile-response.dto';
 import { truncEmail, truncToken } from '../common/utils/strings';
 
 @Controller('auth')
@@ -120,7 +121,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/profile')
-  getProfile(@Request() req) {
+  getProfile(@Request() req): Promise<ProfileResponseDto> {
     this.logger.log(`Profile request for user ID: ${req.user.userId}`);
     return this.authService.profile(req.user.userId);
   }
@@ -134,14 +135,6 @@ export class AuthController {
     return this.authService.sendPasswordResetEmail(forgotPasswordDto.email);
   }
 
-  @Get('validate-reset-token')
-  validateResetToken(@Query() validateResetTokenDto: ValidateResetTokenDto) {
-    this.logger.log(
-      `Reset token validation request: ${truncToken(validateResetTokenDto.token)}`,
-    );
-    return this.authService.validateResetToken(validateResetTokenDto.token);
-  }
-
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
@@ -152,6 +145,14 @@ export class AuthController {
       resetPasswordDto.token,
       resetPasswordDto.newPassword,
     );
+  }
+
+  @Get('validate-reset-token')
+  validateResetToken(@Query() validateResetTokenDto: ValidateResetTokenDto) {
+    this.logger.log(
+      `Reset token validation request: ${truncToken(validateResetTokenDto.token)}`,
+    );
+    return this.authService.validateResetToken(validateResetTokenDto.token);
   }
 
   @UseGuards(JwtAuthGuard)

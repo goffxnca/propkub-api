@@ -14,6 +14,7 @@ import { AuthProvider } from '../common/enums/auth-provider.enum';
 import { EnvironmentService } from '../environments/environment.service';
 import { generatePassword } from '../common/utils/strings';
 import * as bcrypt from 'bcrypt';
+import { USER_SAFE_PROJECTION } from './constants/user-security.constants';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -84,6 +85,11 @@ export class UsersService implements OnModuleInit {
   async findById(userId: string) {
     this.logger.debug(`Finding user by ID: ${userId}`);
     return await this.userModel.findById(userId);
+  }
+
+  async findByIdForProfile(userId: string) {
+    this.logger.debug(`Finding user profile by ID: ${userId}`);
+    return await this.userModel.findById(userId, USER_SAFE_PROJECTION);
   }
 
   async create(

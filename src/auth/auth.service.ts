@@ -250,9 +250,13 @@ export class AuthService {
     return { accessToken };
   }
 
-  async profile(userId: string) {
+  async profile(userId: string): Promise<any> {
     this.logger.debug(`Retrieving profile for user ID: ${userId}`);
-    return this.usersService.findById(userId);
+    const user = await this.usersService.findByIdForProfile(userId);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    return user;
   }
 
   async sendPasswordResetEmail(email: string) {
@@ -300,9 +304,7 @@ export class AuthService {
     const isValid = await this.usersService.validateResetToken(token);
 
     if (!isValid) {
-      this.logger.warn(
-        `Reset token validation failed: ${truncToken(token)}`,
-      );
+      this.logger.warn(`Reset token validation failed: ${truncToken(token)}`);
       throw new BadRequestException('Invalid or expired reset token');
     }
 
