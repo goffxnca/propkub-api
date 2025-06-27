@@ -333,6 +333,35 @@ describe('Auth (e2e)', () => {
     });
   });
 
+  describe('GET /auth/validate-reset-token', () => {
+    let validResetToken: string;
+
+    beforeAll(async () => {
+      const token = await usersService.createPasswordResetToken(testUser.email);
+      validResetToken = token!;
+    });
+
+    it('should validate a valid reset token', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/auth/validate-reset-token')
+        .query({ token: validResetToken })
+        .expect(200);
+
+      expect(response.body.message).toBe('Reset token is valid');
+    });
+
+    it('should return 400 for invalid token', async () => {
+      const invalidToken = uuidV4();
+
+      const response = await request(app.getHttpServer())
+        .get('/auth/validate-reset-token')
+        .query({ token: invalidToken })
+        .expect(400);
+
+      expect(response.body.message).toBe('Invalid or expired reset token');
+    });
+  });
+
   describe('POST /auth/reset-password', () => {
     let resetToken: string;
     const newPassword = 'newPassword123';
