@@ -577,12 +577,12 @@ describe('Auth (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           currentPassword: testUser.password,
-          newPassword: '1234567',
+          newPassword: '12345',
         })
         .expect(400)
         .expect((res) => {
           expect(res.body.message).toContain(
-            'newPassword must be longer than or equal to 8 characters',
+            'newPassword must be longer than or equal to 6 characters',
           );
         });
     });
