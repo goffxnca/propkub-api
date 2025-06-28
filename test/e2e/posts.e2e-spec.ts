@@ -214,7 +214,13 @@ describe('Posts (e2e)', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    );
 
     service = moduleFixture.get<PostsService>(PostsService);
     usersService = moduleFixture.get<UsersService>(UsersService);
@@ -625,6 +631,25 @@ describe('Posts (e2e)', () => {
         .expect((res) => {
           expect(res.body.message).toContain('title should not be empty');
           expect(res.body.message).toContain('price should not be empty');
+        });
+    });
+
+    // Security Test: Prevent injecting non-whitelisted field
+    it('should return 400 when dangerous premium field is sent', () => {
+      const hackerPost = {
+        ...validCreatePostDto,
+        premium: true, // Non-whitelisted
+      };
+
+      return request(app.getHttpServer())
+        .post('/posts')
+        .set(authHeader(authToken))
+        .send(hackerPost)
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain(
+            'property premium should not exist',
+          );
         });
     });
   });

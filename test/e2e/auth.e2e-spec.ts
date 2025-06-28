@@ -43,7 +43,13 @@ describe('Auth (e2e)', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    );
     userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
     usersService = moduleFixture.get<UsersService>(UsersService);
     mailService = moduleFixture.get<MailService>(MailService);
@@ -179,6 +185,23 @@ describe('Auth (e2e)', () => {
           expect(res.body.message).toContain(
             'password must be longer than or equal to 6 characters',
           );
+        });
+    });
+
+    // Security Test: Prevent injecting non-whitelisted field
+    it('should return 400 when dangerous role field is sent', () => {
+      return request(app.getHttpServer())
+        .post('/auth/register')
+        .send({
+          name: 'Hacker User',
+          email: 'hacker@test.com',
+          password: 'password123',
+          isAgent: false,
+          role: 'admin', // Non-whitelisted
+        })
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('property role should not exist');
         });
     });
   });
