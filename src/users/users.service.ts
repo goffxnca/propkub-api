@@ -15,6 +15,7 @@ import { EnvironmentService } from '../environments/environment.service';
 import { generatePassword } from '../common/utils/strings';
 import * as bcrypt from 'bcrypt';
 import { USER_SAFE_PROJECTION } from './constants/user-security.constants';
+import { UpdateProfileDto } from '../auth/dto/update-profile.dto';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -293,5 +294,35 @@ export class UsersService implements OnModuleInit {
     await user.save();
     this.logger.log(`Password updated successfully for user: ${user._id}`);
     return true;
+  }
+
+  async updateProfile(
+    userId: string,
+    updateData: UpdateProfileDto,
+  ): Promise<User | null> {
+    this.logger.debug(`Updating profile for user: ${userId}`);
+
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        {
+          $set: {
+            ...updateData,
+            updatedAt: new Date(),
+            updatedBy: userId,
+          },
+        },
+        {
+          new: true,
+          select: USER_SAFE_PROJECTION,
+        },
+      )
+      .exec();
+
+    if (updatedUser) {
+      this.logger.log(`Profile updated successfully for user: ${userId}`);
+    }
+
+    return updatedUser;
   }
 }

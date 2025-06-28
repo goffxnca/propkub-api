@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Post,
+  Patch,
   HttpCode,
   HttpStatus,
   UseGuards,
@@ -22,6 +23,7 @@ import { VerifyEmailDto } from './dto/verifyEmailDto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ValidateResetTokenDto } from './dto/validate-reset-token.dto';
 import { ProfileResponseDto } from './dto/profile-response.dto';
 import { truncEmail, truncToken } from '../common/utils/strings';
@@ -165,5 +167,16 @@ export class AuthController {
       updatePasswordDto.currentPassword,
       updatePasswordDto.newPassword,
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('profile')
+  @HttpCode(HttpStatus.OK)
+  async updateProfile(
+    @Request() req,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ): Promise<ProfileResponseDto> {
+    this.logger.log(`Update profile request for user ID: ${req.user.userId}`);
+    return this.authService.updateProfile(req.user.userId, updateProfileDto);
   }
 }

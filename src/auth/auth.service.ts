@@ -18,6 +18,7 @@ import { MailService } from '../mail/mail.service';
 import { EnvironmentService } from '../environments/environment.service';
 import { truncEmail, truncToken } from '../common/utils/strings';
 import { UserRole } from '../users/users.schema';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -355,6 +356,33 @@ export class AuthService {
         throw error;
       }
       throw new BadRequestException('Failed to update password');
+    }
+  }
+
+  async updateProfile(
+    userId: string,
+    updateProfileDto: UpdateProfileDto,
+  ): Promise<any> {
+    this.logger.log(`Profile update attempt for user: ${userId}`);
+
+    try {
+      const updatedUser = await this.usersService.updateProfile(
+        userId,
+        updateProfileDto,
+      );
+
+      if (!updatedUser) {
+        this.logger.warn(
+          `Profile update failed: user not found for ID: ${userId}`,
+        );
+        throw new BadRequestException('User not found');
+      }
+
+      this.logger.log(`Profile updated successfully for user: ${userId}`);
+      return updatedUser;
+    } catch (error) {
+      this.logger.error(`Profile update failed for user: ${userId}`, error);
+      throw new BadRequestException('Failed to update profile');
     }
   }
 }
