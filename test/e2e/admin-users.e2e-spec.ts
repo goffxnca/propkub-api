@@ -61,7 +61,13 @@ describe('AdminUsers (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    );
     service = moduleFixture.get<AdminUsersService>(AdminUsersService);
     userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
     await app.init();
