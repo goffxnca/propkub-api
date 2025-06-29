@@ -116,7 +116,7 @@ export class AuthController {
 
       res.redirect(`http://localhost:65432/auth/callback?token=${accessToken}`);
     } catch (error) {
-      this.logger.error(`Google OAuth callback error:`, error);
+      this.logger.error(`Facebook OAuth callback error:`, error);
       res.redirect(`http://localhost:65432/auth/callback?error=oauth_failed`);
     }
   }
