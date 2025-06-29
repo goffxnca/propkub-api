@@ -487,6 +487,90 @@ describe('Auth (e2e)', () => {
     });
   });
 
+  describe('PATCH /auth/profile', () => {
+    let accessToken: string;
+
+    beforeAll(async () => {
+      const loginResponse = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email: testUser.email,
+          password: testUser.password,
+        });
+
+      accessToken = loginResponse.body.accessToken;
+    });
+
+    it('should update name successfully', async () => {
+      const updatedName = 'John Updated';
+
+      const response = await request(app.getHttpServer())
+        .patch('/auth/profile')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ name: updatedName })
+        .expect(200);
+
+      expect(response.body.name).toBe(updatedName);
+      expect(response.body.email).toBe(testUser.email);
+      expect(response.body.updatedAt).toBeDefined();
+
+      // Verify in database
+      const user = await userModel.findOne({ email: testUser.email });
+      expect(user?.name).toBe(updatedName);
+    });
+
+    it('should update all DTO fields successfully', async () => {
+      const updateData = {
+        name: 'John Complete',
+        phone: '0812345678',
+        line: '@john_property',
+        profileImg:
+          'https://firebasestorage.googleapis.com/v0/b/test/o/us%2Fuser123%2Fi%2Fprofile.jpg',
+      };
+
+      const response = await request(app.getHttpServer())
+        .patch('/auth/profile')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(updateData)
+        .expect(200);
+
+      expect(response.body.name).toBe(updateData.name);
+      expect(response.body.phone).toBe(updateData.phone);
+      expect(response.body.line).toBe(updateData.line);
+      expect(response.body.profileImg).toBe(updateData.profileImg);
+      expect(response.body.updatedAt).toBeDefined();
+
+      // Verify in database
+      const user = await userModel.findOne({ email: testUser.email });
+      expect(user?.name).toBe(updateData.name);
+      expect(user?.phone).toBe(updateData.phone);
+      expect(user?.line).toBe(updateData.line);
+      expect(user?.profileImg).toBe(updateData.profileImg);
+    });
+
+    it('should return 400 when dangerous field role:admin is sent', async () => {
+      return request(app.getHttpServer())
+        .patch('/auth/profile')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          name: 'Hacker Name',
+          role: 'admin', // Dangerous non-whitelisted field
+        })
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('property role should not exist');
+        });
+    });
+
+    it('should return 401 when bad token is provided', async () => {
+      return request(app.getHttpServer())
+        .patch('/auth/profile')
+        .set('Authorization', 'Bearer bad-invalid-token')
+        .send({ name: 'Should Fail' })
+        .expect(401);
+    });
+  });
+
   describe('POST /auth/update-password', () => {
     let accessToken: string;
     const newPassword = 'newPassword123';
