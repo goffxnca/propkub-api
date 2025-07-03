@@ -47,7 +47,7 @@ export class UsersService implements OnModuleInit {
             password: hashedPassword,
             temp_p: tempIntialPassword,
             provider: AuthProvider.EMAIL,
-            role: UserRole.AGENT,
+            role: UserRole.NORMAL,
             emailVToken:
               user.emailVerified === true ? undefined : user.emailVToken,
             createdAt: new Date(
