@@ -142,25 +142,27 @@ export class AuthService {
 
   async loginGoogle(user: any) {
     const { email, name, googleId, profileImg } = user;
-    this.logger.log(`Processing Google OAuth login for: ${truncEmail(email)}`);
+    this.logger.log(
+      `[loginGoogle()] Processing Google OAuth login for: ${truncEmail(email)}`,
+    );
 
     const existingUser = await this.usersService.findByEmail(email);
     let finalUser = existingUser;
 
     if (existingUser) {
       this.logger.debug(
-        `Existing user found for Google OAuth: ${truncEmail(email)}`,
+        `[loginGoogle()] Existing user found for Google OAuth: ${truncEmail(email)}`,
       );
 
       if (!existingUser.googleId) {
         this.logger.debug(
-          `Linking Google account to existing user: ${truncEmail(email)}`,
+          `[loginGoogle()] Linking Google account to existing user: ${truncEmail(email)}`,
         );
         await this.usersService.linkGoogleId(existingUser._id, googleId);
       }
     } else {
       this.logger.debug(
-        `Creating new user from Google OAuth: ${truncEmail(email)}`,
+        `[loginGoogle()] Creating new user from Google OAuth: ${truncEmail(email)}`,
       );
 
       finalUser = await this.usersService.create(
@@ -173,7 +175,9 @@ export class AuthService {
         googleId,
       );
 
-      this.logger.debug(`Sending welcome email to: ${truncEmail(email)}`);
+      this.logger.debug(
+        `[loginGoogle()] Sending welcome email to: ${truncEmail(email)}`,
+      );
       this.mailService.sendEmail({
         from: NO_REPLY_EMAIL,
         to: user.email,
@@ -186,10 +190,58 @@ export class AuthService {
     const payload = { sub: userId };
     const accessToken = await this.jwtService.signAsync(payload);
 
-    this.logger.debug(`Updating last login for user: ${truncEmail(email)}`);
+    this.logger.debug(
+      `[loginGoogle()] Updating last login for user: ${truncEmail(email)}`,
+    );
     await this.usersService.updateLastLogin(userId, AuthProvider.GOOGLE);
 
-    this.logger.log(`Google OAuth login successful for: ${truncEmail(email)}`);
+    this.logger.log(
+      `[loginGoogle()] Google OAuth login successful for: ${truncEmail(email)}`,
+    );
+    return { accessToken };
+  }
+
+  async linkGoogleAccount(oauthUser: any) {
+    const { email, googleId } = oauthUser;
+    this.logger.log(
+      `[linkGoogleAccount()] Processing Google account linking for: ${truncEmail(email)}`,
+    );
+
+    // Find existing user by email (should exist since this is linking mode)
+    const existingUser = await this.usersService.findByEmail(email);
+
+    if (!existingUser) {
+      this.logger.error(
+        `[linkGoogleAccount()] Google account linking failed: User not found for email: ${truncEmail(email)}`,
+      );
+      throw new BadRequestException('User account not found');
+    }
+
+    // Check if Google account is already linked
+    if (existingUser.googleId) {
+      this.logger.error(
+        `[linkGoogleAccount()] Google account linking failed: Account already linked for user: ${truncEmail(email)}`,
+      );
+      throw new BadRequestException(
+        'Google account is already linked to this user',
+      );
+    }
+
+    // Link the Google account
+    this.logger.debug(
+      `[linkGoogleAccount()] Linking Google account to user: ${truncEmail(email)}`,
+    );
+    console.log('-->7');
+    await this.usersService.linkGoogleId(existingUser._id, googleId);
+
+    // Generate new access token for the user
+    const userId = existingUser._id;
+    const payload = { sub: userId };
+    const accessToken = await this.jwtService.signAsync(payload);
+
+    this.logger.log(
+      `[linkGoogleAccount()] Google account linking successful for: ${truncEmail(email)}`,
+    );
     return { accessToken };
   }
 

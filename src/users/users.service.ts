@@ -146,7 +146,7 @@ export class UsersService implements OnModuleInit {
   }
 
   async linkGoogleId(userId: string, googleId: string) {
-    this.logger.debug(`Linking Google ID for user: ${userId}`);
+    this.logger.debug(`[linkGoogleId()] Linking Google ID for user: ${userId}`);
     await this.userModel.findByIdAndUpdate(userId, {
       $set: {
         googleId,

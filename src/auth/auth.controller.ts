@@ -18,6 +18,7 @@ import { SignupDto } from './dto/signupDto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { GoogleAuthWithStateGuard } from './guards/google-auth-with-state.guard';
 import { FacebookAuthGuard } from './guards/facebook-auth.guard';
 import { VerifyEmailDto } from './dto/verifyEmailDto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -27,12 +28,17 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ValidateResetTokenDto } from './dto/validate-reset-token.dto';
 import { ProfileResponseDto } from './dto/profile-response.dto';
 import { truncEmail, truncToken } from '../common/utils/strings';
+import { OAuthStateData } from './interfaces/oauth-state.interface';
+import { EnvironmentService } from '../environments/environment.service';
 
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly envService: EnvironmentService,
+  ) {}
 
   @Post('register')
   signup(@Body() signupDto: SignupDto) {
@@ -71,35 +77,135 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
-  @UseGuards(GoogleAuthGuard)
+  @UseGuards(GoogleAuthWithStateGuard)
   @Get('google')
   loginGoogle() {
-    this.logger.log('Google OAuth flow initiated');
     // initiates the Google OAuth2 login flow
   }
 
   @UseGuards(GoogleAuthGuard)
   @Get('google/redirect')
-  async googleAuthRedirect(@Request() req, @Response() res) {
+  async googleAuthRedirect(@Request() req, @Response() res, @Query() query) {
     this.logger.log(
-      `Google OAuth callback for user: ${truncEmail(req.user.email)}`,
+      `[googleAuthRedirect()] Google OAuth callback for user: ${truncEmail(req.user.email)}`,
     );
 
     try {
+      const { state } = query;
+      if (state) {
+        return this.handleGoogleWithCustomState(req, res, state);
+      }
+
+      // Regular login/signup flow
       const result = await this.authService.loginGoogle(req.user);
       const { accessToken } = result;
 
-      res.redirect(`http://localhost:65432/auth/callback?token=${accessToken}`);
+      res.redirect(
+        `${this.envService.webDomain()}/auth/callback?token=${accessToken}`,
+      );
     } catch (error) {
-      this.logger.error(`Google OAuth callback error:`, error);
-      res.redirect(`http://localhost:65432/auth/callback?error=oauth_failed`);
+      this.logger.error(
+        `[googleAuthRedirect()] Google OAuth callback error:`,
+        error,
+      );
+      res.redirect(
+        `${this.envService.webDomain()}/auth/callback?error=oauth_failed`,
+      );
+    }
+  }
+
+  private async handleGoogleWithCustomState(
+    @Request() req,
+    @Response() res,
+    state: string,
+  ) {
+    this.logger.log(
+      `[handleGoogleWithCustomState()] Google OAuth callback with custom state for user: ${truncEmail(req.user.email)}`,
+    );
+
+    let stateData: OAuthStateData;
+    try {
+      stateData = JSON.parse(state);
+    } catch (error) {
+      this.logger.warn(
+        '[handleGoogleWithCustomState()] Google OAuth failed: Invalid state format',
+      );
+      return res.redirect(
+        `${this.envService.webDomain()}/auth/callback?error=oauth_failed`,
+      );
+    }
+
+    // Dispatch based on mode
+    switch (stateData.mode) {
+      case 'link':
+        return this.handleGoogleLinking(req, res, stateData);
+      default:
+        this.logger.warn(
+          `[handleGoogleWithCustomState()] Google OAuth failed: Unknown mode '${stateData.mode}'`,
+        );
+        return res.redirect(
+          `${this.envService.webDomain()}/auth/callback?error=oauth_failed`,
+        );
+    }
+  }
+
+  private async handleGoogleLinking(
+    @Request() req,
+    @Response() res,
+    stateData: OAuthStateData,
+  ) {
+    this.logger.log(
+      `[handleGoogleLinking()] Google account linking for user: ${truncEmail(req.user.email)}`,
+    );
+
+    const { email: currentEmail } = stateData;
+
+    try {
+      if (!currentEmail) {
+        this.logger.warn(
+          '[handleGoogleLinking()] Google linking failed: Missing current email parameter',
+        );
+        return res.redirect(
+          `${this.envService.webDomain()}/auth/callback?error=missing_email`,
+        );
+      }
+
+      if (req.user.email !== currentEmail) {
+        this.logger.warn(
+          `[handleGoogleLinking()] Google linking failed: Email mismatch. OAuth: ${truncEmail(req.user.email)}, Expected: ${truncEmail(currentEmail)}`,
+        );
+        return res.redirect(
+          `${this.envService.webDomain()}/auth/callback?error=email_mismatch&expectedEmail=${encodeURIComponent(currentEmail)}&provider=google`,
+        );
+      }
+
+      const result = await this.authService.linkGoogleAccount(req.user);
+      const { accessToken } = result;
+
+      return res.redirect(
+        `${this.envService.webDomain()}/auth/callback?token=${accessToken}&success=link_success&provider=google`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `[handleGoogleLinking()] Google account linking callback error:`,
+        error,
+      );
+
+      if (error.message?.includes('already linked')) {
+        return res.redirect(
+          `${this.envService.webDomain()}/auth/callback?error=already_linked&provider=google`,
+        );
+      }
+
+      res.redirect(
+        `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
+      );
     }
   }
 
   @UseGuards(FacebookAuthGuard)
   @Get('facebook')
   loginFacebook() {
-    this.logger.log('Facebook OAuth flow initiated');
     // initiates the Facebook OAuth2 login flow
   }
 
@@ -114,10 +220,14 @@ export class AuthController {
       const result = await this.authService.loginFacebook(req.user);
       const { accessToken } = result;
 
-      res.redirect(`http://localhost:65432/auth/callback?token=${accessToken}`);
+      res.redirect(
+        `${this.envService.webDomain()}/auth/callback?token=${accessToken}`,
+      );
     } catch (error) {
       this.logger.error(`Facebook OAuth callback error:`, error);
-      res.redirect(`http://localhost:65432/auth/callback?error=oauth_failed`);
+      res.redirect(
+        `${this.envService.webDomain()}/auth/callback?error=oauth_failed`,
+      );
     }
   }
 
