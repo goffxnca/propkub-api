@@ -20,6 +20,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { GoogleAuthWithStateGuard } from './guards/google-auth-with-state.guard';
 import { FacebookAuthGuard } from './guards/facebook-auth.guard';
+import { FacebookAuthWithStateGuard } from './guards/facebook-auth-with-state.guard';
 import { VerifyEmailDto } from './dto/verifyEmailDto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -203,20 +204,26 @@ export class AuthController {
     }
   }
 
-  @UseGuards(FacebookAuthGuard)
+  @UseGuards(FacebookAuthWithStateGuard)
   @Get('facebook')
   loginFacebook() {
     // initiates the Facebook OAuth2 login flow
   }
 
-  @UseGuards(FacebookAuthGuard)
+  @UseGuards(FacebookAuthWithStateGuard)
   @Get('facebook/redirect')
-  async facebookAuthRedirect(@Request() req, @Response() res) {
+  async facebookAuthRedirect(@Request() req, @Response() res, @Query() query) {
     this.logger.log(
-      `Facebook OAuth callback for user: ${truncEmail(req.user.email)}`,
+      `[facebookAuthRedirect()] Facebook OAuth callback for user: ${truncEmail(req.user.email)}`,
     );
 
     try {
+      const { state } = query;
+      if (state) {
+        return this.handleFacebookWithCustomState(req, res, state);
+      }
+
+      // Regular login/signup flow
       const result = await this.authService.loginFacebook(req.user);
       const { accessToken } = result;
 
@@ -224,9 +231,101 @@ export class AuthController {
         `${this.envService.webDomain()}/auth/callback?token=${accessToken}`,
       );
     } catch (error) {
-      this.logger.error(`Facebook OAuth callback error:`, error);
+      this.logger.error(
+        `[facebookAuthRedirect()] Facebook OAuth callback error:`,
+        error,
+      );
       res.redirect(
         `${this.envService.webDomain()}/auth/callback?error=oauth_failed`,
+      );
+    }
+  }
+
+  private async handleFacebookWithCustomState(
+    @Request() req,
+    @Response() res,
+    state: string,
+  ) {
+    this.logger.log(
+      `[handleFacebookWithCustomState()] Facebook OAuth callback with custom state for user: ${truncEmail(req.user.email)}`,
+    );
+
+    let stateData: OAuthStateData;
+    try {
+      stateData = JSON.parse(state);
+    } catch (error) {
+      this.logger.error(
+        '[handleFacebookWithCustomState()] Facebook OAuth failed: Invalid state format',
+      );
+      return res.redirect(
+        `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
+      );
+    }
+
+    // Dispatch based on mode
+    switch (stateData.mode) {
+      case 'link':
+        return this.handleFacebookLinking(req, res, stateData);
+      default:
+        this.logger.error(
+          `[handleFacebookWithCustomState()] Facebook OAuth failed: Unknown mode '${stateData.mode}'`,
+        );
+        return res.redirect(
+          `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
+        );
+    }
+  }
+
+  private async handleFacebookLinking(
+    @Request() req,
+    @Response() res,
+    stateData: OAuthStateData,
+  ) {
+    this.logger.log(
+      `[handleFacebookLinking()] Facebook account linking for user: ${truncEmail(req.user.email)}`,
+    );
+
+    const { email: currentEmail } = stateData;
+
+    try {
+      if (!currentEmail) {
+        this.logger.error(
+          '[handleFacebookLinking()] Facebook linking failed: Missing current email parameter',
+        );
+        return res.redirect(
+          `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
+        );
+      }
+
+      if (req.user.email !== currentEmail) {
+        this.logger.error(
+          `[handleFacebookLinking()] Facebook linking failed: Email mismatch. OAuth: ${truncEmail(req.user.email)}, Expected: ${truncEmail(currentEmail)}`,
+        );
+        return res.redirect(
+          `${this.envService.webDomain()}/auth/callback?error=email_mismatch&expectedEmail=${encodeURIComponent(currentEmail)}&provider=facebook`,
+        );
+      }
+
+      const result = await this.authService.linkFacebookAccount(req.user);
+      const { accessToken } = result;
+
+      return res.redirect(
+        `${this.envService.webDomain()}/auth/callback?token=${accessToken}&success=linking&provider=facebook`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `[handleFacebookLinking()] Facebook account linking callback error:`,
+        error,
+      );
+
+      if (error.message?.includes('already linked')) {
+        return res.redirect(
+          `${this.envService.webDomain()}/auth/callback?error=already_linked&provider=facebook`,
+        );
+      }
+
+      res.redirect(
+        `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
       );
     }
   }

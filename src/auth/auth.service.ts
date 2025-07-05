@@ -244,10 +244,55 @@ export class AuthService {
     return { accessToken };
   }
 
+  async linkFacebookAccount(oauthUser: any) {
+    const { email, facebookId } = oauthUser;
+    this.logger.log(
+      `[linkFacebookAccount()] Processing Facebook account linking for: ${truncEmail(email)}`,
+    );
+
+    // Find existing user by email (should exist since this is linking mode)
+    const existingUser = await this.usersService.findByEmail(email);
+
+    if (!existingUser) {
+      this.logger.error(
+        `[linkFacebookAccount()] Facebook account linking failed: User not found for email: ${truncEmail(email)}`,
+      );
+      throw new BadRequestException('User account not found');
+    }
+
+    // Check if Facebook account is already linked
+    if (existingUser.facebookId) {
+      this.logger.error(
+        `[linkFacebookAccount()] Facebook account linking failed: Account already linked for user: ${truncEmail(email)}`,
+      );
+      throw new BadRequestException(
+        'Facebook account is already linked to this user',
+      );
+    }
+
+    // Link the Facebook account
+    this.logger.debug(
+      `[linkFacebookAccount()] Linking Facebook account to user: ${truncEmail(email)}`,
+    );
+
+    await this.usersService.linkFacebookId(existingUser._id, facebookId);
+
+    // Generate new access token for the user
+    const userId = existingUser._id;
+    const payload = { sub: userId };
+    const accessToken = await this.jwtService.signAsync(payload);
+
+    this.logger.log(
+      `[linkFacebookAccount()] Facebook account linking successful for: ${truncEmail(email)}`,
+    );
+
+    return { accessToken };
+  }
+
   async loginFacebook(user: any) {
     const { email, name, facebookId, profileImg } = user;
     this.logger.log(
-      `Processing Facebook OAuth login for: ${truncEmail(email)}`,
+      `[loginFacebook()] Processing Facebook OAuth login for: ${truncEmail(email)}`,
     );
 
     const existingUser = await this.usersService.findByEmail(email);
@@ -255,18 +300,18 @@ export class AuthService {
 
     if (existingUser) {
       this.logger.debug(
-        `Existing user found for Facebook OAuth: ${truncEmail(email)}`,
+        `[loginFacebook()] Existing user found for Facebook OAuth: ${truncEmail(email)}`,
       );
 
       if (!existingUser.facebookId) {
         this.logger.debug(
-          `Linking Facebook account to existing user: ${truncEmail(email)}`,
+          `[loginFacebook()] Linking Facebook account to existing user: ${truncEmail(email)}`,
         );
         await this.usersService.linkFacebookId(existingUser._id, facebookId);
       }
     } else {
       this.logger.debug(
-        `Creating new user from Facebook OAuth: ${truncEmail(email)}`,
+        `[loginFacebook()] Creating new user from Facebook OAuth: ${truncEmail(email)}`,
       );
 
       finalUser = await this.usersService.create(
@@ -280,7 +325,9 @@ export class AuthService {
         facebookId,
       );
 
-      this.logger.debug(`Sending welcome email to: ${truncEmail(email)}`);
+      this.logger.debug(
+        `[loginFacebook()] Sending welcome email to: ${truncEmail(email)}`,
+      );
       this.mailService.sendEmail({
         from: NO_REPLY_EMAIL,
         to: user.email,
@@ -293,12 +340,15 @@ export class AuthService {
     const payload = { sub: userId };
     const accessToken = await this.jwtService.signAsync(payload);
 
-    this.logger.debug(`Updating last login for user: ${truncEmail(email)}`);
+    this.logger.debug(
+      `[loginFacebook()] Updating last login for user: ${truncEmail(email)}`,
+    );
     await this.usersService.updateLastLogin(userId, AuthProvider.FACEBOOK);
 
     this.logger.log(
-      `Facebook OAuth login successful for: ${truncEmail(email)}`,
+      `[loginFacebook()] Facebook OAuth login successful for: ${truncEmail(email)}`,
     );
+
     return { accessToken };
   }
 
