@@ -127,11 +127,11 @@ export class AuthController {
     try {
       stateData = JSON.parse(state);
     } catch (error) {
-      this.logger.warn(
+      this.logger.error(
         '[handleGoogleWithCustomState()] Google OAuth failed: Invalid state format',
       );
       return res.redirect(
-        `${this.envService.webDomain()}/auth/callback?error=oauth_failed`,
+        `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
       );
     }
 
@@ -140,11 +140,11 @@ export class AuthController {
       case 'link':
         return this.handleGoogleLinking(req, res, stateData);
       default:
-        this.logger.warn(
+        this.logger.error(
           `[handleGoogleWithCustomState()] Google OAuth failed: Unknown mode '${stateData.mode}'`,
         );
         return res.redirect(
-          `${this.envService.webDomain()}/auth/callback?error=oauth_failed`,
+          `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
         );
     }
   }
@@ -162,16 +162,16 @@ export class AuthController {
 
     try {
       if (!currentEmail) {
-        this.logger.warn(
+        this.logger.error(
           '[handleGoogleLinking()] Google linking failed: Missing current email parameter',
         );
         return res.redirect(
-          `${this.envService.webDomain()}/auth/callback?error=missing_email`,
+          `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
         );
       }
 
       if (req.user.email !== currentEmail) {
-        this.logger.warn(
+        this.logger.error(
           `[handleGoogleLinking()] Google linking failed: Email mismatch. OAuth: ${truncEmail(req.user.email)}, Expected: ${truncEmail(currentEmail)}`,
         );
         return res.redirect(
@@ -183,7 +183,7 @@ export class AuthController {
       const { accessToken } = result;
 
       return res.redirect(
-        `${this.envService.webDomain()}/auth/callback?token=${accessToken}&success=link_success&provider=google`,
+        `${this.envService.webDomain()}/auth/callback?token=${accessToken}&success=linking&provider=google`,
       );
     } catch (error) {
       this.logger.error(

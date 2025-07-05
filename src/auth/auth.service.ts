@@ -231,7 +231,6 @@ export class AuthService {
     this.logger.debug(
       `[linkGoogleAccount()] Linking Google account to user: ${truncEmail(email)}`,
     );
-    console.log('-->7');
     await this.usersService.linkGoogleId(existingUser._id, googleId);
 
     // Generate new access token for the user
