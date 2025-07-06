@@ -25,12 +25,12 @@ export class EnvironmentService {
     return apiDomain;
   }
 
-  webDomain(): string {
-    const webDomain = this.configService.get<string>('WEB_DOMAIN');
-    if (!webDomain) {
-      throw new Error('WEB_DOMAIN env is missing.');
+  frontendWebUrl(): string {
+    const frontendWebUrl = this.configService.get<string>('FRONTEND_WEB_URL');
+    if (!frontendWebUrl) {
+      throw new Error('FRONTEND_WEB_URL env is missing.');
     }
-    return webDomain;
+    return frontendWebUrl;
   }
 
   sendGridApiKey(): string {

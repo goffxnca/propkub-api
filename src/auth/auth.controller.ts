@@ -102,7 +102,7 @@ export class AuthController {
       const { accessToken } = result;
 
       res.redirect(
-        `${this.envService.webDomain()}/auth/callback?token=${accessToken}`,
+        `${this.envService.frontendWebUrl()}/auth/callback?token=${accessToken}`,
       );
     } catch (error) {
       this.logger.error(
@@ -110,7 +110,7 @@ export class AuthController {
         error,
       );
       res.redirect(
-        `${this.envService.webDomain()}/auth/callback?error=oauth_failed`,
+        `${this.envService.frontendWebUrl()}/auth/callback?error=oauth_failed`,
       );
     }
   }
@@ -132,7 +132,7 @@ export class AuthController {
         '[handleGoogleWithCustomState()] Google OAuth failed: Invalid state format',
       );
       return res.redirect(
-        `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
+        `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
       );
     }
 
@@ -145,7 +145,7 @@ export class AuthController {
           `[handleGoogleWithCustomState()] Google OAuth failed: Unknown mode '${stateData.mode}'`,
         );
         return res.redirect(
-          `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
         );
     }
   }
@@ -167,7 +167,7 @@ export class AuthController {
           '[handleGoogleLinking()] Google linking failed: Missing current email parameter',
         );
         return res.redirect(
-          `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
         );
       }
 
@@ -176,7 +176,7 @@ export class AuthController {
           `[handleGoogleLinking()] Google linking failed: Email mismatch. OAuth: ${truncEmail(req.user.email)}, Expected: ${truncEmail(currentEmail)}`,
         );
         return res.redirect(
-          `${this.envService.webDomain()}/auth/callback?error=email_mismatch&expectedEmail=${encodeURIComponent(currentEmail)}&provider=google`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=email_mismatch&expectedEmail=${encodeURIComponent(currentEmail)}&provider=google`,
         );
       }
 
@@ -184,7 +184,7 @@ export class AuthController {
       const { accessToken } = result;
 
       return res.redirect(
-        `${this.envService.webDomain()}/auth/callback?token=${accessToken}&success=linking&provider=google`,
+        `${this.envService.frontendWebUrl()}/auth/callback?token=${accessToken}&success=linking&provider=google`,
       );
     } catch (error) {
       this.logger.error(
@@ -194,12 +194,12 @@ export class AuthController {
 
       if (error.message?.includes('already linked')) {
         return res.redirect(
-          `${this.envService.webDomain()}/auth/callback?error=already_linked&provider=google`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=already_linked&provider=google`,
         );
       }
 
       res.redirect(
-        `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
+        `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
       );
     }
   }
@@ -228,7 +228,7 @@ export class AuthController {
       const { accessToken } = result;
 
       res.redirect(
-        `${this.envService.webDomain()}/auth/callback?token=${accessToken}`,
+        `${this.envService.frontendWebUrl()}/auth/callback?token=${accessToken}`,
       );
     } catch (error) {
       this.logger.error(
@@ -236,7 +236,7 @@ export class AuthController {
         error,
       );
       res.redirect(
-        `${this.envService.webDomain()}/auth/callback?error=oauth_failed`,
+        `${this.envService.frontendWebUrl()}/auth/callback?error=oauth_failed`,
       );
     }
   }
@@ -258,7 +258,7 @@ export class AuthController {
         '[handleFacebookWithCustomState()] Facebook OAuth failed: Invalid state format',
       );
       return res.redirect(
-        `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
+        `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
       );
     }
 
@@ -271,7 +271,7 @@ export class AuthController {
           `[handleFacebookWithCustomState()] Facebook OAuth failed: Unknown mode '${stateData.mode}'`,
         );
         return res.redirect(
-          `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
         );
     }
   }
@@ -293,7 +293,7 @@ export class AuthController {
           '[handleFacebookLinking()] Facebook linking failed: Missing current email parameter',
         );
         return res.redirect(
-          `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
         );
       }
 
@@ -302,7 +302,7 @@ export class AuthController {
           `[handleFacebookLinking()] Facebook linking failed: Email mismatch. OAuth: ${truncEmail(req.user.email)}, Expected: ${truncEmail(currentEmail)}`,
         );
         return res.redirect(
-          `${this.envService.webDomain()}/auth/callback?error=email_mismatch&expectedEmail=${encodeURIComponent(currentEmail)}&provider=facebook`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=email_mismatch&expectedEmail=${encodeURIComponent(currentEmail)}&provider=facebook`,
         );
       }
 
@@ -310,7 +310,7 @@ export class AuthController {
       const { accessToken } = result;
 
       return res.redirect(
-        `${this.envService.webDomain()}/auth/callback?token=${accessToken}&success=linking&provider=facebook`,
+        `${this.envService.frontendWebUrl()}/auth/callback?token=${accessToken}&success=linking&provider=facebook`,
       );
     } catch (error) {
       this.logger.error(
@@ -320,12 +320,12 @@ export class AuthController {
 
       if (error.message?.includes('already linked')) {
         return res.redirect(
-          `${this.envService.webDomain()}/auth/callback?error=already_linked&provider=facebook`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=already_linked&provider=facebook`,
         );
       }
 
       res.redirect(
-        `${this.envService.webDomain()}/auth/callback?error=linking_failed`,
+        `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
       );
     }
   }

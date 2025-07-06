@@ -20,12 +20,12 @@ export class FacebookAuthWithStateGuard extends AuthGuard('facebook') {
       if (error === 'access_denied') {
         this.logger.log(`Facebook OAuth cancelled by user`);
         response.redirect(
-          `${this.envService.webDomain()}/auth/callback?error=oauth_cancelled&provider=facebook`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=oauth_cancelled&provider=facebook`,
         );
       } else {
         this.logger.error(`Facebook OAuth error: ${error}`);
         response.redirect(
-          `${this.envService.webDomain()}/auth/callback?error=oauth_failed&provider=facebook`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=oauth_failed&provider=facebook`,
         );
       }
       return;
