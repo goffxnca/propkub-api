@@ -26,7 +26,7 @@ export class ProvincesService implements OnModuleInit {
   }
 
   async findAll(): Promise<Province[]> {
-    return this.provinceModel.find().exec();
+    return this.provinceModel.find().sort({ name: 1 }).exec();
   }
 
   async findOne(id: string): Promise<Province | null> {
