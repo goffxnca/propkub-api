@@ -33,7 +33,7 @@ export class DistrictsService implements OnModuleInit {
   }
 
   async findByProvinceId(provinceId: string): Promise<District[]> {
-    return this.districtModel.find({ provinceId }).exec();
+    return this.districtModel.find({ provinceId }).sort({ name: 1 }).exec();
   }
 
   async seedTest(district: Partial<District>): Promise<District> {
