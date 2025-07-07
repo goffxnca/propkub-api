@@ -34,7 +34,7 @@ export class SubDistrictsService implements OnModuleInit {
   }
 
   async findByDistrictId(districtId: string): Promise<SubDistrict[]> {
-    return this.subDistrictModel.find({ districtId }).exec();
+    return this.subDistrictModel.find({ districtId }).sort({ name: 1 }).exec();
   }
 
   async seedTest(subDistrict: Partial<SubDistrict>): Promise<SubDistrict> {
