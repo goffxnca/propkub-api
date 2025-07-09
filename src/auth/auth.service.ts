@@ -42,6 +42,13 @@ export class AuthService {
       return null;
     }
 
+    if (user.provider !== 'email') {
+      this.logger.debug(
+        `Authentication failed: User with email:${truncEmail(email)} is not registered as email provider`,
+      );
+      return null;
+    }
+
     const passwordValid = await bcrypt.compare(password, user.password);
     if (passwordValid) {
       this.logger.debug(

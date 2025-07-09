@@ -536,8 +536,6 @@ describe('Posts (e2e)', () => {
       assetType: AssetType.CONDO,
       postType: PostType.SALE,
       price: 1000.0,
-      area: 10.0,
-      areaUnit: AreaUnit.SQM,
       isDraft: true,
       isStudio: false,
       thumbnail: 'https://example.com/thumb.jpg',
@@ -671,8 +669,6 @@ describe('Posts (e2e)', () => {
       assetType: AssetType.HOUSE,
       postType: PostType.RENT,
       price: 99999.99,
-      area: 99.99,
-      areaUnit: AreaUnit.RAI,
       isDraft: false,
       isStudio: true,
       thumbnail: 'https://example.com/thumb_updated.jpg',
@@ -723,8 +719,6 @@ describe('Posts (e2e)', () => {
       expect(response.body.assetType).toBe(validUpdatePostDto.assetType);
       expect(response.body.postType).toBe(validUpdatePostDto.postType);
       expect(response.body.price).toBe(validUpdatePostDto.price);
-      expect(response.body.area).toBe(validUpdatePostDto.area);
-      expect(response.body.areaUnit).toBe(validUpdatePostDto.areaUnit);
       expect(response.body.status).toBe('active');
       expect(response.body.isStudio).toBe(validUpdatePostDto.isStudio);
       expect(response.body.thumbnail).toBe(validUpdatePostDto.thumbnail);

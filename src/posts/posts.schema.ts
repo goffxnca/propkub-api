@@ -191,10 +191,6 @@ export class Post {
   @Prop({ required: true })
   price: number;
 
-  // ขนาดพื้นที่ใช้สอย
-  @Prop({ required: true })
-  area: number;
-
   @Prop({ required: true, enum: PostStatus })
   status: PostStatus;
 
@@ -252,6 +248,10 @@ export class Post {
   // หน่วยที่ดิน
   @Prop({ enum: AreaUnit })
   landUnit?: AreaUnit;
+
+  // ขนาดพื้นที่ใช้สอย
+  @Prop()
+  area?: number;
 
   // หน่วยพื้นที่ใช้สอย
   @Prop({ enum: AreaUnit })

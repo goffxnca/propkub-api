@@ -18,7 +18,6 @@ export const basePost: Post = {
   assetType: AssetType.CONDO,
   postType: PostType.SALE,
   price: 5000000,
-  area: 100,
   status: PostStatus.ACTIVE,
   byMember: true,
   isStudio: false,
