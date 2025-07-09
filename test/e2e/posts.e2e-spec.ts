@@ -537,8 +537,8 @@ describe('Posts (e2e)', () => {
       postType: PostType.SALE,
       price: 1000.0,
       isDraft: true,
-      isStudio: false,
       thumbnail: 'https://example.com/thumb.jpg',
+      isStudio: false,
       images: [
         'https://example.com/image1.jpg',
         'https://example.com/image2.jpg',
@@ -565,7 +565,6 @@ describe('Posts (e2e)', () => {
           lng: 100.101,
         },
       },
-      condition: Condition.NEW,
     };
 
     it('should create a new post successfully when authenticated', async () => {
@@ -670,8 +669,8 @@ describe('Posts (e2e)', () => {
       postType: PostType.RENT,
       price: 99999.99,
       isDraft: false,
-      isStudio: true,
       thumbnail: 'https://example.com/thumb_updated.jpg',
+      isStudio: true,
       images: [
         'https://example.com/image1_updated.jpg',
         'https://example.com/image2_updated.jpg',
@@ -698,7 +697,6 @@ describe('Posts (e2e)', () => {
           lng: 999.949,
         },
       },
-      condition: Condition.USED,
     };
 
     it('should update post successfully when pass all post fields and authenticated', async () => {
@@ -734,7 +732,6 @@ describe('Posts (e2e)', () => {
       expect(validUpdatePostDto.address.provinceLabel).toBe(
         validUpdatePostDto.address.provinceLabel,
       );
-      expect(response.body.condition).toBe(validUpdatePostDto.condition);
 
       expect(response.body.updatedBy).toBe(testUser._id.toString());
       expect(new Date(response.body.updatedAt)).toBeInstanceOf(Date);

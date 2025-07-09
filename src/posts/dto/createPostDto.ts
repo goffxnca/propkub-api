@@ -22,6 +22,7 @@ import {
 import { Type } from 'class-transformer';
 
 export class CreatePostDto {
+  // Required
   @IsNotEmpty()
   @IsString()
   title: string;
@@ -77,6 +78,7 @@ export class CreatePostDto {
   @Type(() => Address)
   address: Address;
 
+  // Optional
   @IsOptional()
   @IsString()
   video?: string;
@@ -87,7 +89,7 @@ export class CreatePostDto {
 
   @IsOptional()
   @IsEnum(AreaUnit)
-  areaUnit?: string;
+  landUnit?: string;
 
   @IsOptional()
   @IsNumber()
@@ -95,7 +97,7 @@ export class CreatePostDto {
 
   @IsOptional()
   @IsEnum(AreaUnit)
-  landUnit?: string;
+  areaUnit?: string;
 
   @IsOptional()
   @IsEnum({ ...AreaUnit, ...TimeUnit })

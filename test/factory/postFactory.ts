@@ -20,8 +20,8 @@ export const basePost: Post = {
   price: 5000000,
   status: PostStatus.ACTIVE,
   byMember: true,
-  isStudio: false,
   thumbnail: faker.image.url(),
+  isStudio: false,
   images: [faker.image.url(), faker.image.url(), faker.image.url()],
   facilities: [
     { id: 'pool', label: 'Swimming Pool' },

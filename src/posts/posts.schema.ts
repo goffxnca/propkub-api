@@ -198,10 +198,10 @@ export class Post {
   byMember: boolean;
 
   @Prop({ required: true })
-  isStudio: boolean;
+  thumbnail: string;
 
   @Prop({ required: true })
-  thumbnail: string;
+  isStudio: boolean;
 
   @Prop({
     type: [String],

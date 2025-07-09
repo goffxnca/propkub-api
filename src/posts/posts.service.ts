@@ -85,20 +85,20 @@ export class PostsService implements OnModuleInit {
           const postStatus = post.subStatus;
           const convertedPost: PostWithDates = {
             ...post,
-            cid: index + 1,
             status:
               postStatus === 'fulfilled'
                 ? PostStatus.SOLD
                 : postStatus === 'expired' || postStatus === 'closed'
                   ? PostStatus.CLOSED
                   : PostStatus.ACTIVE,
-            isStudio: post?.isStudio || false,
             byMember: true,
+            isStudio: post?.isStudio || false,
             views: {
               post: post.postViews,
               phone: post.phoneViews,
               line: post.lineViews,
             },
+            cid: index + 1,
             postNumber: post.id,
             video: post?.video || undefined,
             landUnit: post?.landUnit || undefined,
@@ -113,8 +113,8 @@ export class PostsService implements OnModuleInit {
             createdBy: mongoUserId,
             updatedAt: undefined,
             updatedBy: undefined,
-            ___createdById: post.createdBy.userId,
             ___id: post.id,
+            ___createdById: post.createdBy.userId,
           };
           return convertedPost;
         },
@@ -169,13 +169,13 @@ export class PostsService implements OnModuleInit {
     const postNumber = genUnixEpochTime();
     const userData = {
       ...createPostDto,
+      slug: genSlug(createPostDto.title, postNumber.toString()),
       desc: sanitizeHtml(createPostDto.desc, {
         allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br'],
       }),
       status: createPostDto.isDraft ? PostStatus.DRAFT : PostStatus.ACTIVE,
-      postNumber: postNumber,
-      slug: genSlug(createPostDto.title, postNumber.toString()),
       byMember: !!userId,
+      postNumber: postNumber,
       createdAt: new Date(),
       createdBy: userId,
     };
