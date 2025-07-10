@@ -200,9 +200,6 @@ export class Post {
   @Prop({ required: true })
   thumbnail: string;
 
-  @Prop({ required: true })
-  isStudio: boolean;
-
   @Prop({
     type: [String],
     required: true,
@@ -237,6 +234,9 @@ export class Post {
 
   @Prop({ required: true })
   postNumber: string;
+
+  @Prop()
+  isStudio?: boolean;
 
   @Prop()
   video?: string;

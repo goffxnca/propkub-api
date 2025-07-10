@@ -92,7 +92,6 @@ export class PostsService implements OnModuleInit {
                   ? PostStatus.CLOSED
                   : PostStatus.ACTIVE,
             byMember: true,
-            isStudio: post?.isStudio || false,
             views: {
               post: post.postViews,
               phone: post.phoneViews,
@@ -100,6 +99,7 @@ export class PostsService implements OnModuleInit {
             },
             cid: index + 1,
             postNumber: post.id,
+            isStudio: post?.isStudio || undefined,
             video: post?.video || undefined,
             landUnit: post?.landUnit || undefined,
             areaUnit: post?.areaUnit || undefined,

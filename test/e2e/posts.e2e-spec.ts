@@ -538,7 +538,6 @@ describe('Posts (e2e)', () => {
       price: 1000.0,
       isDraft: true,
       thumbnail: 'https://example.com/thumb.jpg',
-      isStudio: false,
       images: [
         'https://example.com/image1.jpg',
         'https://example.com/image2.jpg',
@@ -670,7 +669,6 @@ describe('Posts (e2e)', () => {
       price: 99999.99,
       isDraft: false,
       thumbnail: 'https://example.com/thumb_updated.jpg',
-      isStudio: true,
       images: [
         'https://example.com/image1_updated.jpg',
         'https://example.com/image2_updated.jpg',
@@ -718,7 +716,6 @@ describe('Posts (e2e)', () => {
       expect(response.body.postType).toBe(validUpdatePostDto.postType);
       expect(response.body.price).toBe(validUpdatePostDto.price);
       expect(response.body.status).toBe('active');
-      expect(response.body.isStudio).toBe(validUpdatePostDto.isStudio);
       expect(response.body.thumbnail).toBe(validUpdatePostDto.thumbnail);
       expect(JSON.stringify(response.body.images)).toBe(
         JSON.stringify(validUpdatePostDto.images),

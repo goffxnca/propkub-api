@@ -52,10 +52,6 @@ export class CreatePostDto {
   thumbnail: string;
 
   @IsNotEmpty()
-  @IsBoolean()
-  isStudio: boolean;
-
-  @IsNotEmpty()
   @IsArray()
   @IsString({ each: true })
   @ArrayMinSize(3)
@@ -79,6 +75,10 @@ export class CreatePostDto {
   address: Address;
 
   // Optional
+  @IsOptional()
+  @IsBoolean()
+  isStudio?: boolean;
+
   @IsOptional()
   @IsString()
   video?: string;

@@ -21,7 +21,6 @@ export const basePost: Post = {
   status: PostStatus.ACTIVE,
   byMember: true,
   thumbnail: faker.image.url(),
-  isStudio: false,
   images: [faker.image.url(), faker.image.url(), faker.image.url()],
   facilities: [
     { id: 'pool', label: 'Swimming Pool' },
