@@ -533,7 +533,7 @@ describe('Posts (e2e)', () => {
     const validCreatePostDto: CreatePostDto = {
       postNumber: '1752291152',
       title: 'New post title',
-      desc: '<a>This is a link</a><p>This is a paragraph</p>',
+      desc: '<p>This is desc</p>',
       assetType: AssetType.CONDO,
       postType: PostType.SALE,
       price: 1000.0,
@@ -575,9 +575,7 @@ describe('Posts (e2e)', () => {
         .expect(201);
 
       expect(response.body.title).toBe(validCreatePostDto.title);
-      expect(response.body.desc).toBe(
-        'This is a link<p>This is a paragraph</p>',
-      );
+      expect(response.body.desc).toBe('<p>This is desc</p>');
       expect(response.body.status).toBe('draft');
       expect(response.body.postNumber).toBe(validCreatePostDto.postNumber);
       expect(response.body.createdBy).toBe(testUser._id.toString());

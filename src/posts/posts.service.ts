@@ -20,6 +20,18 @@ import { UsersService } from '../users/users.service';
 import { PostActionsService } from '../postActions/postActions.service';
 import { PostActionType } from '../postActions/postActions.schema';
 
+const SANITIZE_OPTIONS = {
+  allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br', 'a'],
+};
+//p -> paragraph
+//em -> italic
+//strong -> bold
+//u -> underline
+//ol, li -> ordered list
+//ul, li -> unordered list
+//br -> new line
+//a -> link
+
 interface FirebaseTimestamp {
   //TODO: Remove later once it seems to created correctly
   seconds: number;
@@ -182,12 +194,14 @@ export class PostsService implements OnModuleInit {
       );
     }
 
+    const sanitizedTitle = sanitizeHtml(createPostDto.title, SANITIZE_OPTIONS);
+    const sanitizedDesc = sanitizeHtml(createPostDto.desc, SANITIZE_OPTIONS);
+
     const userData = {
       ...createPostDto,
-      slug: genSlug(createPostDto.title, createPostDto.postNumber),
-      desc: sanitizeHtml(createPostDto.desc, {
-        allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br'],
-      }),
+      title: sanitizedTitle,
+      slug: genSlug(sanitizedTitle, createPostDto.postNumber),
+      desc: sanitizedDesc,
       status: createPostDto.isDraft ? PostStatus.DRAFT : PostStatus.ACTIVE,
       byMember: !!userId,
       createdAt: new Date(),
