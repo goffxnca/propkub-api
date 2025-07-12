@@ -194,6 +194,11 @@ export class PostsService implements OnModuleInit {
       );
     }
 
+    // Always sanitize title/desc on backend for security
+    // Frontend (ReactQuill) already escapes HTML by default, but we sanitize here to protect against:
+    // - Direct API calls from Postman/curl/mobile apps
+    // - Bypassing frontend validation
+    // - Future frontend changes that might remove escaping
     const sanitizedTitle = sanitizeHtml(createPostDto.title, SANITIZE_OPTIONS);
     const sanitizedDesc = sanitizeHtml(createPostDto.desc, SANITIZE_OPTIONS);
 
