@@ -672,6 +672,102 @@ describe('Posts (e2e)', () => {
           );
         });
     });
+
+    it('should sanitize title and desc by removing malicious scripts while preserving allowed tags', async () => {
+      const maliciousTitle =
+        '<script>alert("XSS in title!")</script><strong>Bold Title</strong><div>Unwanted div</div>';
+      const maliciousDesc = `
+        <script>alert("XSS attack!")</script>
+        <p>Safe paragraph</p>
+        <strong>Bold text</strong>
+        <em>Italic text</em>
+        <u>Underlined text</u>
+        <ol><li>First item</li><li>Second item</li></ol>
+        <ul><li>Banana</li><li>Mango</li></ul>
+        <br/>
+        <a href="https://google.com">Google Link</a>
+        <div style="color: red">Dangerous div with inline styles</div>
+        <img src="x" onerror="alert('XSS')">
+        <iframe src="javascript:alert('XSS')"></iframe>
+        <style>body{background:red}</style>
+        <link rel="stylesheet" href="malicious.css">
+        <meta charset="utf-8">
+        <svg onload="alert('XSS')">
+        <object data="malicious.swf"></object>
+        <embed src="malicious.swf">
+        <form><input type="text"></form>
+        <table><tr><td>Table content</td></tr></table>
+        <h1>Heading not allowed</h1>
+        <span>Span not allowed</span>
+      `;
+
+      const sanitizationTestPost = {
+        ...validCreatePostDto,
+        postNumber: '1752294000',
+        title: maliciousTitle,
+        desc: maliciousDesc,
+      };
+
+      const response = await request(app.getHttpServer())
+        .post('/posts')
+        .set(authHeader(authToken))
+        .send(sanitizationTestPost)
+        .expect(201);
+
+      // Expected sanitized title - should remove script, div tags but keep their content and preserve strong
+      expect(response.body.title).toBe(
+        '<strong>Bold Title</strong>Unwanted div',
+      );
+      expect(response.body.title).not.toContain('<script>');
+      expect(response.body.title).not.toContain('<div>');
+      expect(response.body.title).not.toContain('alert');
+
+      // Expected sanitized desc - should preserve allowed tags and remove dangerous ones
+      const sanitizedDesc = response.body.desc;
+
+      // Should preserve allowed tags
+      expect(sanitizedDesc).toContain('<p>Safe paragraph</p>');
+      expect(sanitizedDesc).toContain('<strong>Bold text</strong>');
+      expect(sanitizedDesc).toContain('<em>Italic text</em>');
+      expect(sanitizedDesc).toContain('<u>Underlined text</u>');
+      expect(sanitizedDesc).toContain(
+        '<ol><li>First item</li><li>Second item</li></ol>',
+      );
+      expect(sanitizedDesc).toContain('<ul><li>Banana</li><li>Mango</li></ul>');
+      expect(sanitizedDesc).toContain('<br />');
+      expect(sanitizedDesc).toContain(
+        '<a href="https://google.com">Google Link</a>',
+      );
+
+      // Should remove dangerous/malicious tags and scripts
+      expect(sanitizedDesc).not.toContain('<script>');
+      expect(sanitizedDesc).not.toContain('alert(');
+      expect(sanitizedDesc).not.toContain('<div');
+      expect(sanitizedDesc).not.toContain('style=');
+      expect(sanitizedDesc).not.toContain('<img');
+      expect(sanitizedDesc).not.toContain('onerror');
+      expect(sanitizedDesc).not.toContain('<iframe');
+      expect(sanitizedDesc).not.toContain('javascript:');
+      expect(sanitizedDesc).not.toContain('<style>');
+      expect(sanitizedDesc).not.toContain('<link');
+      expect(sanitizedDesc).not.toContain('<meta');
+      expect(sanitizedDesc).not.toContain('<svg');
+      expect(sanitizedDesc).not.toContain('onload');
+      expect(sanitizedDesc).not.toContain('<object');
+      expect(sanitizedDesc).not.toContain('<embed');
+      expect(sanitizedDesc).not.toContain('<form');
+      expect(sanitizedDesc).not.toContain('<input');
+      expect(sanitizedDesc).not.toContain('<table');
+      expect(sanitizedDesc).not.toContain('<h1>');
+      expect(sanitizedDesc).not.toContain('<span>');
+
+      // Content should still be there, just without dangerous tags
+      // sanitize-html removes tags but preserves text content
+      expect(sanitizedDesc).toContain('Dangerous div with inline styles');
+      expect(sanitizedDesc).toContain('Table content');
+      expect(sanitizedDesc).toContain('Heading not allowed');
+      expect(sanitizedDesc).toContain('Span not allowed');
+    });
   });
 
   describe('PATCH /posts/:id', () => {
