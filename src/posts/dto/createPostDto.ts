@@ -23,6 +23,13 @@ import { Type } from 'class-transformer';
 
 export class CreatePostDto {
   // Required
+
+  // Unix timestamp used for Firebase Storage folder structure (po/{postNumber}/image.jpg)
+  // Frontend generates this, uploads images, then calls API with same postNumber
+  @IsNotEmpty()
+  @IsString()
+  postNumber: string;
+
   @IsNotEmpty()
   @IsString()
   title: string;

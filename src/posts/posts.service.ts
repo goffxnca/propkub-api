@@ -5,7 +5,7 @@ import { Post, PostDocument, PostStatus } from './posts.schema';
 import * as postsData from './data/posts.json';
 import { CreatePostDto } from './dto/createPostDto';
 import { User, UserDocument } from '../users/users.schema';
-import { genSlug, genUnixEpochTime } from '../common/utils/strings';
+import { genSlug } from '../common/utils/strings';
 import { EnvironmentService } from '../environments/environment.service';
 import * as sanitizeHtml from 'sanitize-html';
 import { UpdatePostDto } from './dto/updatePostDto';
@@ -166,16 +166,14 @@ export class PostsService implements OnModuleInit {
       throw new NotFoundException();
     }
 
-    const postNumber = genUnixEpochTime();
     const userData = {
       ...createPostDto,
-      slug: genSlug(createPostDto.title, postNumber.toString()),
+      slug: genSlug(createPostDto.title, createPostDto.postNumber),
       desc: sanitizeHtml(createPostDto.desc, {
         allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br'],
       }),
       status: createPostDto.isDraft ? PostStatus.DRAFT : PostStatus.ACTIVE,
       byMember: !!userId,
-      postNumber: postNumber,
       createdAt: new Date(),
       createdBy: userId,
     };

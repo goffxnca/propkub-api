@@ -18,10 +18,6 @@ export function truncToken(token: string): string {
   return `${token.substring(0, 8)}...`;
 }
 
-export function genUnixEpochTime(): number {
-  return Date.now();
-}
-
 export function genSlug(text: string, id: string) {
   let slug = '';
 
