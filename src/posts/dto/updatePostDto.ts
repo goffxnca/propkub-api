@@ -1,6 +1,9 @@
 import { CreatePostDto } from './createPostDto';
-import { PartialType } from '@nestjs/swagger';
+import { PartialType, OmitType } from '@nestjs/swagger';
 
-export class UpdatePostDto extends PartialType(CreatePostDto, {
-  skipNullProperties: false,
-}) {}
+export class UpdatePostDto extends PartialType(
+  OmitType(CreatePostDto, ['postNumber']),
+  {
+    skipNullProperties: false,
+  },
+) {}

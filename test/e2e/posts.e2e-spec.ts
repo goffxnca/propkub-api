@@ -531,6 +531,7 @@ describe('Posts (e2e)', () => {
 
   describe('POST /posts', () => {
     const validCreatePostDto: CreatePostDto = {
+      postNumber: '1752291152',
       title: 'New post title',
       desc: '<a>This is a link</a><p>This is a paragraph</p>',
       assetType: AssetType.CONDO,
@@ -578,6 +579,7 @@ describe('Posts (e2e)', () => {
         'This is a link<p>This is a paragraph</p>',
       );
       expect(response.body.status).toBe('draft');
+      expect(response.body.postNumber).toBe(validCreatePostDto.postNumber);
       expect(response.body.createdBy).toBe(testUser._id.toString());
 
       const createdPostId = response.body._id;
@@ -615,6 +617,7 @@ describe('Posts (e2e)', () => {
     it('should return 400 when required fields are missing', () => {
       const invalidPost = {
         ...validCreatePostDto,
+        postNumber: undefined,
         title: undefined,
         price: undefined,
       };
@@ -625,6 +628,7 @@ describe('Posts (e2e)', () => {
         .send(invalidPost)
         .expect(400)
         .expect((res) => {
+          expect(res.body.message).toContain('postNumber should not be empty');
           expect(res.body.message).toContain('title should not be empty');
           expect(res.body.message).toContain('price should not be empty');
         });
