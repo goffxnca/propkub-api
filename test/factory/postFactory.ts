@@ -57,6 +57,7 @@ export const basePost: Post = {
 export const createPost = (overrides: Partial<Post> = {}): Post => {
   const merged = {
     ...basePost,
+    postNumber: Math.random().toString(), //Generate random string for now, in prod codes, it will be sent from frontend in as epoch number
     ...overrides,
   };
 

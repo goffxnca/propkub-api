@@ -232,7 +232,7 @@ export class Post {
   @Prop()
   cid: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   postNumber: string;
 
   @Prop()

@@ -652,6 +652,28 @@ describe('Posts (e2e)', () => {
           );
         });
     });
+
+    it('should return 409 when postNumber already exists', async () => {
+      const postNumber = '1752293116';
+      // First create a post
+      await request(app.getHttpServer())
+        .post('/posts')
+        .set(authHeader(authToken))
+        .send({ ...validCreatePostDto, postNumber })
+        .expect(201);
+
+      // Try to create another post with the same postNumber
+      return request(app.getHttpServer())
+        .post('/posts')
+        .set(authHeader(authToken))
+        .send({ ...validCreatePostDto, postNumber })
+        .expect(409)
+        .expect((res) => {
+          expect(res.body.message).toContain(
+            `Post with postNumber ${postNumber} already exists`,
+          );
+        });
+    });
   });
 
   describe('PATCH /posts/:id', () => {

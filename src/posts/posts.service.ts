@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post, PostDocument, PostStatus } from './posts.schema';
@@ -132,6 +137,10 @@ export class PostsService implements OnModuleInit {
     return this.postModel.findById(id).exec();
   }
 
+  async findByPostNumber(postNumber: string): Promise<Post | null> {
+    return this.postModel.findOne({ postNumber }).exec();
+  }
+
   async findByProvinceId(provinceId: string): Promise<Post[]> {
     return this.postModel.find({ 'address.provinceId': provinceId }).exec();
   }
@@ -166,6 +175,13 @@ export class PostsService implements OnModuleInit {
       throw new NotFoundException();
     }
 
+    const existingPost = await this.findByPostNumber(createPostDto.postNumber);
+    if (existingPost) {
+      throw new ConflictException(
+        `Post with postNumber ${createPostDto.postNumber} already exists.`,
+      );
+    }
+
     const userData = {
       ...createPostDto,
       slug: genSlug(createPostDto.title, createPostDto.postNumber),
@@ -178,10 +194,11 @@ export class PostsService implements OnModuleInit {
       createdBy: userId,
     };
     const createdPost = new this.postModel(userData);
+    const savedPost = await createdPost.save();
 
-    this.postActionService.create(
+    await this.postActionService.create(
       createPostDto.isDraft ? PostActionType.DRAFT : PostActionType.PUBLISH,
-      createdPost.id,
+      savedPost.id,
       userId,
     );
 
@@ -191,13 +208,13 @@ export class PostsService implements OnModuleInit {
       templateId: EMAIL_POST_CREATED,
       templateData: {
         recipientName: user.name,
-        postUrl: `https://propkub.com/property/${createdPost.slug}`,
-        postNumber: createdPost.postNumber,
-        postTitle: createdPost.title,
+        postUrl: `https://propkub.com/property/${savedPost.slug}`,
+        postNumber: savedPost.postNumber,
+        postTitle: savedPost.title,
       },
     });
 
-    return createdPost.save();
+    return savedPost;
   }
 
   async update(
