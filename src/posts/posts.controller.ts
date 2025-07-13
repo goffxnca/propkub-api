@@ -17,6 +17,7 @@ import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { MongoIdValidationPipe } from '../common/pipes/mongo-id.pipe';
 import { CreatePostDto } from './dto/createPostDto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ApiKeyGuard } from '../auth/guards/api-key.guard';
 import { UpdatePostDto } from './dto/updatePostDto';
 import { PaginatedResponse } from '../common/utils/pagination';
 
@@ -24,8 +25,11 @@ import { PaginatedResponse } from '../common/utils/pagination';
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
+  @UseGuards(ApiKeyGuard)
   @Get()
-  async findAll(@Query() pagination: PaginationQueryDto): Promise<PaginatedResponse<Post>> {
+  async findAll(
+    @Query() pagination: PaginationQueryDto,
+  ): Promise<PaginatedResponse<Post>> {
     return this.postsService.findAll(pagination.page, pagination.per_page);
   }
 
