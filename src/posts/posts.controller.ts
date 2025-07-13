@@ -18,6 +18,7 @@ import { MongoIdValidationPipe } from '../common/pipes/mongo-id.pipe';
 import { CreatePostDto } from './dto/createPostDto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiKeyGuard } from '../auth/guards/api-key.guard';
+import { PostStatsResponseDto } from './dto/post-stats-response.dto';
 import { UpdatePostDto } from './dto/updatePostDto';
 import { PaginatedResponse } from '../common/utils/pagination';
 
@@ -33,17 +34,25 @@ export class PostsController {
     return this.postsService.findAll(pagination.page, pagination.per_page);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('me')
+  @UseGuards(JwtAuthGuard)
   async getMyPosts(
     @Request() req,
     @Query() pagination: PaginationQueryDto,
   ): Promise<PaginatedResponse<Post>> {
+    const userId = req.user.userId;
     return this.postsService.findByUserId(
-      req.user.userId,
+      userId,
       pagination.page,
       pagination.per_page,
     );
+  }
+
+  @Get('me/stats')
+  @UseGuards(JwtAuthGuard)
+  async getMyPostsStats(@Request() req): Promise<PostStatsResponseDto> {
+    const userId = req.user.userId;
+    return this.postsService.getUserPostsStats(userId);
   }
 
   @Get(':id')

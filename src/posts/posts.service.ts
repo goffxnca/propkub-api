@@ -5,7 +5,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Post, PostDocument, PostStatus } from './posts.schema';
 import * as postsData from './data/posts.json';
 import { CreatePostDto } from './dto/createPostDto';
@@ -20,6 +20,7 @@ import { UsersService } from '../users/users.service';
 import { PostActionsService } from '../postActions/postActions.service';
 import { PostActionType } from '../postActions/postActions.schema';
 import { paginate, PaginatedResponse } from '../common/utils/pagination';
+import { PostStatsResponseDto } from './dto/post-stats-response.dto';
 
 const SANITIZE_OPTIONS = {
   allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br', 'a'],
@@ -187,7 +188,32 @@ export class PostsService implements OnModuleInit {
   ): Promise<PaginatedResponse<Post>> {
     const baseQuery = () =>
       this.postModel.find({ createdBy: userId }).sort({ createdAt: -1 });
-    return paginate<Post>(baseQuery, { page, per_page });
+
+    return paginate(baseQuery, { page, per_page });
+  }
+
+  async getUserPostsStats(userId: string): Promise<PostStatsResponseDto> {
+    const result = await this.postModel.aggregate([
+      { $match: { createdBy: new Types.ObjectId(userId) } },
+      {
+        $group: {
+          _id: null,
+          totalPosts: { $sum: 1 },
+          totalPostViews: { $sum: { $ifNull: ['$views.post', 0] } },
+          totalPhoneViews: { $sum: { $ifNull: ['$views.phone', 0] } },
+          totalLineViews: { $sum: { $ifNull: ['$views.line', 0] } },
+        },
+      },
+    ]);
+
+    const defaultStats = {
+      totalPosts: 0,
+      totalPostViews: 0,
+      totalPhoneViews: 0,
+      totalLineViews: 0,
+    };
+
+    return result[0] || defaultStats;
   }
 
   async incrementViews(id: string): Promise<Post | null> {
