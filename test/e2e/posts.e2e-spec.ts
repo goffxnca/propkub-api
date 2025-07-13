@@ -43,6 +43,8 @@ describe('Posts (e2e)', () => {
   let testUser: User;
   let authToken: string;
 
+  const NEXT_SSG_TEST_KEY = 'nextjs_ssg_test_key';
+
   const mockPosts: Post[] = [
     createPost({
       _id: new Types.ObjectId().toString(),
@@ -262,6 +264,7 @@ describe('Posts (e2e)', () => {
       it('should return first 4 items when page=1, per_page=4', () => {
         return request(app.getHttpServer())
           .get('/posts?page=1&per_page=4')
+          .set('x-api-key', NEXT_SSG_TEST_KEY)
           .expect(200)
           .expect((res) => {
             expect(res.body.items).toBeDefined();
@@ -281,6 +284,7 @@ describe('Posts (e2e)', () => {
       it('should return second page (items 5-8) when page=2, per_page=4', () => {
         return request(app.getHttpServer())
           .get('/posts?page=2&per_page=4')
+          .set('x-api-key', NEXT_SSG_TEST_KEY)
           .expect(200)
           .expect((res) => {
             expect(res.body.items).toBeDefined();
@@ -300,6 +304,7 @@ describe('Posts (e2e)', () => {
       it('should return partial page (items 9-10) when page=3, per_page=4', () => {
         return request(app.getHttpServer())
           .get('/posts?page=3&per_page=4')
+          .set('x-api-key', NEXT_SSG_TEST_KEY)
           .expect(200)
           .expect((res) => {
             expect(res.body.items).toBeDefined();
@@ -317,6 +322,7 @@ describe('Posts (e2e)', () => {
       it('should return empty items array when page is beyond available items (page=999, per_page=4)', () => {
         return request(app.getHttpServer())
           .get('/posts?page=999&per_page=4')
+          .set('x-api-key', NEXT_SSG_TEST_KEY)
           .expect(200)
           .expect((res) => {
             expect(res.body.items).toBeDefined();
@@ -329,10 +335,43 @@ describe('Posts (e2e)', () => {
       });
     });
 
+    describe('API Key Validation', () => {
+      it('should return 401 when API key is missing', () => {
+        return request(app.getHttpServer())
+          .get('/posts?page=1&per_page=4')
+          .expect(401)
+          .expect((res) => {
+            expect(res.body.message).toBe('Invalid or missing API key');
+          });
+      });
+
+      it('should return 401 when API key is invalid', () => {
+        return request(app.getHttpServer())
+          .get('/posts?page=1&per_page=4')
+          .set('x-api-key', 'invalid-key')
+          .expect(401)
+          .expect((res) => {
+            expect(res.body.message).toBe('Invalid or missing API key');
+          });
+      });
+
+      it('should return 200 when API key is valid', () => {
+        return request(app.getHttpServer())
+          .get('/posts?page=1&per_page=4')
+          .set('x-api-key', NEXT_SSG_TEST_KEY)
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.items).toBeDefined();
+            expect(res.body.total_count).toBeDefined();
+          });
+      });
+    });
+
     describe('Pagination Validations', () => {
       it('should return 400 when both page and per_page are missing', () => {
         return request(app.getHttpServer())
           .get('/posts')
+          .set('x-api-key', NEXT_SSG_TEST_KEY)
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain('page should not be empty');
@@ -343,6 +382,7 @@ describe('Posts (e2e)', () => {
       it('should return 400 when page is missing', () => {
         return request(app.getHttpServer())
           .get('/posts?per_page=10')
+          .set('x-api-key', NEXT_SSG_TEST_KEY)
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain('page should not be empty');
@@ -352,6 +392,7 @@ describe('Posts (e2e)', () => {
       it('should return 400 when per_page is missing', () => {
         return request(app.getHttpServer())
           .get('/posts?page=1')
+          .set('x-api-key', NEXT_SSG_TEST_KEY)
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain('per_page should not be empty');
@@ -361,6 +402,7 @@ describe('Posts (e2e)', () => {
       it('should return 400 when page is not a number', () => {
         return request(app.getHttpServer())
           .get('/posts?page=abc&per_page=10')
+          .set('x-api-key', NEXT_SSG_TEST_KEY)
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain(
@@ -372,6 +414,7 @@ describe('Posts (e2e)', () => {
       it('should return 400 when per_page is not a number', () => {
         return request(app.getHttpServer())
           .get('/posts?page=1&per_page=abc')
+          .set('x-api-key', NEXT_SSG_TEST_KEY)
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain(
@@ -383,6 +426,7 @@ describe('Posts (e2e)', () => {
       it('should return 400 when page is less than 1', () => {
         return request(app.getHttpServer())
           .get('/posts?page=0&per_page=10')
+          .set('x-api-key', NEXT_SSG_TEST_KEY)
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain('page must not be less than 1');
@@ -392,6 +436,7 @@ describe('Posts (e2e)', () => {
       it('should return 400 when per_page is greater than 50', () => {
         return request(app.getHttpServer())
           .get('/posts?page=1&per_page=51')
+          .set('x-api-key', NEXT_SSG_TEST_KEY)
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain(
@@ -403,6 +448,7 @@ describe('Posts (e2e)', () => {
       it('should return 400 when per_page is less than 1', () => {
         return request(app.getHttpServer())
           .get('/posts?page=1&per_page=0')
+          .set('x-api-key', NEXT_SSG_TEST_KEY)
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain(
