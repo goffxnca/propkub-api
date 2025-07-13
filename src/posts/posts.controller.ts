@@ -28,6 +28,19 @@ export class PostsController {
     return this.postsService.findAll(pagination.limit, pagination.offset);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getMyPosts(
+    @Request() req,
+    @Query() pagination: PaginationDto,
+  ): Promise<Post[]> {
+    return this.postsService.findByUserId(
+      req.user.userId,
+      pagination.limit,
+      pagination.offset,
+    );
+  }
+
   @Get(':id')
   async findOne(@Param('id', MongoIdValidationPipe) id: string): Promise<Post> {
     const post = await this.postsService.findOne(id);

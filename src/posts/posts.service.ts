@@ -175,6 +175,19 @@ export class PostsService implements OnModuleInit {
     return this.postModel.find({ postType }).exec();
   }
 
+  async findByUserId(
+    userId: string,
+    limit: number,
+    offset: number,
+  ): Promise<Post[]> {
+    return this.postModel
+      .find({ createdBy: userId })
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(limit)
+      .exec();
+  }
+
   async incrementViews(id: string): Promise<Post | null> {
     return this.postModel
       .findByIdAndUpdate(id, { $inc: { 'views.post': 1 } }, { new: true })
