@@ -178,8 +178,8 @@ export class PostsService implements OnModuleInit {
 
   async findByUserId(
     userId: string,
-    page: number = 1,
-    per_page: number = 10,
+    page: number,
+    per_page: number,
   ): Promise<PaginatedResponse<Post>> {
     const baseQuery = () =>
       this.postModel.find({ createdBy: userId }).sort({ createdAt: -1 });

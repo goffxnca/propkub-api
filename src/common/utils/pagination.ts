@@ -13,13 +13,24 @@ export interface PaginatedResponse<T> {
 }
 
 /**
+ * Interface for MongoDB query objects
+ * Ensures the query has the required methods for pagination
+ */
+export interface MongoQuery<T> {
+  skip(n: number): MongoQuery<T>;
+  limit(n: number): MongoQuery<T>;
+  exec(): Promise<T[]>;
+  countDocuments(): Promise<number>;
+}
+
+/**
  * Generic pagination utility for MongoDB queries
  * @param baseQuery - Function that returns a fresh MongoDB query
  * @param options - Pagination options (page, per_page)
  * @returns Promise<PaginatedResponse<T>>
  */
 export const paginate = async <T>(
-  baseQuery: () => any,
+  baseQuery: () => MongoQuery<T>,
   options: PaginationOptions,
 ): Promise<PaginatedResponse<T>> => {
   // Validate pagination options automatically
