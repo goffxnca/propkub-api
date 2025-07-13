@@ -259,6 +259,36 @@ describe('Posts (e2e)', () => {
     await closeMongodConnection();
   });
 
+  describe('GET /posts/me', () => {
+    it('should return user own posts when authenticated', () => {
+      return request(app.getHttpServer())
+        .get('/posts/me?page=1&per_page=2')
+        .set(authHeader(authToken))
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.items).toBeDefined();
+          expect(Array.isArray(res.body.items)).toBe(true);
+          expect(res.body.total_count).toBeDefined();
+          expect(res.body.page).toBe(1);
+          expect(res.body.per_page).toBe(2);
+
+          // Verify all returned posts are created by the authenticated user
+          res.body.items.forEach((post) => {
+            expect(post.createdBy).toBe(testUser._id.toString());
+          });
+        });
+    });
+
+    it('should return 401 when not authenticated', () => {
+      return request(app.getHttpServer())
+        .get('/posts/me?page=1&per_page=2')
+        .expect(401)
+        .expect((res) => {
+          expect(res.body.message).toBe('Unauthorized');
+        });
+    });
+  });
+
   describe('GET /posts', () => {
     describe('Pagination Functionalities', () => {
       it('should return first 4 items when page=1, per_page=4', () => {
