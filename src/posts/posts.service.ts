@@ -142,8 +142,12 @@ export class PostsService implements OnModuleInit {
     }
   }
 
-  async findAll(limit: number, offset: number): Promise<Post[]> {
-    return this.postModel.find().skip(offset).limit(limit).exec();
+  async findAll(
+    page: number,
+    per_page: number,
+  ): Promise<PaginatedResponse<Post>> {
+    const baseQuery = () => this.postModel.find().sort({ createdAt: -1 });
+    return paginate<Post>(baseQuery, { page, per_page });
   }
 
   async findOne(id: string): Promise<Post | null> {

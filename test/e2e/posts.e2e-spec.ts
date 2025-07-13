@@ -244,6 +244,7 @@ describe('Posts (e2e)', () => {
     testUser = user;
 
     for (const post of mockPosts) {
+      post.createdAt = new Date();
       await service.seedTest(post);
     }
   });
@@ -258,131 +259,154 @@ describe('Posts (e2e)', () => {
 
   describe('GET /posts', () => {
     describe('Pagination Functionalities', () => {
-      it('should return first 4 items when limit=4, offset=0', () => {
+      it('should return first 4 items when page=1, per_page=4', () => {
         return request(app.getHttpServer())
-          .get('/posts?limit=4&offset=0')
+          .get('/posts?page=1&per_page=4')
           .expect(200)
           .expect((res) => {
-            expect(Array.isArray(res.body)).toBe(true);
-            expect(res.body).toHaveLength(4);
-            expect(res.body[0].title).toBe(mockPosts[0].title);
-            expect(res.body[3].title).toBe(mockPosts[3].title);
+            expect(res.body.items).toBeDefined();
+            expect(Array.isArray(res.body.items)).toBe(true);
+            expect(res.body.items).toHaveLength(4);
+            expect(res.body.total_count).toBe(10);
+            expect(res.body.page).toBe(1);
+            expect(res.body.per_page).toBe(4);
+
+            expect(res.body.items[0].title).toBe(mockPosts[9].title);
+            expect(res.body.items[1].title).toBe(mockPosts[8].title);
+            expect(res.body.items[2].title).toBe(mockPosts[7].title);
+            expect(res.body.items[3].title).toBe(mockPosts[6].title);
           });
       });
 
-      it('should return second page (items 5-8) when limit=4, offset=4', () => {
+      it('should return second page (items 5-8) when page=2, per_page=4', () => {
         return request(app.getHttpServer())
-          .get('/posts?limit=4&offset=4')
+          .get('/posts?page=2&per_page=4')
           .expect(200)
           .expect((res) => {
-            expect(Array.isArray(res.body)).toBe(true);
-            expect(res.body).toHaveLength(4);
-            expect(res.body[0].title).toBe(mockPosts[4].title);
-            expect(res.body[3].title).toBe(mockPosts[7].title);
+            expect(res.body.items).toBeDefined();
+            expect(Array.isArray(res.body.items)).toBe(true);
+            expect(res.body.items).toHaveLength(4);
+            expect(res.body.total_count).toBe(10);
+            expect(res.body.page).toBe(2);
+            expect(res.body.per_page).toBe(4);
+
+            expect(res.body.items[0].title).toBe(mockPosts[5].title);
+            expect(res.body.items[1].title).toBe(mockPosts[4].title);
+            expect(res.body.items[2].title).toBe(mockPosts[3].title);
+            expect(res.body.items[3].title).toBe(mockPosts[2].title);
           });
       });
 
-      it('should return partial page (items 9-10) when limit=4, offset=8', () => {
+      it('should return partial page (items 9-10) when page=3, per_page=4', () => {
         return request(app.getHttpServer())
-          .get('/posts?limit=4&offset=8')
+          .get('/posts?page=3&per_page=4')
           .expect(200)
           .expect((res) => {
-            expect(Array.isArray(res.body)).toBe(true);
-            expect(res.body).toHaveLength(2);
-            expect(res.body[0].title).toBe(mockPosts[8].title);
-            expect(res.body[1].title).toBe(mockPosts[9].title);
+            expect(res.body.items).toBeDefined();
+            expect(Array.isArray(res.body.items)).toBe(true);
+            expect(res.body.items).toHaveLength(2);
+            expect(res.body.total_count).toBe(10);
+            expect(res.body.page).toBe(3);
+            expect(res.body.per_page).toBe(4);
+
+            expect(res.body.items[0].title).toBe(mockPosts[1].title);
+            expect(res.body.items[1].title).toBe(mockPosts[0].title);
           });
       });
 
-      it('should return empty array when offset is beyond available items (limit=4, offset=999)', () => {
+      it('should return empty items array when page is beyond available items (page=999, per_page=4)', () => {
         return request(app.getHttpServer())
-          .get('/posts?limit=4&offset=999')
+          .get('/posts?page=999&per_page=4')
           .expect(200)
           .expect((res) => {
-            expect(Array.isArray(res.body)).toBe(true);
-            expect(res.body).toHaveLength(0);
+            expect(res.body.items).toBeDefined();
+            expect(Array.isArray(res.body.items)).toBe(true);
+            expect(res.body.items).toHaveLength(0);
+            expect(res.body.total_count).toBe(10);
+            expect(res.body.page).toBe(999);
+            expect(res.body.per_page).toBe(4);
           });
       });
     });
 
     describe('Pagination Validations', () => {
-      it('should return 400 when both limit and offset are missing', () => {
+      it('should return 400 when both page and per_page are missing', () => {
         return request(app.getHttpServer())
           .get('/posts')
           .expect(400)
           .expect((res) => {
-            expect(res.body.message).toContain('limit should not be empty');
-            expect(res.body.message).toContain('offset should not be empty');
+            expect(res.body.message).toContain('page should not be empty');
+            expect(res.body.message).toContain('per_page should not be empty');
           });
       });
 
-      it('should return 400 when limit is missing', () => {
+      it('should return 400 when page is missing', () => {
         return request(app.getHttpServer())
-          .get('/posts?offset=0')
+          .get('/posts?per_page=10')
           .expect(400)
           .expect((res) => {
-            expect(res.body.message).toContain('limit should not be empty');
+            expect(res.body.message).toContain('page should not be empty');
           });
       });
 
-      it('should return 400 when offset is missing', () => {
+      it('should return 400 when per_page is missing', () => {
         return request(app.getHttpServer())
-          .get('/posts?limit=10')
+          .get('/posts?page=1')
           .expect(400)
           .expect((res) => {
-            expect(res.body.message).toContain('offset should not be empty');
+            expect(res.body.message).toContain('per_page should not be empty');
           });
       });
 
-      it('should return 400 when limit is not a number', () => {
+      it('should return 400 when page is not a number', () => {
         return request(app.getHttpServer())
-          .get('/posts?limit=abc&offset=0')
+          .get('/posts?page=abc&per_page=10')
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain(
-              'limit must be an integer number',
+              'page must be an integer number',
             );
           });
       });
 
-      it('should return 400 when offset is not a number', () => {
+      it('should return 400 when per_page is not a number', () => {
         return request(app.getHttpServer())
-          .get('/posts?limit=10&offset=abc')
+          .get('/posts?page=1&per_page=abc')
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain(
-              'offset must be an integer number',
+              'per_page must be an integer number',
             );
           });
       });
 
-      it('should return 400 when limit is less than 1', () => {
+      it('should return 400 when page is less than 1', () => {
         return request(app.getHttpServer())
-          .get('/posts?limit=0&offset=0')
+          .get('/posts?page=0&per_page=10')
           .expect(400)
           .expect((res) => {
-            expect(res.body.message).toContain('limit must not be less than 1');
+            expect(res.body.message).toContain('page must not be less than 1');
           });
       });
 
-      it('should return 400 when limit is greater than 50', () => {
+      it('should return 400 when per_page is greater than 50', () => {
         return request(app.getHttpServer())
-          .get('/posts?limit=51&offset=0')
+          .get('/posts?page=1&per_page=51')
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain(
-              'limit must not be greater than 50',
+              'per_page must not be greater than 50',
             );
           });
       });
 
-      it('should return 400 when offset is negative', () => {
+      it('should return 400 when per_page is less than 1', () => {
         return request(app.getHttpServer())
-          .get('/posts?limit=10&offset=-1')
+          .get('/posts?page=1&per_page=0')
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain(
-              'offset must not be less than 0',
+              'per_page must not be less than 1',
             );
           });
       });

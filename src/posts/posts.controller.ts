@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post } from './posts.schema';
-import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { MongoIdValidationPipe } from '../common/pipes/mongo-id.pipe';
 import { CreatePostDto } from './dto/createPostDto';
@@ -26,8 +25,8 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Get()
-  async findAll(@Query() pagination: PaginationDto): Promise<Post[]> {
-    return this.postsService.findAll(pagination.limit, pagination.offset);
+  async findAll(@Query() pagination: PaginationQueryDto): Promise<PaginatedResponse<Post>> {
+    return this.postsService.findAll(pagination.page, pagination.per_page);
   }
 
   @UseGuards(JwtAuthGuard)
