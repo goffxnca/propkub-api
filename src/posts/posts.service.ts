@@ -19,6 +19,7 @@ import { EMAIL_POST_CREATED, NO_REPLY_EMAIL } from '../common/constants';
 import { UsersService } from '../users/users.service';
 import { PostActionsService } from '../postActions/postActions.service';
 import { PostActionType } from '../postActions/postActions.schema';
+import { paginate, PaginatedResponse } from '../common/utils/pagination';
 
 const SANITIZE_OPTIONS = {
   allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br', 'a'],
@@ -177,15 +178,12 @@ export class PostsService implements OnModuleInit {
 
   async findByUserId(
     userId: string,
-    limit: number,
-    offset: number,
-  ): Promise<Post[]> {
-    return this.postModel
-      .find({ createdBy: userId })
-      .sort({ createdAt: -1 })
-      .skip(offset)
-      .limit(limit)
-      .exec();
+    page: number = 1,
+    per_page: number = 10,
+  ): Promise<PaginatedResponse<Post>> {
+    const baseQuery = () =>
+      this.postModel.find({ createdBy: userId }).sort({ createdAt: -1 });
+    return paginate<Post>(baseQuery, { page, per_page });
   }
 
   async incrementViews(id: string): Promise<Post | null> {

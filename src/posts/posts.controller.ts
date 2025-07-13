@@ -14,10 +14,12 @@ import {
 import { PostsService } from './posts.service';
 import { Post } from './posts.schema';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { MongoIdValidationPipe } from '../common/pipes/mongo-id.pipe';
 import { CreatePostDto } from './dto/createPostDto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UpdatePostDto } from './dto/updatePostDto';
+import { PaginatedResponse } from '../common/utils/pagination';
 
 @Controller('posts')
 export class PostsController {
@@ -32,12 +34,12 @@ export class PostsController {
   @Get('me')
   async getMyPosts(
     @Request() req,
-    @Query() pagination: PaginationDto,
-  ): Promise<Post[]> {
+    @Query() pagination: PaginationQueryDto,
+  ): Promise<PaginatedResponse<Post>> {
     return this.postsService.findByUserId(
       req.user.userId,
-      pagination.limit,
-      pagination.offset,
+      pagination.page,
+      pagination.per_page,
     );
   }
 
