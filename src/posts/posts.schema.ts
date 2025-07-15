@@ -118,7 +118,6 @@ export class Views {
 export type PostDocument = Post & Document;
 
 export enum PostStatus {
-  DRAFT = 'draft',
   ACTIVE = 'active',
   HOLD = 'hold',
   SOLD = 'sold',

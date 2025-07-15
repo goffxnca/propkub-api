@@ -5,10 +5,10 @@ import { PostStatus } from '../posts/posts.schema';
 export type PostActionsDocument = PostActions & Document;
 
 export enum PostActionType {
-  DRAFT = 'draft',
-  PUBLISH = 'publish',
+  CREATE = 'create',
   UPDATE = 'update',
   REPORT = 'report',
+  RESTORE = 'restore',
   SELL = 'sell',
   CLOSE = 'close',
 }
