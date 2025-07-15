@@ -193,9 +193,6 @@ export class Post {
   status: PostStatus;
 
   @Prop({ required: true })
-  byMember: boolean;
-
-  @Prop({ required: true })
   thumbnail: string;
 
   @Prop({

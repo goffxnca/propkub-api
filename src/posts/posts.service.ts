@@ -111,7 +111,6 @@ export class PostsService implements OnModuleInit {
                 : postStatus === 'expired' || postStatus === 'closed'
                   ? PostStatus.CLOSED
                   : PostStatus.ACTIVE,
-            byMember: true,
             views: {
               post: post.postViews,
               phone: post.phoneViews,
@@ -292,7 +291,6 @@ export class PostsService implements OnModuleInit {
       slug: genSlug(sanitizedTitle, createPostDto.postNumber),
       desc: sanitizedDesc,
       status: PostStatus.ACTIVE,
-      byMember: !!userId,
       createdAt: new Date(),
       createdBy: userId,
     };

@@ -19,7 +19,6 @@ export const basePost: Post = {
   postType: PostType.SALE,
   price: 5000000,
   status: PostStatus.ACTIVE,
-  byMember: true,
   thumbnail: faker.image.url(),
   images: [faker.image.url(), faker.image.url(), faker.image.url()],
   facilities: [
