@@ -10,6 +10,7 @@ import {
   UseGuards,
   Request,
   Patch,
+  HttpCode,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post } from './posts.schema';
@@ -147,6 +148,7 @@ export class PostsController {
 
   @UseGuards(JwtAuthGuard)
   @HttpPost(':id/close')
+  @HttpCode(200)
   async closePost(
     @Request() req,
     @Param('id', MongoIdValidationPipe) id: string,

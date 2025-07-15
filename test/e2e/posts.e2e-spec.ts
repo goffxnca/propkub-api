@@ -1125,4 +1125,91 @@ describe('Posts (e2e)', () => {
         });
     });
   });
+
+  describe('POST /posts/:id/close', () => {
+    let activePost: Post;
+
+    beforeEach(async () => {
+      // Ensure we have an active post by updating one to ACTIVE status
+      const post = await postModel.findOne({
+        createdBy: testUser._id,
+        status: PostStatus.ACTIVE,
+      });
+      if (!post) {
+        throw new Error('No test post found');
+      }
+      activePost = post!;
+    });
+
+    it('should close post successfully when authenticated and user owns the post', async () => {
+      const response = await request(app.getHttpServer())
+        .post(`/posts/${activePost._id}/close`)
+        .set(authHeader(authToken))
+        .expect(200);
+
+      console.log('response', response);
+
+      // Verify post status changed to closed
+      const closedPost = await postModel.findById(activePost._id);
+      expect(closedPost).toBeDefined();
+      expect(closedPost?.status).toBe(PostStatus.CLOSED);
+
+      // Verify postAction was created
+      const postAction = await postActionsModel
+        .findOne({
+          postId: activePost._id,
+        })
+        .sort({ createdAt: -1 });
+
+      expect(postAction).toBeDefined();
+      expect(postAction!.type).toBe(PostActionType.CLOSE);
+      expect(postAction!.from).toBe(PostStatus.ACTIVE);
+      expect(postAction!.to).toBe(PostStatus.CLOSED);
+      expect(postAction!.postId.toString()).toBe(activePost._id.toString());
+      expect(postAction!.createdBy.toString()).toBe(testUser._id.toString());
+      expect(postAction!.note).toBe('');
+    });
+
+    it('should return 401 when not authenticated', () => {
+      return request(app.getHttpServer())
+        .post(`/posts/${activePost._id}/close`)
+        .expect(401)
+        .expect((res) => {
+          expect(res.body.message).toBe('Unauthorized');
+        });
+    });
+
+    it('should return 403 when user does not own the post', async () => {
+      // Create a second user
+      const secondUser = createUser({ email: 'close.test@example.com' });
+      const [_, secondUserToken] = await createUserAndLogIn(
+        secondUser,
+        app,
+        usersService,
+      );
+
+      return request(app.getHttpServer())
+        .post(`/posts/${activePost._id}/close`)
+        .set(authHeader(secondUserToken))
+        .expect(403)
+        .expect((res) => {
+          expect(res.body.message).toBe(
+            'Access denied. You are not the owner of this post',
+          );
+        });
+    });
+
+    it('should return 404 when post does not exist', () => {
+      const nonExistentId = new Types.ObjectId().toString();
+      return request(app.getHttpServer())
+        .post(`/posts/${nonExistentId}/close`)
+        .set(authHeader(authToken))
+        .expect(404)
+        .expect((res) => {
+          expect(res.body.message).toBe(
+            `Post with ID ${nonExistentId} not found`,
+          );
+        });
+    });
+  });
 });
