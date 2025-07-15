@@ -10,17 +10,17 @@ export interface PostActionFlow {
 const POST_ACTIONS_FLOW: PostActionFlow[] = [
   {
     action: PostActionType.CREATE,
-    fromStatus: PostStatus.__EMPTY,
+    fromStatus: PostStatus.EMPTY,
     toStatus: PostStatus.ACTIVE,
   },
   {
     action: PostActionType.UPDATE,
-    fromStatus: PostStatus.__CURRENT,
-    toStatus: PostStatus.__CURRENT,
+    fromStatus: PostStatus.ACTIVE,
+    toStatus: PostStatus.ACTIVE,
   },
   {
-    action: PostActionType.REPORT,
-    fromStatus: PostStatus.__CURRENT,
+    action: PostActionType.SUSPENSE,
+    fromStatus: PostStatus.ACTIVE,
     toStatus: PostStatus.HOLD,
   },
   {
@@ -30,12 +30,12 @@ const POST_ACTIONS_FLOW: PostActionFlow[] = [
   },
   {
     action: PostActionType.SELL,
-    fromStatus: PostStatus.__CURRENT,
+    fromStatus: PostStatus.ACTIVE,
     toStatus: PostStatus.SOLD,
   },
   {
     action: PostActionType.CLOSE,
-    fromStatus: PostStatus.__CURRENT,
+    fromStatus: PostStatus.ACTIVE,
     toStatus: PostStatus.CLOSED,
   },
 ];

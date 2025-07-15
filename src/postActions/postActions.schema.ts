@@ -7,7 +7,7 @@ export type PostActionsDocument = PostActions & Document;
 export enum PostActionType {
   CREATE = 'create',
   UPDATE = 'update',
-  REPORT = 'report',
+  SUSPENSE = 'suspense',
   RESTORE = 'restore',
   SELL = 'sell',
   CLOSE = 'close',

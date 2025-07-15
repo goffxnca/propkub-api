@@ -118,12 +118,11 @@ export class Views {
 export type PostDocument = Post & Document;
 
 export enum PostStatus {
+  EMPTY = '',
   ACTIVE = 'active',
   HOLD = 'hold',
   SOLD = 'sold',
   CLOSED = 'closed',
-  __EMPTY = '<empty>',
-  __CURRENT = '<current>',
 }
 
 export enum AssetType {
