@@ -178,7 +178,7 @@ export class PostsService implements OnModuleInit {
 
     if (post.createdBy.toString() !== userId) {
       throw new ForbiddenException(
-        'Access denied. You are not the owner of this posts',
+        'Access denied. You are not the owner of this post',
       );
     }
     return post;

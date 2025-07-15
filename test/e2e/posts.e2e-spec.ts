@@ -571,7 +571,7 @@ describe('Posts (e2e)', () => {
           .expect(403)
           .expect((res) => {
             expect(res.body.message).toBe(
-              'Access denied. You can only view your own posts.',
+              'Access denied. You are not the owner of this post',
             );
           });
       });
