@@ -7,7 +7,7 @@ export type PostActionsDocument = PostActions & Document;
 export enum PostActionType {
   DRAFT = 'draft',
   PUBLISH = 'publish',
-  UDPATE = 'update',
+  UPDATE = 'update',
   REPORT = 'report',
   SELL = 'sell',
   CLOSE = 'close',
@@ -22,9 +22,6 @@ export enum PostActionType {
 export class PostActions {
   @Prop({ required: true, enum: PostActionType })
   type: PostActionType;
-
-  @Prop({ required: true })
-  label: string;
 
   @Prop({ required: true, enum: PostStatus })
   from: PostStatus;

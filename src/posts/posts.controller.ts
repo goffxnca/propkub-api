@@ -56,8 +56,21 @@ export class PostsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id', MongoIdValidationPipe) id: string): Promise<Post> {
-    const post = await this.postsService.findOne(id);
+  async findOne(@Param('id', MongoIdValidationPipe) id: string): Promise<any> {
+    const post = await this.postsService.findOneWithActions(id);
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${id} not found`);
+    }
+    return post;
+  }
+
+  @Get(':id/me')
+  @UseGuards(JwtAuthGuard)
+  async findOneForOwner(
+    @Param('id', MongoIdValidationPipe) id: string,
+    @Request() req
+  ): Promise<any> {
+    const post = await this.postsService.findOneWithActionsForOwner(id, req.user.userId);
     if (!post) {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }

@@ -247,6 +247,7 @@ describe('Posts (e2e)', () => {
 
     for (const post of mockPosts) {
       post.createdAt = new Date();
+      post.createdBy = user._id;
       await service.seedTest(post);
     }
   });
@@ -301,13 +302,10 @@ describe('Posts (e2e)', () => {
           expect(res.body.totalPhoneViews).toBeDefined();
           expect(res.body.totalLineViews).toBeDefined();
 
-          // Note: We don't validate real aggregation or prep post data created by this user
-          // to test summing data. We keep it simple and just validate that fields exist
-          // and are numbers. We trust the MongoDB aggregation will work correctly.
-          expect(res.body.totalPosts).toBe(0);
-          expect(res.body.totalPostViews).toBe(0);
-          expect(res.body.totalPhoneViews).toBe(0);
-          expect(res.body.totalLineViews).toBe(0);
+          expect(res.body.totalPosts).toBe(10);
+          expect(res.body.totalPostViews).toBe(10);
+          expect(res.body.totalPhoneViews).toBe(10);
+          expect(res.body.totalLineViews).toBe(10);
         });
     });
 
@@ -544,6 +542,61 @@ describe('Posts (e2e)', () => {
       });
     });
 
+    describe('GET /posts/:id/me', () => {
+      it('should return a post when user owns it', () => {
+        const firstPost = mockPosts[0];
+        return request(app.getHttpServer())
+          .get(`/posts/${firstPost._id}/me`)
+          .set(authHeader(authToken))
+          .expect(200)
+          .expect((res) => {
+            expect(res.body._id).toBe(firstPost._id);
+            expect(res.body.title).toBe('Luxury Condo in Bangkok');
+            expect(res.body.createdBy).toBe(testUser._id.toString());
+          });
+      });
+
+      it('should return 403 when user does not own the post', async () => {
+        // Create a second user
+        const secondUser = createUser({ email: 'jane.doe@example.com' });
+        const [_, secondUserToken] = await createUserAndLogIn(
+          secondUser,
+          app,
+          usersService,
+        );
+        const firstPost = mockPosts[0]; // Owned by testUser
+        return request(app.getHttpServer())
+          .get(`/posts/${firstPost._id}/me`)
+          .set(authHeader(secondUserToken))
+          .expect(403)
+          .expect((res) => {
+            expect(res.body.message).toBe(
+              'Access denied. You can only view your own posts.',
+            );
+          });
+      });
+
+      it('should return 401 when not authenticated', () => {
+        const firstPost = mockPosts[0];
+        return request(app.getHttpServer())
+          .get(`/posts/${firstPost._id}/me`)
+          .expect(401);
+      });
+
+      it('should return 404 when post is not found', () => {
+        const notExistingId = new Types.ObjectId().toString();
+        return request(app.getHttpServer())
+          .get(`/posts/${notExistingId}/me`)
+          .set(authHeader(authToken))
+          .expect(404)
+          .expect({
+            statusCode: 404,
+            message: `Post with ID ${notExistingId} not found`,
+            error: 'Not Found',
+          });
+      });
+    });
+
     describe('GET /posts/province/:provinceId', () => {
       it('should return posts for a province', () => {
         const provinceId = '1';
@@ -726,7 +779,6 @@ describe('Posts (e2e)', () => {
       expect(expectedAction).toBeDefined();
 
       expect(postAction!.type).toBe(PostActionType.DRAFT);
-      expect(postAction!.label).toBe(expectedAction!.actionLabel);
       expect(postAction!.from).toBe(PostStatus.__EMPTY);
       expect(postAction!.to).toBe(PostStatus.DRAFT);
       expect(postAction!.postId.toString()).toBe(createdPostId);
@@ -1001,12 +1053,11 @@ describe('Posts (e2e)', () => {
       expect(postAction).toBeDefined();
 
       const expectedAction = POST_ACTIONS_FLOW.find(
-        (paf) => paf.action === PostActionType.UDPATE,
+        (paf) => paf.action === PostActionType.UPDATE,
       );
       expect(expectedAction).toBeDefined();
 
-      expect(postAction!.type).toBe(PostActionType.UDPATE);
-      expect(postAction!.label).toBe(expectedAction!.actionLabel);
+      expect(postAction!.type).toBe(PostActionType.UPDATE);
       expect(postAction!.from).toBe(PostStatus.ACTIVE);
       expect(postAction!.to).toBe(PostStatus.ACTIVE);
       expect(postAction!.postId.toString()).toBe(updatedPostId);

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { EnvironmentService } from '../environments/environment.service';
 import {
   PostActions,
@@ -48,6 +48,14 @@ export class PostActionsService implements OnModuleInit {
     }
   }
 
+  async findByPostId(postId: string): Promise<PostActions[]> {
+    return this.postActionsModel
+      .find({ postId: new Types.ObjectId(postId) })
+      .populate('createdBy', 'name email')
+      .sort({ createdAt: -1 })
+      .exec();
+  }
+
   async create(
     postAction: PostActionType,
     postId: string,
@@ -62,7 +70,6 @@ export class PostActionsService implements OnModuleInit {
 
     const postActionData: PostActions = {
       type: action.action,
-      label: action.actionLabel,
       from:
         action.fromStatus === PostStatus.__CURRENT && post
           ? post.status

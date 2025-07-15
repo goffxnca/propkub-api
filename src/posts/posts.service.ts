@@ -3,6 +3,7 @@ import {
   NotFoundException,
   OnModuleInit,
   ConflictException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -155,6 +156,40 @@ export class PostsService implements OnModuleInit {
     return this.postModel.findById(id).exec();
   }
 
+  async findOneWithActions(id: string): Promise<any> {
+    const post = await this.findOne(id);
+    if (!post) {
+      return null;
+    }
+
+    const postActions = await this.postActionService.findByPostId(id);
+
+    return {
+      ...(post as any).toObject(),
+      postActions,
+    };
+  }
+
+  async findOneWithActionsForOwner(id: string, userId: string): Promise<any> {
+    const post = await this.findOne(id);
+    if (!post) {
+      return null;
+    }
+
+    if (post.createdBy.toString() !== userId) {
+      throw new ForbiddenException(
+        'Access denied. You can only view your own posts.',
+      );
+    }
+
+    const postActions = await this.postActionService.findByPostId(id);
+
+    return {
+      ...(post as any).toObject(),
+      postActions,
+    };
+  }
+
   async findByPostNumber(postNumber: string): Promise<Post | null> {
     return this.postModel.findOne({ postNumber }).exec();
   }
@@ -302,7 +337,7 @@ export class PostsService implements OnModuleInit {
       .findByIdAndUpdate(id, updateData, { new: true })
       .exec();
 
-    this.postActionService.create(PostActionType.UDPATE, id, userId);
+    this.postActionService.create(PostActionType.UPDATE, id, userId);
 
     return updatedPost;
   }

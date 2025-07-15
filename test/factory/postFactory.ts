@@ -44,9 +44,9 @@ export const basePost: Post = {
     },
   },
   views: {
-    post: 0,
-    phone: 0,
-    line: 0,
+    post: 1,
+    phone: 1,
+    line: 1,
   },
   cid: 1,
   postNumber: 'P001',
