@@ -362,7 +362,7 @@ export class PostsService implements OnModuleInit {
     return updatedPost;
   }
 
-  async closePost(postId: string, userId: string): Promise<void> {
+  async close(postId: string, userId: string): Promise<void> {
     const post = await this.findOneForOwner(postId, userId);
     if (!post) {
       throw new NotFoundException(`Post with ID ${postId} not found`);

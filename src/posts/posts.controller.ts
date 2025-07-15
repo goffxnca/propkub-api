@@ -151,7 +151,7 @@ export class PostsController {
     @Request() req,
     @Param('id', MongoIdValidationPipe) id: string,
   ): Promise<boolean> {
-    await this.postsService.closePost(id, req.user.userId);
+    await this.postsService.close(id, req.user.userId);
     return true;
   }
 }
