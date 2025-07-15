@@ -301,11 +301,15 @@ describe('Posts (e2e)', () => {
           expect(res.body.totalPostViews).toBeDefined();
           expect(res.body.totalPhoneViews).toBeDefined();
           expect(res.body.totalLineViews).toBeDefined();
+          expect(res.body.totalShares).toBeDefined();
+          expect(res.body.totalPins).toBeDefined();
 
           expect(res.body.totalPosts).toBe(10);
           expect(res.body.totalPostViews).toBe(10);
           expect(res.body.totalPhoneViews).toBe(10);
           expect(res.body.totalLineViews).toBe(10);
+          expect(res.body.totalShares).toBe(10);
+          expect(res.body.totalPins).toBe(10);
         });
     });
 
@@ -692,12 +696,12 @@ describe('Posts (e2e)', () => {
     describe('POST /posts/:id/view', () => {
       it('should increment views for a post', () => {
         const firstPost = mockPosts[0];
-        const initialViews = firstPost.views.post;
+        const initialViews = firstPost.stats.views.post;
         return request(app.getHttpServer())
           .post(`/posts/${firstPost._id}/view`)
           .expect(201)
           .expect((res) => {
-            expect(res.body.views.post).toBe(initialViews + 1);
+            expect(res.body.stats.views.post).toBe(initialViews + 1);
           });
       });
       it('should return 404 when post is not found', () => {

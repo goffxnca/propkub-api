@@ -70,7 +70,9 @@ export class PostsService implements OnModuleInit {
     }
     const count = await this.postModel.estimatedDocumentCount();
     const uniqueFirebaseCreatedByIdsFromPosts = [
-      ...new Set(postsData.map((post: any) => post.createdBy.userId)),
+      ...new Set(
+        (postsData as any[]).map((post: any) => post.createdBy.userId),
+      ),
     ];
     // console.log(
     //   'uniqueFirebaseCreatedByIdsFromPosts',
@@ -111,10 +113,14 @@ export class PostsService implements OnModuleInit {
                 : postStatus === 'expired' || postStatus === 'closed'
                   ? PostStatus.CLOSED
                   : PostStatus.ACTIVE,
-            views: {
-              post: post.postViews,
-              phone: post.phoneViews,
-              line: post.lineViews,
+            stats: {
+              views: {
+                post: post.postViews,
+                phone: post.phoneViews,
+                line: post.lineViews,
+              },
+              shares: 0,
+              pins: 0,
             },
             cid: index + 1,
             postNumber: post.id,
@@ -241,9 +247,11 @@ export class PostsService implements OnModuleInit {
         $group: {
           _id: null,
           totalPosts: { $sum: 1 },
-          totalPostViews: { $sum: { $ifNull: ['$views.post', 0] } },
-          totalPhoneViews: { $sum: { $ifNull: ['$views.phone', 0] } },
-          totalLineViews: { $sum: { $ifNull: ['$views.line', 0] } },
+          totalPostViews: { $sum: { $ifNull: ['$stats.views.post', 0] } },
+          totalPhoneViews: { $sum: { $ifNull: ['$stats.views.phone', 0] } },
+          totalLineViews: { $sum: { $ifNull: ['$stats.views.line', 0] } },
+          totalShares: { $sum: { $ifNull: ['$stats.shares', 0] } },
+          totalPins: { $sum: { $ifNull: ['$stats.pins', 0] } },
         },
       },
     ]);
@@ -253,6 +261,8 @@ export class PostsService implements OnModuleInit {
       totalPostViews: 0,
       totalPhoneViews: 0,
       totalLineViews: 0,
+      totalShares: 0,
+      totalPins: 0,
     };
 
     return result[0] || defaultStats;
@@ -260,7 +270,7 @@ export class PostsService implements OnModuleInit {
 
   async incrementViews(id: string): Promise<Post | null> {
     return this.postModel
-      .findByIdAndUpdate(id, { $inc: { 'views.post': 1 } }, { new: true })
+      .findByIdAndUpdate(id, { $inc: { 'stats.views.post': 1 } }, { new: true })
       .exec();
   }
 

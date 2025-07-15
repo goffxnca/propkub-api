@@ -42,10 +42,14 @@ export const basePost: Post = {
       lng: 100.5018,
     },
   },
-  views: {
-    post: 1,
-    phone: 1,
-    line: 1,
+  stats: {
+    views: {
+      post: 1,
+      phone: 1,
+      line: 1,
+    },
+    shares: 1,
+    pins: 1,
   },
   cid: 1,
   postNumber: 'P001',

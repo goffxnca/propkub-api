@@ -100,18 +100,34 @@ export class Address {
 export class Views {
   @Prop({ required: true, default: 0 })
   @IsNotEmpty()
-  @IsString()
+  @IsNumber()
   post: number;
 
   @Prop({ required: true, default: 0 })
   @IsNotEmpty()
-  @IsString()
+  @IsNumber()
   phone: number;
 
   @Prop({ required: true, default: 0 })
   @IsNotEmpty()
-  @IsString()
+  @IsNumber()
   line: number;
+}
+
+@Schema({ _id: false })
+export class Stats {
+  @Prop({ required: true, default: {} })
+  views: Views;
+
+  @Prop({ required: true, default: 0 })
+  @IsNotEmpty()
+  @IsNumber()
+  shares: number;
+
+  @Prop({ required: true, default: 0 })
+  @IsNotEmpty()
+  @IsNumber()
+  pins: number;
 }
 
 // Main Schema
@@ -221,7 +237,7 @@ export class Post {
   address: Address;
 
   @Prop({ required: true, default: {} })
-  views: Views;
+  stats: Stats;
 
   // Cannot mark as required as on create mode it start with undefined and pre save hook will generate id for it, can mark as required once migrated
   @Prop()
