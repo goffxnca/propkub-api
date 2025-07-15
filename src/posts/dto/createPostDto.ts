@@ -51,10 +51,6 @@ export class CreatePostDto {
   price: number;
 
   @IsNotEmpty()
-  @IsBoolean()
-  isDraft: boolean;
-
-  @IsNotEmpty()
   @IsString()
   thumbnail: string;
 

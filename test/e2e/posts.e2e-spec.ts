@@ -722,7 +722,6 @@ describe('Posts (e2e)', () => {
       assetType: AssetType.CONDO,
       postType: PostType.SALE,
       price: 1000.0,
-      isDraft: true,
       thumbnail: 'https://example.com/thumb.jpg',
       images: [
         'https://example.com/image1.jpg',
@@ -761,7 +760,7 @@ describe('Posts (e2e)', () => {
 
       expect(response.body.title).toBe(validCreatePostDto.title);
       expect(response.body.desc).toBe('<p>This is desc</p>');
-      expect(response.body.status).toBe('draft');
+      expect(response.body.status).toBe('active');
       expect(response.body.postNumber).toBe(validCreatePostDto.postNumber);
       expect(response.body.createdBy).toBe(testUser._id.toString());
 
@@ -773,14 +772,9 @@ describe('Posts (e2e)', () => {
         .sort({ createdAt: -1 });
       expect(postAction).toBeDefined();
 
-      const expectedAction = POST_ACTIONS_FLOW.find(
-        (paf) => paf.action === PostActionType.DRAFT,
-      );
-      expect(expectedAction).toBeDefined();
-
-      expect(postAction!.type).toBe(PostActionType.DRAFT);
-      expect(postAction!.from).toBe(PostStatus.__EMPTY);
-      expect(postAction!.to).toBe(PostStatus.DRAFT);
+      expect(postAction!.type).toBe(PostActionType.CREATE);
+      expect(postAction!.from).toBe(PostStatus.EMPTY);
+      expect(postAction!.to).toBe(PostStatus.ACTIVE);
       expect(postAction!.postId.toString()).toBe(createdPostId);
       expect(postAction!.createdBy.toString()).toBe(testUser._id.toString());
       expect(postAction!.note).toBe('');
@@ -967,11 +961,10 @@ describe('Posts (e2e)', () => {
 
     const validUpdatePostDto = {
       title: 'Updated post title',
-      desc: '<a>This is a link22</a><p>This is a paragraph22</p>',
+      desc: `<script>alert("XSS attack!")</script><p>Updated paragraph</p><a href="https://google.com">Updated Google Link</a>`,
       assetType: AssetType.HOUSE,
       postType: PostType.RENT,
       price: 99999.99,
-      isDraft: false,
       thumbnail: 'https://example.com/thumb_updated.jpg',
       images: [
         'https://example.com/image1_updated.jpg',
@@ -1014,7 +1007,7 @@ describe('Posts (e2e)', () => {
 
       expect(response.body.title).toBe(validUpdatePostDto.title);
       expect(response.body.desc).toBe(
-        'This is a link22<p>This is a paragraph22</p>',
+        '<p>Updated paragraph</p><a href="https://google.com">Updated Google Link</a>',
       );
       expect(response.body.assetType).toBe(validUpdatePostDto.assetType);
       expect(response.body.postType).toBe(validUpdatePostDto.postType);

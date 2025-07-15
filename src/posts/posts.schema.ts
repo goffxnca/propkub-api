@@ -118,7 +118,7 @@ export class Views {
 export type PostDocument = Post & Document;
 
 export enum PostStatus {
-  EMPTY = '',
+  EMPTY = '<empty>',
   ACTIVE = 'active',
   HOLD = 'hold',
   SOLD = 'sold',

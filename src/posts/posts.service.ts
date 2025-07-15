@@ -291,19 +291,18 @@ export class PostsService implements OnModuleInit {
       title: sanitizedTitle,
       slug: genSlug(sanitizedTitle, createPostDto.postNumber),
       desc: sanitizedDesc,
-      status: createPostDto.isDraft ? PostStatus.DRAFT : PostStatus.ACTIVE,
+      status: PostStatus.ACTIVE,
       byMember: !!userId,
       createdAt: new Date(),
       createdBy: userId,
     };
-    const createdPost = new this.postModel(userData);
-    const savedPost = await createdPost.save();
 
-    await this.postActionService.create(
-      createPostDto.isDraft ? PostActionType.DRAFT : PostActionType.PUBLISH,
-      savedPost.id,
+    const createdPost = await new this.postModel(userData).save();
+
+    this.postActionService.create(
+      PostActionType.CREATE,
+      createdPost.id,
       userId,
-      PostStatus.__EMPTY,
     );
 
     this.mailService.sendEmail({
@@ -312,13 +311,13 @@ export class PostsService implements OnModuleInit {
       templateId: EMAIL_POST_CREATED,
       templateData: {
         recipientName: user.name,
-        postUrl: `https://propkub.com/property/${savedPost.slug}`,
-        postNumber: savedPost.postNumber,
-        postTitle: savedPost.title,
+        postUrl: `https://propkub.com/property/${createdPost.slug}`,
+        postNumber: createdPost.postNumber,
+        postTitle: createdPost.title,
       },
     });
 
-    return savedPost;
+    return createdPost;
   }
 
   async update(
@@ -331,13 +330,13 @@ export class PostsService implements OnModuleInit {
       throw new NotFoundException(`Post with ID ${postId} not found`);
     }
 
+    const sanitizedTitle = sanitizeHtml(updatePostDto.title, SANITIZE_OPTIONS);
+    const sanitizedDesc = sanitizeHtml(updatePostDto.desc, SANITIZE_OPTIONS);
+
     const updateData = {
       ...updatePostDto,
-      desc: updatePostDto.desc
-        ? sanitizeHtml(updatePostDto.desc, {
-            allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br'],
-          })
-        : undefined,
+      title: sanitizedTitle,
+      desc: sanitizedDesc,
       updatedAt: new Date(),
       updatedBy: userId,
     };
@@ -350,12 +349,7 @@ export class PostsService implements OnModuleInit {
       throw new NotFoundException(`Failed to update post with ID ${postId}`);
     }
 
-    this.postActionService.create(
-      PostActionType.UPDATE,
-      postId,
-      userId,
-      post.status,
-    );
+    this.postActionService.create(PostActionType.UPDATE, postId, userId);
 
     return updatedPost;
   }
@@ -376,12 +370,7 @@ export class PostsService implements OnModuleInit {
       throw new NotFoundException(`Failed to close post with ID ${postId}`);
     }
 
-    this.postActionService.create(
-      PostActionType.CLOSE,
-      postId,
-      userId,
-      post.status,
-    );
+    this.postActionService.create(PostActionType.CLOSE, postId, userId);
   }
 
   async seedTest(post: Post): Promise<Post> {

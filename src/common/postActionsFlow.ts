@@ -3,40 +3,40 @@ import { PostStatus } from '../posts/posts.schema';
 
 export interface PostActionFlow {
   action: PostActionType;
-  fromStatus: PostStatus;
-  toStatus: PostStatus;
+  from: PostStatus;
+  to: PostStatus;
 }
 
 const POST_ACTIONS_FLOW: PostActionFlow[] = [
   {
     action: PostActionType.CREATE,
-    fromStatus: PostStatus.EMPTY,
-    toStatus: PostStatus.ACTIVE,
+    from: PostStatus.EMPTY,
+    to: PostStatus.ACTIVE,
   },
   {
     action: PostActionType.UPDATE,
-    fromStatus: PostStatus.ACTIVE,
-    toStatus: PostStatus.ACTIVE,
+    from: PostStatus.ACTIVE,
+    to: PostStatus.ACTIVE,
   },
   {
     action: PostActionType.SUSPENSE,
-    fromStatus: PostStatus.ACTIVE,
-    toStatus: PostStatus.HOLD,
+    from: PostStatus.ACTIVE,
+    to: PostStatus.HOLD,
   },
   {
     action: PostActionType.RESTORE,
-    fromStatus: PostStatus.HOLD,
-    toStatus: PostStatus.ACTIVE,
+    from: PostStatus.HOLD,
+    to: PostStatus.ACTIVE,
   },
   {
     action: PostActionType.SELL,
-    fromStatus: PostStatus.ACTIVE,
-    toStatus: PostStatus.SOLD,
+    from: PostStatus.ACTIVE,
+    to: PostStatus.SOLD,
   },
   {
     action: PostActionType.CLOSE,
-    fromStatus: PostStatus.ACTIVE,
-    toStatus: PostStatus.CLOSED,
+    from: PostStatus.ACTIVE,
+    to: PostStatus.CLOSED,
   },
 ];
 
