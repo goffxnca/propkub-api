@@ -31,7 +31,7 @@ const POST_ACTIONS_FLOW: PostActionFlow[] = [
     __firebasePostAction: 'CreatePost',
   },
   {
-    action: PostActionType.UPDATE, // TODO: Can set to __CURRENT from/to later
+    action: PostActionType.UPDATE,
     fromStatus: PostStatus.__CURRENT,
     fromSeedStatus: PostStatus.ACTIVE,
     toStatus: PostStatus.__CURRENT,

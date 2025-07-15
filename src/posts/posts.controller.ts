@@ -68,9 +68,12 @@ export class PostsController {
   @UseGuards(JwtAuthGuard)
   async findOneForOwner(
     @Param('id', MongoIdValidationPipe) id: string,
-    @Request() req
+    @Request() req,
   ): Promise<any> {
-    const post = await this.postsService.findOneWithActionsForOwner(id, req.user.userId);
+    const post = await this.postsService.findOneWithActionsForOwner(
+      id,
+      req.user.userId,
+    );
     if (!post) {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
@@ -140,5 +143,15 @@ export class PostsController {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
     return post;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpPost(':id/close')
+  async closePost(
+    @Request() req,
+    @Param('id', MongoIdValidationPipe) id: string,
+  ): Promise<boolean> {
+    await this.postsService.closePost(id, req.user.userId);
+    return true;
   }
 }

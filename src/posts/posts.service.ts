@@ -170,7 +170,7 @@ export class PostsService implements OnModuleInit {
     };
   }
 
-  async findOneWithActionsForOwner(id: string, userId: string): Promise<any> {
+  async findOneForOwner(id: string, userId: string): Promise<Post | null> {
     const post = await this.findOne(id);
     if (!post) {
       return null;
@@ -178,8 +178,16 @@ export class PostsService implements OnModuleInit {
 
     if (post.createdBy.toString() !== userId) {
       throw new ForbiddenException(
-        'Access denied. You can only view your own posts.',
+        'Access denied. You are not the owner of this posts',
       );
+    }
+    return post;
+  }
+
+  async findOneWithActionsForOwner(id: string, userId: string): Promise<any> {
+    const post = await this.findOneForOwner(id, userId);
+    if (!post) {
+      return null;
     }
 
     const postActions = await this.postActionService.findByPostId(id);
@@ -295,6 +303,7 @@ export class PostsService implements OnModuleInit {
       createPostDto.isDraft ? PostActionType.DRAFT : PostActionType.PUBLISH,
       savedPost.id,
       userId,
+      PostStatus.__EMPTY,
     );
 
     this.mailService.sendEmail({
@@ -313,13 +322,13 @@ export class PostsService implements OnModuleInit {
   }
 
   async update(
-    id: string,
+    postId: string,
     updatePostDto: UpdatePostDto,
     userId: string,
-  ): Promise<Post | null> {
-    const post = await this.postModel.findById(id);
+  ): Promise<Post> {
+    const post = await this.findOneForOwner(postId, userId);
     if (!post) {
-      throw new NotFoundException(`Post with ID ${id} not found`);
+      throw new NotFoundException(`Post with ID ${postId} not found`);
     }
 
     const updateData = {
@@ -333,13 +342,46 @@ export class PostsService implements OnModuleInit {
       updatedBy: userId,
     };
 
-    const updatedPost = this.postModel
-      .findByIdAndUpdate(id, updateData, { new: true })
+    const updatedPost = await this.postModel
+      .findByIdAndUpdate(postId, updateData, { new: true })
       .exec();
 
-    this.postActionService.create(PostActionType.UPDATE, id, userId);
+    if (!updatedPost) {
+      throw new NotFoundException(`Failed to update post with ID ${postId}`);
+    }
+
+    this.postActionService.create(
+      PostActionType.UPDATE,
+      postId,
+      userId,
+      post.status,
+    );
 
     return updatedPost;
+  }
+
+  async closePost(postId: string, userId: string): Promise<void> {
+    const post = await this.findOneForOwner(postId, userId);
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${postId} not found`);
+    }
+
+    const updatedPost = await this.postModel.findByIdAndUpdate(
+      postId,
+      { status: PostStatus.CLOSED },
+      { new: true },
+    );
+
+    if (!updatedPost) {
+      throw new NotFoundException(`Failed to close post with ID ${postId}`);
+    }
+
+    this.postActionService.create(
+      PostActionType.CLOSE,
+      postId,
+      userId,
+      post.status,
+    );
   }
 
   async seedTest(post: Post): Promise<Post> {
