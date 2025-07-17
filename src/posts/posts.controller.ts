@@ -149,6 +149,14 @@ export class PostsController {
   }
 
   @UseGuards(ApiKeyGuard)
+  @Get('similar')
+  async findSimilarPosts(
+    @Query('postId', MongoIdValidationPipe) postId: string,
+  ): Promise<Post[]> {
+    return this.postsService.findSimilarPosts(postId);
+  }
+
+  @UseGuards(ApiKeyGuard)
   @Get(':postNumber')
   async findOne(@Param('postNumber') postNumber: string): Promise<Post> {
     const post = await this.postsService.findByPostNumber(postNumber);

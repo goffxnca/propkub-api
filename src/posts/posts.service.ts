@@ -123,7 +123,7 @@ export class PostsService implements OnModuleInit {
               pins: 0,
             },
             cid: index + 1,
-            postNumber: post.id,
+            postNumber: post.id, //Already GG indexed by the old firebase ID in slug, so for old post just keep postNumber as old firebase id
             isStudio: post?.isStudio || undefined,
             video: post?.video || undefined,
             landUnit: post?.landUnit || undefined,
@@ -204,7 +204,10 @@ export class PostsService implements OnModuleInit {
   }
 
   async findByPostNumber(postNumber: string): Promise<Post | null> {
-    return this.postModel.findOne({ postNumber }).exec();
+    return this.postModel
+      .findOne({ postNumber })
+      .populate('createdBy', 'name profileImg phone line')
+      .exec();
   }
 
   async findByProvinceId(provinceId: string): Promise<Post[]> {
@@ -227,6 +230,25 @@ export class PostsService implements OnModuleInit {
 
   async findByPostType(postType: string): Promise<Post[]> {
     return this.postModel.find({ postType }).exec();
+  }
+
+  async findSimilarPosts(postId: string): Promise<Post[]> {
+    const currentPost = await this.postModel.findById(postId).exec();
+    if (!currentPost) {
+      return [];
+    }
+
+    return this.postModel
+      .find({
+        assetType: currentPost.assetType,
+        postType: currentPost.postType,
+        status: PostStatus.ACTIVE,
+        _id: { $ne: postId },
+      })
+      .select('_id title thumbnail price postType assetType slug')
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .exec();
   }
 
   async findByUserId(
