@@ -49,6 +49,8 @@ describe('Posts (e2e)', () => {
     createPost({
       _id: new Types.ObjectId().toString(),
       title: 'Luxury Condo in Bangkok',
+      assetType: AssetType.CONDO,
+      postType: PostType.RENT,
       address: {
         provinceId: '1',
         provinceLabel: 'Bangkok',
@@ -126,6 +128,7 @@ describe('Posts (e2e)', () => {
       _id: new Types.ObjectId().toString(),
       title: 'Townhome for Sale',
       assetType: AssetType.TOWNHOME,
+      postType: PostType.RENT,
       address: {
         provinceId: '2',
         provinceLabel: 'Nonthaburi',
@@ -532,6 +535,9 @@ describe('Posts (e2e)', () => {
           .expect((res) => {
             expect(res.body._id).toBe(firstPost._id);
             expect(res.body.title).toBe('Luxury Condo in Bangkok');
+            expect(res.body.stats.views.post).toBe(
+              firstPost.stats.views.post + 1,
+            );
           });
       });
       it('should return 404 when post is not found', () => {
@@ -544,6 +550,68 @@ describe('Posts (e2e)', () => {
             statusCode: 404,
             message: `Post with number ${notExistingPostNumber} not found`,
             error: 'Not Found',
+          });
+      });
+    });
+
+    describe('GET /posts/similar', () => {
+      it('should return similar posts with correct length when found', () => {
+        const condoFoRentPost = mockPosts.find(
+          (post) =>
+            post.assetType === AssetType.CONDO &&
+            post.postType === PostType.RENT,
+        );
+
+        if (!condoFoRentPost) {
+          throw new Error('No condo for rent post found in mock data');
+        }
+
+        return request(app.getHttpServer())
+          .get(`/posts/similar?postId=${condoFoRentPost._id}`)
+          .set('x-api-key', API_KEY_FOR_NEXTJS_SERVER)
+          .expect(200)
+          .expect((res) => {
+            expect(Array.isArray(res.body)).toBe(true);
+            expect(res.body.length).toBe(2);
+            console.log('res.body', res.body);
+
+            // Verify all returned posts have the same assetType and postType
+            res.body.forEach((post) => {
+              expect(post.assetType).toBe(AssetType.CONDO);
+              expect(post.postType).toBe(PostType.RENT);
+              expect(post._id).not.toBe(condoFoRentPost._id); // Should not include the original post
+            });
+          });
+      });
+
+      it('should return empty array when no similar posts found', () => {
+        const townhomeForRent = mockPosts.find(
+          (post) =>
+            post.assetType === AssetType.TOWNHOME &&
+            post.postType === PostType.RENT,
+        );
+
+        if (!townhomeForRent) {
+          throw new Error('No townhome for rent post found in mock data');
+        }
+
+        return request(app.getHttpServer())
+          .get(`/posts/similar?postId=${townhomeForRent._id}`)
+          .set('x-api-key', API_KEY_FOR_NEXTJS_SERVER)
+          .expect(200)
+          .expect((res) => {
+            expect(Array.isArray(res.body)).toBe(true);
+            expect(res.body.length).toBe(0);
+          });
+      });
+
+      it('should return 401 when API key is missing', () => {
+        const firstPost = mockPosts[0];
+        return request(app.getHttpServer())
+          .get(`/posts/similar?postId=${firstPost._id}`)
+          .expect(401)
+          .expect((res) => {
+            expect(res.body.message).toBe('Invalid or missing API key');
           });
       });
     });
@@ -689,35 +757,35 @@ describe('Posts (e2e)', () => {
           .get(`/posts/post-type/${postType}`)
           .expect(200)
           .expect((res) => {
-            expect(res.body.length).toBe(3);
+            expect(res.body.length).toBe(5);
             expect(res.body.every((p) => p.postType === postType)).toBe(true);
           });
       });
     });
 
-    describe('POST /posts/:id/view', () => {
-      it('should increment views for a post', () => {
-        const firstPost = mockPosts[0];
-        const initialViews = firstPost.stats.views.post;
-        return request(app.getHttpServer())
-          .post(`/posts/${firstPost._id}/view`)
-          .expect(201)
-          .expect((res) => {
-            expect(res.body.stats.views.post).toBe(initialViews + 1);
-          });
-      });
-      it('should return 404 when post is not found', () => {
-        const notExistingId = new Types.ObjectId().toString();
-        return request(app.getHttpServer())
-          .post(`/posts/${notExistingId}/view`)
-          .expect(404)
-          .expect({
-            statusCode: 404,
-            message: `Post with ID ${notExistingId} not found`,
-            error: 'Not Found',
-          });
-      });
-    });
+    // describe('POST /posts/:id/view', () => {
+    //   it('should increment views for a post', () => {
+    //     const firstPost = mockPosts[0];
+    //     const initialViews = firstPost.stats.views.post;
+    //     return request(app.getHttpServer())
+    //       .post(`/posts/${firstPost._id}/view`)
+    //       .expect(201)
+    //       .expect((res) => {
+    //         expect(res.body.stats.views.post).toBe(initialViews + 1);
+    //       });
+    //   });
+    //   it('should return 404 when post is not found', () => {
+    //     const notExistingId = new Types.ObjectId().toString();
+    //     return request(app.getHttpServer())
+    //       .post(`/posts/${notExistingId}/view`)
+    //       .expect(404)
+    //       .expect({
+    //         statusCode: 404,
+    //         message: `Post with ID ${notExistingId} not found`,
+    //         error: 'Not Found',
+    //       });
+    //   });
+    // });
   });
 
   describe('POST /posts', () => {

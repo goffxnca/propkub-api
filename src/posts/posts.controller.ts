@@ -159,10 +159,8 @@ export class PostsController {
   @UseGuards(ApiKeyGuard)
   @Get(':postNumber')
   async findOne(@Param('postNumber') postNumber: string): Promise<Post> {
-    const post = await this.postsService.findByPostNumber(postNumber);
-    if (!post) {
-      throw new NotFoundException(`Post with number ${postNumber} not found`);
-    }
+    const post =
+      await this.postsService.findByPostNumberAndIncreasePostView(postNumber);
     return post;
   }
 }

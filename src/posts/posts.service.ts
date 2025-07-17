@@ -210,6 +210,25 @@ export class PostsService implements OnModuleInit {
       .exec();
   }
 
+  async findByPostNumberAndIncreasePostView(postNumber: string): Promise<Post> {
+    const post = await this.postModel
+      .findOneAndUpdate(
+        { postNumber },
+        { $inc: { 'stats.views.post': 1 } },
+        {
+          new: true,
+          populate: { path: 'createdBy', select: 'name profileImg phone line' },
+        },
+      )
+      .exec();
+
+    if (!post) {
+      throw new NotFoundException(`Post with number ${postNumber} not found`);
+    }
+
+    return post;
+  }
+
   async findByProvinceId(provinceId: string): Promise<Post[]> {
     return this.postModel.find({ 'address.provinceId': provinceId }).exec();
   }
