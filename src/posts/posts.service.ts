@@ -22,6 +22,7 @@ import { PostActionsService } from '../postActions/postActions.service';
 import { PostActionType } from '../postActions/postActions.schema';
 import { paginate, PaginatedResponse } from '../common/utils/pagination';
 import { PostStatsResponseDto } from './dto/post-stats-response.dto';
+import { PostStatType } from './dto/increase-post-stats.dto';
 
 const SANITIZE_OPTIONS = {
   allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br', 'a'],
@@ -313,6 +314,34 @@ export class PostsService implements OnModuleInit {
     return this.postModel
       .findByIdAndUpdate(id, { $inc: { 'stats.views.post': 1 } }, { new: true })
       .exec();
+  }
+
+  async increasePostStats(id: string, statType: PostStatType): Promise<void> {
+    const post = await this.postModel.findById(id).exec();
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${id} not found`);
+    }
+
+    let updateObject: any = {};
+
+    switch (statType) {
+      case PostStatType.SHARES:
+        updateObject = { $inc: { 'stats.shares': 1 } };
+        break;
+      case PostStatType.PINS:
+        updateObject = { $inc: { 'stats.pins': 1 } };
+        break;
+      case PostStatType.PHONE_VIEWS:
+        updateObject = { $inc: { 'stats.views.phone': 1 } };
+        break;
+      case PostStatType.LINE_VIEWS:
+        updateObject = { $inc: { 'stats.views.line': 1 } };
+        break;
+      default:
+        throw new Error(`Invalid stat type: ${statType}`);
+    }
+
+    await this.postModel.findByIdAndUpdate(id, updateObject).exec();
   }
 
   async create(createPostDto: CreatePostDto, userId: string): Promise<Post> {

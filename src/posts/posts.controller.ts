@@ -22,6 +22,7 @@ import { ApiKeyGuard } from '../auth/guards/api-key.guard';
 import { PostStatsResponseDto } from './dto/post-stats-response.dto';
 import { UpdatePostDto } from './dto/updatePostDto';
 import { PaginatedResponse } from '../common/utils/pagination';
+import { IncreasePostStatsDto } from './dto/increase-post-stats.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -154,6 +155,18 @@ export class PostsController {
     @Query('postId', MongoIdValidationPipe) postId: string,
   ): Promise<Post[]> {
     return this.postsService.findSimilarPosts(postId);
+  }
+
+  @HttpPost(':id/stats')
+  @HttpCode(200)
+  async increasePostStats(
+    @Param('id', MongoIdValidationPipe) id: string,
+    @Body() increasePostStatsDto: IncreasePostStatsDto,
+  ): Promise<void> {
+    await this.postsService.increasePostStats(
+      id,
+      increasePostStatsDto.statType,
+    );
   }
 
   @UseGuards(ApiKeyGuard)

@@ -31,6 +31,7 @@ import {
   PostActionType,
 } from '../../src/postActions/postActions.schema';
 import { POST_ACTIONS_FLOW } from '../../src/common/postActionsFlow';
+import { PostStatType } from '../../src/posts/dto/increase-post-stats.dto';
 
 describe('Posts (e2e)', () => {
   let app: INestApplication;
@@ -613,6 +614,64 @@ describe('Posts (e2e)', () => {
           .expect((res) => {
             expect(res.body.message).toBe('Invalid or missing API key');
           });
+      });
+    });
+
+    describe('POST /posts/:id/stats', () => {
+      it('should increment shares for a post', async () => {
+        const firstPost = mockPosts[0];
+        const initialShares = firstPost.stats.shares;
+
+        await request(app.getHttpServer())
+          .post(`/posts/${firstPost._id}/stats`)
+          .send({ statType: PostStatType.SHARES })
+          .expect(200);
+
+        const postAfter = await postModel.findById(firstPost._id);
+        expect(postAfter).toBeDefined();
+        expect(postAfter!.stats.shares).toBe(initialShares + 1);
+      });
+
+      it('should increment pins for a post', async () => {
+        const firstPost = mockPosts[0];
+        const initialPins = firstPost.stats.pins;
+
+        await request(app.getHttpServer())
+          .post(`/posts/${firstPost._id}/stats`)
+          .send({ statType: PostStatType.PINS })
+          .expect(200);
+
+        const postAfter = await postModel.findById(firstPost._id);
+        expect(postAfter).toBeDefined();
+        expect(postAfter!.stats.pins).toBe(initialPins + 1);
+      });
+
+      it('should increment line views for a post', async () => {
+        const firstPost = mockPosts[0];
+        const initialLineViews = firstPost.stats.views.line;
+
+        await request(app.getHttpServer())
+          .post(`/posts/${firstPost._id}/stats`)
+          .send({ statType: PostStatType.LINE_VIEWS })
+          .expect(200);
+
+        const postAfter = await postModel.findById(firstPost._id);
+        expect(postAfter).toBeDefined();
+        expect(postAfter!.stats.views.line).toBe(initialLineViews + 1);
+      });
+
+      it('should increment phone views for a post', async () => {
+        const firstPost = mockPosts[0];
+        const initialPhoneViews = firstPost.stats.views.phone;
+
+        await request(app.getHttpServer())
+          .post(`/posts/${firstPost._id}/stats`)
+          .send({ statType: PostStatType.PHONE_VIEWS })
+          .expect(200);
+
+        const postAfter = await postModel.findById(firstPost._id);
+        expect(postAfter).toBeDefined();
+        expect(postAfter!.stats.views.phone).toBe(initialPhoneViews + 1);
       });
     });
 
