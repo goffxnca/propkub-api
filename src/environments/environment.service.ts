@@ -41,11 +41,11 @@ export class EnvironmentService {
     return apiKey;
   }
 
-  // API key for Next.js SSG/ISR server-side calls to our protected endpoints that are only available for Next.js server exclusively
-  nextjsSsgApiKey(): string {
-    const apiKey = this.configService.get<string>('NEXTJS_SSG_API_KEY');
+  // API Key used to verify that a request is called from NextJS Server when processing SSR/SSG/ISG
+  apiKeyForNextJSServer(): string {
+    const apiKey = this.configService.get<string>('API_KEY_FOR_NEXTJS_SERVER');
     if (!apiKey) {
-      throw new Error('NEXTJS_SSG_API_KEY env is missing.');
+      throw new Error('API_KEY_FOR_NEXTJS_SERVER env is missing.');
     }
     return apiKey;
   }

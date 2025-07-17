@@ -27,14 +27,6 @@ import { PaginatedResponse } from '../common/utils/pagination';
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
-  @UseGuards(ApiKeyGuard)
-  @Get()
-  async findAll(
-    @Query() pagination: PaginationQueryDto,
-  ): Promise<PaginatedResponse<Post>> {
-    return this.postsService.findAll(pagination.page, pagination.per_page);
-  }
-
   @Get('me')
   @UseGuards(JwtAuthGuard)
   async getMyPosts(
@@ -54,15 +46,6 @@ export class PostsController {
   async getMyPostsStats(@Request() req): Promise<PostStatsResponseDto> {
     const userId = req.user.userId;
     return this.postsService.getUserPostsStats(userId);
-  }
-
-  @Get(':id')
-  async findOne(@Param('id', MongoIdValidationPipe) id: string): Promise<any> {
-    const post = await this.postsService.findOneWithActions(id);
-    if (!post) {
-      throw new NotFoundException(`Post with ID ${id} not found`);
-    }
-    return post;
   }
 
   @Get(':id/me')
@@ -155,5 +138,23 @@ export class PostsController {
   ): Promise<boolean> {
     await this.postsService.close(id, req.user.userId);
     return true;
+  }
+
+  @UseGuards(ApiKeyGuard)
+  @Get()
+  async findAll(
+    @Query() pagination: PaginationQueryDto,
+  ): Promise<PaginatedResponse<Post>> {
+    return this.postsService.findAll(pagination.page, pagination.per_page);
+  }
+
+  @UseGuards(ApiKeyGuard)
+  @Get(':postNumber')
+  async findOne(@Param('postNumber') postNumber: string): Promise<Post> {
+    const post = await this.postsService.findByPostNumber(postNumber);
+    if (!post) {
+      throw new NotFoundException(`Post with number ${postNumber} not found`);
+    }
+    return post;
   }
 }

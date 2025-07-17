@@ -14,7 +14,7 @@ export class ApiKeyGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const apiKey = request.headers['x-api-key'];
 
-    if (!apiKey || apiKey !== this.environmentService.nextjsSsgApiKey()) {
+    if (!apiKey || apiKey !== this.environmentService.apiKeyForNextJSServer()) {
       throw new UnauthorizedException('Invalid or missing API key');
     }
 
