@@ -673,6 +673,43 @@ describe('Posts (e2e)', () => {
         expect(postAfter).toBeDefined();
         expect(postAfter!.stats.views.phone).toBe(initialPhoneViews + 1);
       });
+
+      it('should return 404 when post is not found', () => {
+        const notExistingId = new Types.ObjectId().toString();
+        return request(app.getHttpServer())
+          .post(`/posts/${notExistingId}/stats`)
+          .send({ statType: PostStatType.SHARES })
+          .expect(404)
+          .expect({
+            statusCode: 404,
+            message: `Post with ID ${notExistingId} not found`,
+            error: 'Not Found',
+          });
+      });
+
+      it('should return 400 when statType is missing', () => {
+        const firstPost = mockPosts[0];
+        return request(app.getHttpServer())
+          .post(`/posts/${firstPost._id}/stats`)
+          .send({})
+          .expect(400)
+          .expect((res) => {
+            expect(res.body.message).toContain('statType should not be empty');
+          });
+      });
+
+      it('should return 400 when statType is invalid', () => {
+        const firstPost = mockPosts[0];
+        return request(app.getHttpServer())
+          .post(`/posts/${firstPost._id}/stats`)
+          .send({ statType: 'invalid_stat_type' })
+          .expect(400)
+          .expect((res) => {
+            expect(res.body.message).toContain(
+              'statType must be one of the following values: shares, pins, phone_views, line_views',
+            );
+          });
+      });
     });
 
     describe('GET /posts/:id/me', () => {
