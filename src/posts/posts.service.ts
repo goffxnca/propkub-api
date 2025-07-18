@@ -175,8 +175,6 @@ export class PostsService implements OnModuleInit {
       subDistrictId,
     } = searchDto;
 
-    console.log('searchDto', searchDto);
-
     // Build location filter - use the most specific location filter provided
     let locationFilter = {};
     if (subDistrictId) {

@@ -83,6 +83,7 @@ describe('Posts (e2e)', () => {
       _id: new Types.ObjectId().toString(),
       title: 'Luxury Villa in Bangkok',
       assetType: AssetType.HOUSE,
+      postType: PostType.SALE,
       address: {
         provinceId: '1',
         provinceLabel: 'Bangkok',
@@ -114,6 +115,7 @@ describe('Posts (e2e)', () => {
       _id: new Types.ObjectId().toString(),
       title: 'Townhome in CBD',
       assetType: AssetType.TOWNHOME,
+      postType: PostType.SALE,
       address: {
         provinceId: '1',
         provinceLabel: 'Bangkok',
@@ -145,6 +147,7 @@ describe('Posts (e2e)', () => {
       _id: new Types.ObjectId().toString(),
       title: 'Land Plot in Suburb',
       assetType: AssetType.LAND,
+      postType: PostType.SALE,
       address: {
         provinceId: '2',
         provinceLabel: 'Nonthaburi',
@@ -160,6 +163,7 @@ describe('Posts (e2e)', () => {
       _id: new Types.ObjectId().toString(),
       title: 'Penthouse with City View',
       assetType: AssetType.CONDO,
+      postType: PostType.SALE,
       address: {
         provinceId: '2',
         provinceLabel: 'Nonthaburi',
@@ -175,6 +179,7 @@ describe('Posts (e2e)', () => {
       _id: new Types.ObjectId().toString(),
       title: 'Family House with Garden',
       assetType: AssetType.HOUSE,
+      postType: PostType.RENT,
       address: {
         provinceId: '2',
         provinceLabel: 'Nonthaburi',
@@ -192,13 +197,13 @@ describe('Posts (e2e)', () => {
       assetType: AssetType.CONDO,
       postType: PostType.RENT,
       address: {
-        provinceId: '2',
-        provinceLabel: 'Nonthaburi',
-        districtId: '4',
-        districtLabel: 'Bang Kruai',
-        subDistrictId: '4',
-        subDistrictLabel: 'Bang Kruai',
-        regionId: '1',
+        provinceId: 'p11',
+        provinceLabel: 'Chonburi',
+        districtId: 'd2007',
+        districtLabel: 'Sriracha',
+        subDistrictId: 's200702',
+        subDistrictLabel: 'Surasak',
+        regionId: 'r5',
         location: { lat: 13.805, lng: 100.4722 },
       },
     }),
@@ -852,7 +857,7 @@ describe('Posts (e2e)', () => {
           .get(`/posts/post-type/${postType}`)
           .expect(200)
           .expect((res) => {
-            expect(res.body.length).toBe(5);
+            expect(res.body.length).toBe(6);
             expect(res.body.every((p) => p.postType === postType)).toBe(true);
           });
       });
@@ -1114,6 +1119,116 @@ describe('Posts (e2e)', () => {
       expect(sanitizedDesc).toContain('Table content');
       expect(sanitizedDesc).toContain('Heading not allowed');
       expect(sanitizedDesc).toContain('Span not allowed');
+    });
+  });
+
+  describe('POST /posts/search', () => {
+    it('should return posts filtered by assetType and postType', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/posts/search')
+        .send({ assetType: AssetType.CONDO, postType: PostType.RENT })
+        .expect(200);
+
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBe(3);
+      res.body.forEach((post) => {
+        expect(post.assetType).toBe(AssetType.CONDO);
+        expect(post.postType).toBe(PostType.RENT);
+      });
+    });
+
+    it('should return posts filtered by assetType, postType and regionId', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/posts/search')
+        .send({
+          assetType: AssetType.CONDO,
+          postType: PostType.RENT,
+          regionId: 'r5',
+        })
+        .expect(200);
+
+      expect(Array.isArray(res.body)).toBe(true);
+      res.body.forEach((post) => {
+        expect(post.assetType).toBe(AssetType.CONDO);
+        expect(post.postType).toBe(PostType.RENT);
+        expect(post.address.regionId).toBe('r5');
+      });
+    });
+
+    it('should return posts filtered by assetType, postType and provinceId', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/posts/search')
+        .send({
+          assetType: AssetType.CONDO,
+          postType: PostType.RENT,
+          provinceId: 'p11',
+        })
+        .expect(200);
+
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBe(1);
+      res.body.forEach((post) => {
+        expect(post.assetType).toBe(AssetType.CONDO);
+        expect(post.postType).toBe(PostType.RENT);
+        expect(post.address.regionId).toBe('r5');
+        expect(post.address.provinceId).toBe('p11');
+      });
+    });
+
+    it('should return posts filtered by assetType, postType and districtId', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/posts/search')
+        .send({
+          assetType: AssetType.CONDO,
+          postType: PostType.RENT,
+          districtId: 'd2007',
+        })
+        .expect(200);
+
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBe(1);
+      res.body.forEach((post) => {
+        expect(post.assetType).toBe(AssetType.CONDO);
+        expect(post.postType).toBe(PostType.RENT);
+        expect(post.address.regionId).toBe('r5');
+        expect(post.address.provinceId).toBe('p11');
+        expect(post.address.districtId).toBe('d2007');
+      });
+    });
+
+    it('should return posts filtered by assetType, postType and subDistrictId', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/posts/search')
+        .send({
+          assetType: AssetType.CONDO,
+          postType: PostType.RENT,
+          subDistrictId: 's200702',
+        })
+        .expect(200);
+
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBe(1);
+      res.body.forEach((post) => {
+        expect(post.assetType).toBe(AssetType.CONDO);
+        expect(post.postType).toBe(PostType.RENT);
+        expect(post.address.regionId).toBe('r5');
+        expect(post.address.provinceId).toBe('p11');
+        expect(post.address.districtId).toBe('d2007');
+        expect(post.address.subDistrictId).toBe('s200702');
+      });
+    });
+
+    it('should return empty array for non-existing assetType and postType', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/posts/search')
+        .send({
+          assetType: AssetType.LAND,
+          postType: PostType.RENT,
+        })
+        .expect(200);
+
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBe(0);
     });
   });
 
