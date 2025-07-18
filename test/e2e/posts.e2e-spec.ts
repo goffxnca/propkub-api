@@ -1230,6 +1230,31 @@ describe('Posts (e2e)', () => {
       expect(Array.isArray(res.body)).toBe(true);
       expect(res.body.length).toBe(0);
     });
+
+    it('should return 400 if postType is missing', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/posts/search')
+        .send({ assetType: AssetType.CONDO })
+        .expect(400);
+      expect(res.body.message).toContain('postType should not be empty');
+    });
+
+    it('should return 400 if assetType is missing', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/posts/search')
+        .send({ postType: PostType.RENT })
+        .expect(400);
+      expect(res.body.message).toContain('assetType should not be empty');
+    });
+
+    it('should return 400 if both required fields are missing', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/posts/search')
+        .send({})
+        .expect(400);
+      expect(res.body.message).toContain('postType should not be empty');
+      expect(res.body.message).toContain('assetType should not be empty');
+    });
   });
 
   describe('PATCH /posts/:id', () => {
