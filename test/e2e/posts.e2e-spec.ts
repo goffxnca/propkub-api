@@ -574,7 +574,6 @@ describe('Posts (e2e)', () => {
           .expect((res) => {
             expect(Array.isArray(res.body)).toBe(true);
             expect(res.body.length).toBe(2);
-            console.log('res.body', res.body);
 
             // Verify all returned posts have the same assetType and postType
             res.body.forEach((post) => {

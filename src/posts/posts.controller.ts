@@ -23,6 +23,7 @@ import { PostStatsResponseDto } from './dto/post-stats-response.dto';
 import { UpdatePostDto } from './dto/updatePostDto';
 import { PaginatedResponse } from '../common/utils/pagination';
 import { IncreasePostStatsDto } from './dto/increase-post-stats.dto';
+import { SearchPostsDto } from './dto/search-posts.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -147,6 +148,12 @@ export class PostsController {
     @Query() pagination: PaginationQueryDto,
   ): Promise<PaginatedResponse<Post>> {
     return this.postsService.findAll(pagination.page, pagination.per_page);
+  }
+
+  @HttpPost('search')
+  @HttpCode(200)
+  async searchPosts(@Body() searchDto: SearchPostsDto): Promise<Post[]> {
+    return this.postsService.searchPosts(searchDto);
   }
 
   @UseGuards(ApiKeyGuard)

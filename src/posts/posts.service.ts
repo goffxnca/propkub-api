@@ -23,6 +23,7 @@ import { PostActionType } from '../postActions/postActions.schema';
 import { paginate, PaginatedResponse } from '../common/utils/pagination';
 import { PostStatsResponseDto } from './dto/post-stats-response.dto';
 import { PostStatType } from './dto/increase-post-stats.dto';
+import { SearchPostsDto } from './dto/search-posts.dto';
 
 const SANITIZE_OPTIONS = {
   allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br', 'a'],
@@ -154,8 +155,54 @@ export class PostsService implements OnModuleInit {
     page: number,
     per_page: number,
   ): Promise<PaginatedResponse<Post>> {
-    const baseQuery = () => this.postModel.find().sort({ createdAt: -1 });
+    const baseQuery = () =>
+      this.postModel
+        .find()
+        .select(
+          '_id title slug assetType postType thumbnail price priceUnit isStudio address specs createdAt',
+        )
+        .sort({ createdAt: -1 });
     return paginate<Post>(baseQuery, { page, per_page });
+  }
+
+  async searchPosts(searchDto: SearchPostsDto): Promise<Post[]> {
+    const {
+      postType,
+      assetType,
+      regionId,
+      provinceId,
+      districtId,
+      subDistrictId,
+    } = searchDto;
+
+    console.log('searchDto', searchDto);
+
+    // Build location filter - use the most specific location filter provided
+    let locationFilter = {};
+    if (subDistrictId) {
+      locationFilter = { 'address.subDistrictId': subDistrictId };
+    } else if (districtId) {
+      locationFilter = { 'address.districtId': districtId };
+    } else if (provinceId) {
+      locationFilter = { 'address.provinceId': provinceId };
+    } else if (regionId) {
+      locationFilter = { 'address.regionId': regionId };
+    }
+
+    const posts = await this.postModel
+      .find({
+        status: PostStatus.ACTIVE,
+        assetType,
+        postType,
+        ...locationFilter,
+      })
+      .select(
+        '_id title slug assetType postType thumbnail price priceUnit isStudio address specs createdAt',
+      )
+      .sort({ createdAt: -1 })
+      .limit(30);
+
+    return posts;
   }
 
   async findOne(id: string): Promise<Post | null> {
