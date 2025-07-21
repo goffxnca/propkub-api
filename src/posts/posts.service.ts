@@ -500,4 +500,18 @@ export class PostsService implements OnModuleInit {
     const newPost = new this.postModel(post);
     return newPost.save();
   }
+
+  async findLatestActiveForSitemap(): Promise<Post> {
+    const post = await this.postModel
+      .findOne({ status: PostStatus.ACTIVE })
+      .select('_id slug createdAt')
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+
+    if (!post) {
+      throw new NotFoundException(`No latest active post found`);
+    }
+    return post;
+  }
 }

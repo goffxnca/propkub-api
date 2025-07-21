@@ -93,6 +93,12 @@ export class PostsController {
     return this.postsService.findByPostType(postType);
   }
 
+  @UseGuards(ApiKeyGuard)
+  @Get('latest-active-sitemap')
+  async getLatestActivePostForSitemap(): Promise<Post> {
+    return this.postsService.findLatestActiveForSitemap();
+  }
+
   @HttpPost(':id/view')
   async incrementViews(
     @Param('id', MongoIdValidationPipe) id: string,
