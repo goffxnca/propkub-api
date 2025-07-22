@@ -95,8 +95,14 @@ export class PostsController {
 
   @UseGuards(ApiKeyGuard)
   @Get('latest-active-sitemap')
-  async getLatestActivePostForSitemap(): Promise<Post> {
+  async getLatestActivePostForSitemap(): Promise<Partial<Post>> {
     return this.postsService.findLatestActiveForSitemap();
+  }
+
+  @UseGuards(ApiKeyGuard)
+  @Get('all-active-sitemap')
+  async getAllActivePostsForSitemap(): Promise<Partial<Post>[]> {
+    return this.postsService.findAllActiveForSitemap();
   }
 
   @HttpPost(':id/view')

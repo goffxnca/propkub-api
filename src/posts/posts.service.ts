@@ -501,10 +501,10 @@ export class PostsService implements OnModuleInit {
     return newPost.save();
   }
 
-  async findLatestActiveForSitemap(): Promise<Post> {
+  async findLatestActiveForSitemap(): Promise<Partial<Post>> {
     const post = await this.postModel
       .findOne({ status: PostStatus.ACTIVE })
-      .select('_id slug createdAt')
+      .select('_id slug createdAt updatedAt')
       .sort({ createdAt: -1 })
       .lean()
       .exec();
@@ -513,5 +513,14 @@ export class PostsService implements OnModuleInit {
       throw new NotFoundException(`No latest active post found`);
     }
     return post;
+  }
+
+  async findAllActiveForSitemap(): Promise<Partial<Post>[]> {
+    return this.postModel
+      .find({ status: PostStatus.ACTIVE })
+      .select('_id slug createdAt updatedAt')
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
   }
 }
