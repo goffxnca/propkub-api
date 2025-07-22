@@ -1515,4 +1515,43 @@ describe('Posts (e2e)', () => {
         });
     });
   });
+
+  describe('Sitemap Endpoints', () => {
+    it('should return the latest active post with valid API key', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/posts/latest-active-sitemap')
+        .set('x-api-key', API_KEY_FOR_NEXTJS_SERVER)
+        .expect(200);
+      expect(res.body).toBeDefined();
+      expect(res.body._id).toBeDefined();
+      expect(res.body.slug).toBeDefined();
+      expect(res.body.createdAt).toBeDefined();
+    });
+
+    it('should return 401 for latest-active-sitemap with missing API key', async () => {
+      await request(app.getHttpServer())
+        .get('/posts/latest-active-sitemap')
+        .expect(401);
+    });
+
+    it('should return all active posts for sitemap with valid API key', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/posts/all-active-sitemap')
+        .set('x-api-key', API_KEY_FOR_NEXTJS_SERVER)
+        .expect(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBeGreaterThanOrEqual(10);
+      res.body.forEach((post) => {
+        expect(post._id).toBeDefined();
+        expect(post.slug).toBeDefined();
+        expect(post.createdAt).toBeDefined();
+      });
+    });
+
+    it('should return 401 for all-active-sitemap with missing API key', async () => {
+      await request(app.getHttpServer())
+        .get('/posts/all-active-sitemap')
+        .expect(401);
+    });
+  });
 });
