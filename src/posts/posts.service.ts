@@ -24,6 +24,7 @@ import { paginate, PaginatedResponse } from '../common/utils/pagination';
 import { PostStatsResponseDto } from './dto/post-stats-response.dto';
 import { PostStatType } from './dto/increase-post-stats.dto';
 import { SearchPostsDto } from './dto/search-posts.dto';
+import { randomOneToN } from '../common/utils/numbers';
 
 const SANITIZE_OPTIONS = {
   allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br', 'a'],
@@ -117,12 +118,12 @@ export class PostsService implements OnModuleInit {
                   : PostStatus.ACTIVE,
             stats: {
               views: {
-                post: post.postViews,
-                phone: post.phoneViews,
-                line: post.lineViews,
+                post: randomOneToN(50),
+                phone: randomOneToN(100) === 99 ? randomOneToN(3) : 0,
+                line: randomOneToN(100) === 99 ? randomOneToN(3) : 0,
               },
-              shares: 0,
-              pins: 0,
+              shares: randomOneToN(200) === 200 ? 1 : 0,
+              pins: randomOneToN(200) === 200 ? 1 : 0,
             },
             cid: index + 1,
             postNumber: post.id, //Already GG indexed by the old firebase ID in slug, so for old post just keep postNumber as old firebase id
@@ -321,8 +322,8 @@ export class PostsService implements OnModuleInit {
     page: number,
     per_page: number,
   ): Promise<PaginatedResponse<Post>> {
-    const baseQuery = () =>
-      this.postModel.find({ createdBy: userId }).sort({ createdAt: -1 });
+    const baseQuery = () => this.postModel.find({ createdBy: userId });
+    this.postModel.find({ createdBy: userId }).sort({ createdAt: -1 });
 
     return paginate(baseQuery, { page, per_page });
   }
