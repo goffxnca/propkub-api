@@ -544,9 +544,7 @@ describe('Posts (e2e)', () => {
             expect(res.body.stats.views.post).toBe(
               firstPost.stats.views.post + 1,
             );
-            expect(res.body.rstats.views.post).toBe(
-              firstPost.rstats.views.post + 1,
-            );
+            expect(res.body.rstats).toBeUndefined();
           });
       });
       it('should return 404 when post is not found', () => {
@@ -635,7 +633,9 @@ describe('Posts (e2e)', () => {
           .send({ statType: PostStatType.SHARES })
           .expect(200);
 
-        const postAfter = await postModel.findById(firstPost._id);
+        const postAfter = await postModel
+          .findById(firstPost._id)
+          .select('+rstats');
         expect(postAfter).toBeDefined();
         expect(postAfter!.stats.shares).toBe(initialShares + 1);
         expect(postAfter!.rstats.shares).toBe(initialRShares + 1);
@@ -651,7 +651,9 @@ describe('Posts (e2e)', () => {
           .send({ statType: PostStatType.PINS })
           .expect(200);
 
-        const postAfter = await postModel.findById(firstPost._id);
+        const postAfter = await postModel
+          .findById(firstPost._id)
+          .select('+rstats');
         expect(postAfter).toBeDefined();
         expect(postAfter!.stats.pins).toBe(initialPins + 1);
         expect(postAfter!.rstats.pins).toBe(initialRPins + 1);
@@ -667,7 +669,9 @@ describe('Posts (e2e)', () => {
           .send({ statType: PostStatType.LINE_VIEWS })
           .expect(200);
 
-        const postAfter = await postModel.findById(firstPost._id);
+        const postAfter = await postModel
+          .findById(firstPost._id)
+          .select('+rstats');
         expect(postAfter).toBeDefined();
         expect(postAfter!.stats.views.line).toBe(initialLineViews + 1);
         expect(postAfter!.rstats.views.line).toBe(initialRLineViews + 1);
@@ -683,7 +687,9 @@ describe('Posts (e2e)', () => {
           .send({ statType: PostStatType.PHONE_VIEWS })
           .expect(200);
 
-        const postAfter = await postModel.findById(firstPost._id);
+        const postAfter = await postModel
+          .findById(firstPost._id)
+          .select('+rstats');
         expect(postAfter).toBeDefined();
         expect(postAfter!.stats.views.phone).toBe(initialPhoneViews + 1);
         expect(postAfter!.rstats.views.phone).toBe(initialRPhoneViews + 1);
