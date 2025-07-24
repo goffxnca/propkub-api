@@ -57,7 +57,7 @@ export class UsersService implements OnModuleInit {
             createdBy: undefined,
             updatedAt: undefined,
             updatedBy: undefined,
-            tosAccepted: true,
+            tos: true,
           };
         }),
       );
@@ -119,7 +119,7 @@ export class UsersService implements OnModuleInit {
       password: provider === AuthProvider.EMAIL ? password : undefined,
       provider,
       role,
-      tosAccepted: true,
+      tos: true,
       profileImg,
       emailVerified: provider !== AuthProvider.EMAIL,
       emailVToken: provider === AuthProvider.EMAIL ? uuidV4() : undefined,

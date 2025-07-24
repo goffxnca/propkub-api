@@ -10,7 +10,7 @@ export const baseUser: User = {
   emailVerified: false,
   provider: AuthProvider.EMAIL,
   role: UserRole.NORMAL,
-  tosAccepted: true,
+  tos: true,
   password: '123456',
   createdAt: new Date(),
 };

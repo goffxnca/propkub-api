@@ -45,7 +45,7 @@ export class User {
   role: UserRole;
 
   @Prop({ required: true, default: false })
-  tosAccepted: boolean;
+  tos: boolean;
 
   // Cannot mark as required as on create mode it start with undefined and pre save hook will generate id for it, can mark as required once migrated
   @Prop()
