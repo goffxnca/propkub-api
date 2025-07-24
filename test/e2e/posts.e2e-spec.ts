@@ -300,7 +300,7 @@ describe('Posts (e2e)', () => {
   });
 
   describe('GET /posts/me/stats', () => {
-    it('should return user post statistics when authenticated', () => {
+    it('should return user post stats when authenticated', () => {
       return request(app.getHttpServer())
         .get('/posts/me/stats')
         .set(authHeader(authToken))
@@ -544,6 +544,9 @@ describe('Posts (e2e)', () => {
             expect(res.body.stats.views.post).toBe(
               firstPost.stats.views.post + 1,
             );
+            expect(res.body.rstats.views.post).toBe(
+              firstPost.rstats.views.post + 1,
+            );
           });
       });
       it('should return 404 when post is not found', () => {
@@ -625,6 +628,7 @@ describe('Posts (e2e)', () => {
       it('should increment shares for a post', async () => {
         const firstPost = mockPosts[0];
         const initialShares = firstPost.stats.shares;
+        const initialRShares = firstPost.rstats.shares;
 
         await request(app.getHttpServer())
           .post(`/posts/${firstPost._id}/stats`)
@@ -634,11 +638,13 @@ describe('Posts (e2e)', () => {
         const postAfter = await postModel.findById(firstPost._id);
         expect(postAfter).toBeDefined();
         expect(postAfter!.stats.shares).toBe(initialShares + 1);
+        expect(postAfter!.rstats.shares).toBe(initialRShares + 1);
       });
 
       it('should increment pins for a post', async () => {
         const firstPost = mockPosts[0];
         const initialPins = firstPost.stats.pins;
+        const initialRPins = firstPost.rstats.pins;
 
         await request(app.getHttpServer())
           .post(`/posts/${firstPost._id}/stats`)
@@ -648,11 +654,13 @@ describe('Posts (e2e)', () => {
         const postAfter = await postModel.findById(firstPost._id);
         expect(postAfter).toBeDefined();
         expect(postAfter!.stats.pins).toBe(initialPins + 1);
+        expect(postAfter!.rstats.pins).toBe(initialRPins + 1);
       });
 
       it('should increment line views for a post', async () => {
         const firstPost = mockPosts[0];
         const initialLineViews = firstPost.stats.views.line;
+        const initialRLineViews = firstPost.rstats.views.line;
 
         await request(app.getHttpServer())
           .post(`/posts/${firstPost._id}/stats`)
@@ -662,11 +670,13 @@ describe('Posts (e2e)', () => {
         const postAfter = await postModel.findById(firstPost._id);
         expect(postAfter).toBeDefined();
         expect(postAfter!.stats.views.line).toBe(initialLineViews + 1);
+        expect(postAfter!.rstats.views.line).toBe(initialRLineViews + 1);
       });
 
       it('should increment phone views for a post', async () => {
         const firstPost = mockPosts[0];
         const initialPhoneViews = firstPost.stats.views.phone;
+        const initialRPhoneViews = firstPost.rstats.views.phone;
 
         await request(app.getHttpServer())
           .post(`/posts/${firstPost._id}/stats`)
@@ -676,6 +686,7 @@ describe('Posts (e2e)', () => {
         const postAfter = await postModel.findById(firstPost._id);
         expect(postAfter).toBeDefined();
         expect(postAfter!.stats.views.phone).toBe(initialPhoneViews + 1);
+        expect(postAfter!.rstats.views.phone).toBe(initialRPhoneViews + 1);
       });
 
       it('should return 404 when post is not found', () => {
@@ -862,30 +873,6 @@ describe('Posts (e2e)', () => {
           });
       });
     });
-
-    // describe('POST /posts/:id/view', () => {
-    //   it('should increment views for a post', () => {
-    //     const firstPost = mockPosts[0];
-    //     const initialViews = firstPost.stats.views.post;
-    //     return request(app.getHttpServer())
-    //       .post(`/posts/${firstPost._id}/view`)
-    //       .expect(201)
-    //       .expect((res) => {
-    //         expect(res.body.stats.views.post).toBe(initialViews + 1);
-    //       });
-    //   });
-    //   it('should return 404 when post is not found', () => {
-    //     const notExistingId = new Types.ObjectId().toString();
-    //     return request(app.getHttpServer())
-    //       .post(`/posts/${notExistingId}/view`)
-    //       .expect(404)
-    //       .expect({
-    //         statusCode: 404,
-    //         message: `Post with ID ${notExistingId} not found`,
-    //         error: 'Not Found',
-    //       });
-    //   });
-    // });
   });
 
   describe('POST /posts', () => {
