@@ -85,6 +85,7 @@ describe('Auth (e2e)', () => {
       const user = await userModel.findOne({ email: testUser.email });
       expect(user).toBeDefined();
       expect(user?.role!).toBe(UserRole.NORMAL);
+      expect(user?.temp_p!).toBeUndefined();
     });
 
     it('should create a new agent user and return JWT token', async () => {
@@ -272,6 +273,7 @@ describe('Auth (e2e)', () => {
         .expect((res) => {
           expect(res.body.name).toBe(testUser.name);
           expect(res.body.email).toBe(testUser.email);
+          expect(res.body.temp_p).toBeUndefined();
         });
     });
 
@@ -418,7 +420,9 @@ describe('Auth (e2e)', () => {
       expect(loginResponse.body.accessToken).toBeDefined();
       expect(loginResponse.body.accessToken).toContain('eyJhb');
 
-      const updatedUser = await userModel.findOne({ email: testUser.email });
+      const updatedUser = await userModel
+        .findOne({ email: testUser.email })
+        .select('+temp_p');
       expect(updatedUser).not.toBeNull();
       expect(updatedUser?.passwordReset?.token).toBeUndefined();
       expect(updatedUser?.passwordReset?.expires).toBeUndefined();
@@ -622,7 +626,9 @@ describe('Auth (e2e)', () => {
         })
         .expect(200);
 
-      const updatedUser = await userModel.findOne({ email: testUser.email });
+      const updatedUser = await userModel
+        .findOne({ email: testUser.email })
+        .select('+temp_p');
       expect(updatedUser?.temp_p).toBeUndefined();
     });
 

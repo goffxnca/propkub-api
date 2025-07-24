@@ -57,7 +57,7 @@ export class User {
   @Prop()
   password?: string;
 
-  @Prop()
+  @Prop({ select: false })
   temp_p?: string; //TODO: Assign raw password for those migrated users, Once migrated, remove this field from code and users collection
 
   @Prop()
