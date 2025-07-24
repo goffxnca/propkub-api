@@ -105,17 +105,6 @@ export class PostsController {
     return this.postsService.findAllActiveForSitemap();
   }
 
-  @HttpPost(':id/view')
-  async incrementViews(
-    @Param('id', MongoIdValidationPipe) id: string,
-  ): Promise<Post> {
-    const post = await this.postsService.incrementViews(id);
-    if (!post) {
-      throw new NotFoundException(`Post with ID ${id} not found`);
-    }
-    return post;
-  }
-
   @UseGuards(JwtAuthGuard)
   @PostRequest()
   createPost(

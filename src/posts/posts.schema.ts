@@ -239,6 +239,9 @@ export class Post {
   @Prop({ required: true, default: {} })
   stats: Stats;
 
+  @Prop({ required: true, default: {} })
+  rstats: Stats;
+
   // Cannot mark as required as on create mode it start with undefined and pre save hook will generate id for it, can mark as required once migrated
   @Prop()
   cid: number;

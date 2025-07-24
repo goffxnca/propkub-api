@@ -125,6 +125,15 @@ export class PostsService implements OnModuleInit {
               shares: randomOneToN(200) === 200 ? 1 : 0,
               pins: randomOneToN(200) === 200 ? 1 : 0,
             },
+            rstats: {
+              views: {
+                post: 0,
+                phone: 0,
+                line: 0,
+              },
+              shares: 0,
+              pins: 0,
+            },
             cid: index + 1,
             postNumber: post.id, //Already GG indexed by the old firebase ID in slug, so for old post just keep postNumber as old firebase id
             isStudio: post?.isStudio || undefined,
@@ -261,7 +270,7 @@ export class PostsService implements OnModuleInit {
     const post = await this.postModel
       .findOneAndUpdate(
         { postNumber },
-        { $inc: { 'stats.views.post': 1 } },
+        { $inc: { 'stats.views.post': 1, 'rstats.views.post': 1 } },
         {
           new: true,
           populate: { path: 'createdBy', select: 'name profileImg phone line' },
@@ -356,12 +365,6 @@ export class PostsService implements OnModuleInit {
     return result[0] || defaultStats;
   }
 
-  async incrementViews(id: string): Promise<Post | null> {
-    return this.postModel
-      .findByIdAndUpdate(id, { $inc: { 'stats.views.post': 1 } }, { new: true })
-      .exec();
-  }
-
   async increasePostStats(id: string, statType: PostStatType): Promise<void> {
     const post = await this.postModel.findById(id).exec();
     if (!post) {
@@ -372,16 +375,20 @@ export class PostsService implements OnModuleInit {
 
     switch (statType) {
       case PostStatType.SHARES:
-        updateObject = { $inc: { 'stats.shares': 1 } };
+        updateObject = { $inc: { 'stats.shares': 1, 'rstats.shares': 1 } };
         break;
       case PostStatType.PINS:
-        updateObject = { $inc: { 'stats.pins': 1 } };
+        updateObject = { $inc: { 'stats.pins': 1, 'rstats.pins': 1 } };
         break;
       case PostStatType.PHONE_VIEWS:
-        updateObject = { $inc: { 'stats.views.phone': 1 } };
+        updateObject = {
+          $inc: { 'stats.views.phone': 1, 'rstats.views.phone': 1 },
+        };
         break;
       case PostStatType.LINE_VIEWS:
-        updateObject = { $inc: { 'stats.views.line': 1 } };
+        updateObject = {
+          $inc: { 'stats.views.line': 1, 'rstats.views.line': 1 },
+        };
         break;
       default:
         throw new Error(`Invalid stat type: ${statType}`);

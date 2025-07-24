@@ -51,6 +51,15 @@ export const basePost: Post = {
     shares: 1,
     pins: 1,
   },
+  rstats: {
+    views: {
+      post: 1,
+      phone: 1,
+      line: 1,
+    },
+    shares: 1,
+    pins: 1,
+  },
   cid: 1,
   postNumber: 'P001',
   createdAt: now,
