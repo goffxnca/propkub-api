@@ -66,13 +66,6 @@ export class PostsController {
     return post;
   }
 
-  @Get('subdistrict/:subDistrictId')
-  findBySubDistrictId(
-    @Param('subDistrictId') subDistrictId: string,
-  ): Promise<Post[]> {
-    return this.postsService.findBySubDistrictId(subDistrictId);
-  }
-
   @UseGuards(ApiKeyGuard)
   @Get('latest-active-sitemap')
   async getLatestActivePostForSitemap(): Promise<Partial<Post>> {

@@ -285,12 +285,6 @@ export class PostsService implements OnModuleInit {
     return post;
   }
 
-  async findBySubDistrictId(subDistrictId: string): Promise<Post[]> {
-    return this.postModel
-      .find({ 'address.subDistrictId': subDistrictId })
-      .exec();
-  }
-
   async findSimilarPosts(postId: string): Promise<Post[]> {
     const currentPost = await this.postModel.findById(postId).exec();
     if (!currentPost) {

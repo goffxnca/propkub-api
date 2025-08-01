@@ -787,28 +787,6 @@ describe('Posts (e2e)', () => {
           });
       });
     });
-
-    describe('GET /posts/subdistrict/:subDistrictId', () => {
-      it('should return posts for a subdistrict', () => {
-        const subDistrictId = '1';
-        return request(app.getHttpServer())
-          .get(`/posts/subdistrict/${subDistrictId}`)
-          .expect(200)
-          .expect((res) => {
-            expect(res.body.length).toBe(3);
-            expect(
-              res.body.every((p) => p.address.subDistrictId === subDistrictId),
-            ).toBe(true);
-          });
-      });
-
-      it('should return empty array for non-existent subdistrict', () => {
-        return request(app.getHttpServer())
-          .get('/posts/subdistrict/999')
-          .expect(200)
-          .expect([]);
-      });
-    });
   });
 
   describe('POST /posts', () => {
