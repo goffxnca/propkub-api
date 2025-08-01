@@ -66,11 +66,6 @@ export class PostsController {
     return post;
   }
 
-  @Get('district/:districtId')
-  findByDistrictId(@Param('districtId') districtId: string): Promise<Post[]> {
-    return this.postsService.findByDistrictId(districtId);
-  }
-
   @Get('subdistrict/:subDistrictId')
   findBySubDistrictId(
     @Param('subDistrictId') subDistrictId: string,
