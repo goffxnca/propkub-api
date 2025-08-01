@@ -36,7 +36,7 @@ export class SyntheticCronService {
     @InjectModel(Post.name) private readonly postModel: Model<PostDocument>,
   ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_HOUR)
   async incrementSyntheticViews() {
     this.logger.log('incrementSyntheticViews()....');
 
@@ -70,8 +70,8 @@ export class SyntheticCronService {
 
       // 3) Map randomed indexes to actual posts by CID and sort in desc
       const selectedPosts = Array.from(randomSelectedCids)
-        .map((idx) => posts.find((post) => post.cid === idx)!)
-        .sort((a, b) => b.cid - a.cid);
+        .sort((a, b) => a - b)
+        .map((idx) => posts.find((post) => post.cid === idx)!);
 
       this.logger.log(
         `Random ${PERCENT_PER_RUN}% from all ${posts.length} posts: [${selectedPosts.map((post) => post.cid).join(', ')}] (${selectedPosts.length} CIDs)`,
