@@ -853,32 +853,6 @@ describe('Posts (e2e)', () => {
           .expect([]);
       });
     });
-
-    describe('GET /posts/asset-type/:assetType', () => {
-      it('should return posts for an asset type', () => {
-        const assetType = AssetType.HOUSE;
-        return request(app.getHttpServer())
-          .get(`/posts/asset-type/${assetType}`)
-          .expect(200)
-          .expect((res) => {
-            expect(res.body.length).toBe(3);
-            expect(res.body.every((p) => p.assetType === assetType)).toBe(true);
-          });
-      });
-    });
-
-    describe('GET /posts/post-type/:postType', () => {
-      it('should return posts for a post type', () => {
-        const postType = PostType.RENT;
-        return request(app.getHttpServer())
-          .get(`/posts/post-type/${postType}`)
-          .expect(200)
-          .expect((res) => {
-            expect(res.body.length).toBe(6);
-            expect(res.body.every((p) => p.postType === postType)).toBe(true);
-          });
-      });
-    });
   });
 
   describe('POST /posts', () => {

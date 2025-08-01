@@ -299,14 +299,6 @@ export class PostsService implements OnModuleInit {
       .exec();
   }
 
-  async findByAssetType(assetType: string): Promise<Post[]> {
-    return this.postModel.find({ assetType }).exec();
-  }
-
-  async findByPostType(postType: string): Promise<Post[]> {
-    return this.postModel.find({ postType }).exec();
-  }
-
   async findSimilarPosts(postId: string): Promise<Post[]> {
     const currentPost = await this.postModel.findById(postId).exec();
     if (!currentPost) {
