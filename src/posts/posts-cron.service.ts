@@ -1,4 +1,4 @@
-// synthetic-cron.service.ts
+// posts-cron.service.ts
 // Synthetic Post Views Increment Service
 // --------------------------------------
 // This service is intended to be called by a cron job (e.g., hourly).
@@ -16,7 +16,7 @@
 //   - For 5,000 posts, 1% per run = 50 posts/run
 //   - 24 runs/day = 1,200 posts incremented/day
 //   - Each gets +1–3, so 1,200–3,600 synthetic views/day, distributed randomly
-//   - Over time, distribution is organic, but newer posts can be weighted for recency bias
+//   - Over time, distribution is organic, but newer posts can be weighted for recency bias (future improvement)
 
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -29,16 +29,16 @@ const PERCENT_PER_RUN = 1;
 const INCREMENT_MAX = 3;
 
 @Injectable()
-export class SyntheticCronService {
-  private readonly logger = new Logger(SyntheticCronService.name);
+export class PostCronService {
+  private readonly logger = new Logger(PostCronService.name);
 
   constructor(
     @InjectModel(Post.name) private readonly postModel: Model<PostDocument>,
   ) {}
 
   @Cron(CronExpression.EVERY_HOUR)
-  async incrementSyntheticViews() {
-    this.logger.log('incrementSyntheticViews()....');
+  async incrementViews() {
+    this.logger.log('incrementViews()....');
 
     try {
       // 1) Pull all posts minimally
@@ -91,10 +91,7 @@ export class SyntheticCronService {
         );
       }
     } catch (error) {
-      this.logger.error(
-        'Error occur while running incrementSyntheticViews()',
-        error,
-      );
+      this.logger.error('Error occur while running incrementViews()', error);
     }
   }
 }
