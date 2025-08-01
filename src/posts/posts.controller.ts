@@ -83,16 +83,6 @@ export class PostsController {
     return this.postsService.findBySubDistrictId(subDistrictId);
   }
 
-  @Get('asset-type/:assetType')
-  findByAssetType(@Param('assetType') assetType: string): Promise<Post[]> {
-    return this.postsService.findByAssetType(assetType);
-  }
-
-  @Get('post-type/:postType')
-  findByPostType(@Param('postType') postType: string): Promise<Post[]> {
-    return this.postsService.findByPostType(postType);
-  }
-
   @UseGuards(ApiKeyGuard)
   @Get('latest-active-sitemap')
   async getLatestActivePostForSitemap(): Promise<Partial<Post>> {
