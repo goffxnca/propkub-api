@@ -16,7 +16,7 @@
 //
 // Expected result (example):
 //   - For 5,000 posts, 1% per run = 50 posts/run
-//   - 24 runs/day = Each posts gets +1–3 post view, so 1,200–3,600 synthetic post views/day, distributed randomly
+//   - 24 runs/day = Each post gets +1–3 views, so 1,200–3,600 synthetic post views/day, distributed randomly
 //   - 24 phone views/day and 24 line views/day across posts
 //   - Over time, distribution is organic, but newer posts can be weighted for recency bias (future improvement)
 
@@ -39,7 +39,7 @@ export class PostCronService {
     @InjectModel(Post.name) private readonly postModel: Model<PostDocument>,
   ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_HOUR)
   async incrementViews() {
     this.logger.log('incrementViews()....');
 
@@ -90,7 +90,7 @@ export class PostCronService {
         );
 
         this.logger.log(
-          `Increment ${increment} post views (${post.stats.views.post}->${post.stats.views.post + increment}) for post with CID: ${post.cid}`,
+          `Increment ${increment} views (${post.stats.views.post}->${post.stats.views.post + increment}) for post with CID: ${post.cid}`,
         );
       }
 
