@@ -41,6 +41,14 @@ export class EnvironmentService {
     return apiKey;
   }
 
+  brovoApiKey(): string {
+    const apiKey = this.configService.get<string>('BREVO_API_KEY');
+    if (!apiKey) {
+      throw new Error('BREVO_API_KEY env is missing.');
+    }
+    return apiKey;
+  }
+
   // API Key used to verify that a request is called from NextJS Server when processing SSR/SSG/ISG
   apiKeyForNextJSServer(): string {
     const apiKey = this.configService.get<string>('API_KEY_FOR_NEXTJS_SERVER');
