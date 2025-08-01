@@ -285,10 +285,6 @@ export class PostsService implements OnModuleInit {
     return post;
   }
 
-  async findByProvinceId(provinceId: string): Promise<Post[]> {
-    return this.postModel.find({ 'address.provinceId': provinceId }).exec();
-  }
-
   async findByDistrictId(districtId: string): Promise<Post[]> {
     return this.postModel.find({ 'address.districtId': districtId }).exec();
   }

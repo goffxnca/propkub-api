@@ -788,28 +788,6 @@ describe('Posts (e2e)', () => {
       });
     });
 
-    describe('GET /posts/province/:provinceId', () => {
-      it('should return posts for a province', () => {
-        const provinceId = '1';
-        return request(app.getHttpServer())
-          .get(`/posts/province/${provinceId}`)
-          .expect(200)
-          .expect((res) => {
-            expect(res.body.length).toBe(5);
-            expect(
-              res.body.every((p) => p.address.provinceId === provinceId),
-            ).toBe(true);
-          });
-      });
-
-      it('should return empty array for non-existent province', () => {
-        return request(app.getHttpServer())
-          .get('/posts/province/999')
-          .expect(200)
-          .expect([]);
-      });
-    });
-
     describe('GET /posts/district/:districtId', () => {
       it('should return posts for a district', () => {
         const districtId = '1';
