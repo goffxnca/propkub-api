@@ -23,6 +23,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post, PostDocument } from './posts.schema';
 import { randomOneToN } from '../common/utils/numbers';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 const PERCENT_PER_RUN = 0.01;
 const INCREMENT_MAX = 3;
@@ -35,42 +36,59 @@ export class SyntheticCronService {
     @InjectModel(Post.name) private readonly postModel: Model<PostDocument>,
   ) {}
 
-  async incrementSyntheticViews(dryrun: boolean = false) {
-    const posts = await this.postModel.find({}, { _id: 1, cid: 1 });
-    const totalPostsToIncrement = Math.max(
-      1,
-      Math.floor(posts.length * PERCENT_PER_RUN),
-    );
-    // Optionally, add recency bias by weighting cids
-    // For now, uniform random selection
-    const selectedIndexes = new Set<number>();
-    while (selectedIndexes.size < totalPostsToIncrement) {
-      selectedIndexes.add(randomOneToN(posts.length));
-    }
-    const selectedCids = Array.from(selectedIndexes).map(
-      (idx) => posts[idx].cid,
-    );
-    selectedCids.sort((a, b) => b - a); // Descending order
+  @Cron(CronExpression.EVERY_MINUTE)
+  async incrementSyntheticViews() {
+    this.logger.log('incrementSyntheticViews....');
 
-    // Log the selected cids for analysis
-    this.logger.log(
-      `Synthetic increment: selected ${selectedCids.length} posts (cids): [${selectedCids.join(', ')}]`,
-    );
+    try {
+      const posts = await this.postModel
+        .find({}, { _id: 1, cid: 1, stats: 1 })
+        .lean();
 
-    // Increment each selected post by a random amount (1–3)
-    for (const idx of selectedIndexes) {
-      const post = posts[idx];
-      const increment = randomOneToN(INCREMENT_MAX);
+      console.log(
+        'posts',
+        posts.map((post) => ({
+          _id: post._id,
+          cid: post.cid,
+          views: post.stats.views.post,
+        })),
+      );
+      const totalPostsToIncrement = Math.max(
+        1,
+        Math.floor(posts.length * PERCENT_PER_RUN),
+      );
+      // Optionally, add recency bias by weighting cids
+      // For now, uniform random selection
+      const randomSelectedCids = new Set<number>();
+      while (randomSelectedCids.size < totalPostsToIncrement) {
+        randomSelectedCids.add(randomOneToN(posts.length));
+      }
+
+      console.log('randomSelectedCids', randomSelectedCids);
+      const selectedPosts = Array.from(randomSelectedCids)
+        .sort((a, b) => b - a)
+        .map((idx) => posts.find((post) => post.cid === idx)!);
+
+      // Log the selected cids for analysis
       this.logger.log(
-        `Increment ${increment} post views for post with CID: ${post.cid}`,
+        `Synthetic increment: selected ${selectedPosts.length} posts (cids): [${selectedPosts.map((post) => post?.cid).join(', ')}]`,
       );
 
-      if (!dryrun) {
-        // await this.postModel.updateOne(
-        //   { _id: post._id },
-        //   { $inc: { 'stats.views.post': increment } },
-        // );
+      // Increment each selected post by a random amount (1–3)
+      for (const post of selectedPosts) {
+        const increment = randomOneToN(INCREMENT_MAX);
+
+        await this.postModel.updateOne(
+          { _id: post._id },
+          { $inc: { 'stats.views.post': increment } },
+        );
+
+        this.logger.log(
+          `Increment ${increment} views (${post.stats.views.post}->${post.stats.views.post + increment}) for post with CID: ${post.cid}`,
+        );
       }
+    } catch (error) {
+      console.log('Error occur while incrementing synthertic views', error);
     }
   }
 }

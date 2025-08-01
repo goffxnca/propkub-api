@@ -8,6 +8,7 @@ import { EnvironmentModule } from '../environments/environment.module';
 import { MailModule } from '../mail/email.module';
 import { UsersModule } from '../users/users.module';
 import { PostActionsModule } from '../postActions/postActions.module';
+import { SyntheticCronService } from './synthetic-cron.service';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { PostActionsModule } from '../postActions/postActions.module';
     MailModule,
     PostActionsModule,
   ],
-  providers: [PostsService],
+  providers: [PostsService, SyntheticCronService],
   controllers: [PostsController],
 })
 export class PostsModule {}
