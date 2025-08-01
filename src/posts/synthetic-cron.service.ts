@@ -25,7 +25,7 @@ import { Post, PostDocument } from './posts.schema';
 import { randomOneToN } from '../common/utils/numbers';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
-const PERCENT_PER_RUN = 0.01;
+const PERCENT_PER_RUN = 1;
 const INCREMENT_MAX = 3;
 
 @Injectable()
@@ -38,43 +38,46 @@ export class SyntheticCronService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async incrementSyntheticViews() {
-    this.logger.log('incrementSyntheticViews....');
+    this.logger.log('incrementSyntheticViews()....');
 
     try {
+      // 1) Pull all posts minimally
       const posts = await this.postModel
         .find({}, { _id: 1, cid: 1, stats: 1 })
         .lean();
 
-      console.log(
-        'posts',
-        posts.map((post) => ({
-          _id: post._id,
-          cid: post.cid,
-          views: post.stats.views.post,
-        })),
-      );
+      // console.log(
+      //   'posts',
+      //   JSON.stringify(
+      //     posts.map((post) => ({
+      //       _id: post._id,
+      //       cid: post.cid,
+      //       views: post.stats.views.post,
+      //     })),
+      //   ),
+      // );
+
       const totalPostsToIncrement = Math.max(
         1,
-        Math.floor(posts.length * PERCENT_PER_RUN),
+        Math.floor((posts.length * PERCENT_PER_RUN) / 100),
       );
-      // Optionally, add recency bias by weighting cids
-      // For now, uniform random selection
+
+      // 2) Equally randomly pick indexes from 1% of total posts
       const randomSelectedCids = new Set<number>();
       while (randomSelectedCids.size < totalPostsToIncrement) {
         randomSelectedCids.add(randomOneToN(posts.length));
       }
 
-      console.log('randomSelectedCids', randomSelectedCids);
+      // 3) Map randomed indexes to actual posts by CID and sort in desc
       const selectedPosts = Array.from(randomSelectedCids)
-        .sort((a, b) => b - a)
-        .map((idx) => posts.find((post) => post.cid === idx)!);
+        .map((idx) => posts.find((post) => post.cid === idx)!)
+        .sort((a, b) => b.cid - a.cid);
 
-      // Log the selected cids for analysis
       this.logger.log(
-        `Synthetic increment: selected ${selectedPosts.length} posts (cids): [${selectedPosts.map((post) => post?.cid).join(', ')}]`,
+        `Random ${PERCENT_PER_RUN}% from all ${posts.length} posts: [${selectedPosts.map((post) => post.cid).join(', ')}] (${selectedPosts.length} CIDs)`,
       );
 
-      // Increment each selected post by a random amount (1–3)
+      // 4) Increment each selected post view by a random amount (1–3)
       for (const post of selectedPosts) {
         const increment = randomOneToN(INCREMENT_MAX);
 
@@ -88,7 +91,10 @@ export class SyntheticCronService {
         );
       }
     } catch (error) {
-      console.log('Error occur while incrementing synthertic views', error);
+      this.logger.error(
+        'Error occur while running incrementSyntheticViews()',
+        error,
+      );
     }
   }
 }
