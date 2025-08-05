@@ -50,7 +50,7 @@ export class PostActionsService implements OnModuleInit {
   async findByPostId(postId: string): Promise<PostActions[]> {
     return this.postActionsModel
       .find({ postId: new Types.ObjectId(postId) })
-      .populate('createdBy', 'name email')
+      .populate('createdBy', 'name')
       .sort({ createdAt: -1 })
       .exec();
   }
