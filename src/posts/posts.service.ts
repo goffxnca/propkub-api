@@ -309,9 +309,8 @@ export class PostsService implements OnModuleInit {
     page: number,
     per_page: number,
   ): Promise<PaginatedResponse<Post>> {
-    const baseQuery = () => this.postModel.find({ createdBy: userId });
-    this.postModel.find({ createdBy: userId }).sort({ createdAt: -1 });
-
+    const baseQuery = () =>
+      this.postModel.find({ createdBy: userId }).sort({ createdAt: -1 });
     return paginate(baseQuery, { page, per_page });
   }
 
@@ -444,11 +443,17 @@ export class PostsService implements OnModuleInit {
 
     const updateData = {
       ...updatePostDto,
-      title: sanitizedTitle,
-      desc: sanitizedDesc,
       updatedAt: new Date(),
       updatedBy: userId,
     };
+
+    if (updatePostDto.title) {
+      updateData.title = sanitizedTitle;
+    }
+
+    if (updatePostDto.desc) {
+      updateData.desc = sanitizedDesc;
+    }
 
     const updatedPost = await this.postModel
       .findByIdAndUpdate(postId, updateData, { new: true })

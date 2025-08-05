@@ -23,6 +23,7 @@ export class MailService {
     this.logger.log('Sending email...');
 
     if (!this.envService.isProd()) {
+      this.logger.log('Sending email is skipped on non-prod env');
       return;
     }
 
