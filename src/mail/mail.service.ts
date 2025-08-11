@@ -46,8 +46,9 @@ export class MailService {
       await sgMail.send(email);
       this.logger.log(`Email sent successfully to ${options.to}`);
     } catch (error) {
-      this.logger.error(`Failed to send email to ${options.to}`, error.stack);
-      throw error;
+      const errorMessage = `Failed to send email to ${options.to} - ${error.message}`;
+      this.logger.error(errorMessage);
+      throw new Error(errorMessage);
     }
   }
 }

@@ -65,4 +65,12 @@ export class EnvironmentService {
     }
     return emailBCC;
   }
+
+  sentryDSN(): string {
+    const sentryDSN = this.configService.get<string>('SENTRY_DSN');
+    if (!sentryDSN) {
+      throw new Error('SENTRY_DSN env is missing.');
+    }
+    return sentryDSN;
+  }
 }
