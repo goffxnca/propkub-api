@@ -57,4 +57,12 @@ export class EnvironmentService {
     }
     return apiKey;
   }
+
+  emailBCC(): string {
+    const emailBCC = this.configService.get<string>('EMAIL_BCC');
+    if (!emailBCC) {
+      throw new Error('EMAIL_BCC env is missing.');
+    }
+    return emailBCC;
+  }
 }

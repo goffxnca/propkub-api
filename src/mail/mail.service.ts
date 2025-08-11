@@ -39,7 +39,7 @@ export class MailService {
             ? '[TEST]'
             : '[DEV]',
       },
-      bcc: 'phattharawit.s@gmail.com',
+      bcc: this.envService.emailBCC(),
     };
 
     try {
