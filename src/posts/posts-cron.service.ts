@@ -1,23 +1,21 @@
 // posts-cron.service.ts
-// Synthetic Post Stats Increment Service
+// Synthetic Post Views Increment Service
 // --------------------------------------
 // This service is intended to be called by a cron job (e.g., hourly).
 // Each run, it:
 //   - Randomly selects 1% of all posts (regardless of status)
-//   - For each selected post, increments post view by a random amount (1–3)
-//   - Randomly selects 1 post from the same selection for phone view (+1)
-//   - Randomly selects 1 post from the same selection for line view (+1)
+//   - For each selected post, increments stats.views.post by a random amount (1–3)
 //   - Logs the cids of selected posts (sorted desc) for analysis
 //
 // Parameters:
 //   - PERCENT_PER_RUN: % of posts to increment per run (default: 1%)
-//   - INCREMENT_MAX: Range of post view increment per post (default: 1–3)
-//   - CronExpression.EVERY_HOUR: Run 24 times / day
+//   - INCREMENT_MAX: Range of increment per post (default: 1–3)
+//   - RUNS_PER_DAY: How many times per day the cron runs (default: 24)
 //
 // Expected result (example):
 //   - For 5,000 posts, 1% per run = 50 posts/run
-//   - 24 runs/day = Each post gets +1–3 views, so 1,200–3,600 synthetic post views/day, distributed randomly
-//   - 24 phone views/day and 24 line views/day across posts
+//   - 24 runs/day = 1,200 posts incremented/day
+//   - Each gets +1–3, so 1,200–3,600 synthetic views/day, distributed randomly
 //   - Over time, distribution is organic, but newer posts can be weighted for recency bias (future improvement)
 
 import { Injectable, Logger } from '@nestjs/common';
