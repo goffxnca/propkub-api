@@ -21,10 +21,10 @@ export class BrevoMailService {
   async sendEmail(options: SendEmailOptions): Promise<void> {
     this.logger.log('Sending brevo email...');
 
-    // if (!this.envService.isProd()) {
-    //   this.logger.warn('Email sending skipped (non-prod environment)');
-    //   return;
-    // }
+    if (!this.envService.isProd()) {
+      this.logger.warn('Email sending skipped (non-prod environment)');
+      return;
+    }
 
     const payload = {
       // sender: {
