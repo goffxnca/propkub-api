@@ -1,10 +1,17 @@
+import './instrument';
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { initializeSentry } from './instrument';
+import { EnvironmentService } from './environments/environment.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const envService = app.get(EnvironmentService);
+  initializeSentry(envService.sentryDSN());
 
   app.enableCors({
     origin: ['http://localhost:65432', 'https://propkub.com'],
