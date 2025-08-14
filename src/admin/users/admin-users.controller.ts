@@ -23,8 +23,14 @@ export class AdminUsersController {
   constructor(private readonly adminUsersService: AdminUsersService) {}
 
   @Get('/send-email-pre-auth-upgrade')
-  async sendEmailSetNewPasswordPre() {
+  async sendEmailPreAuthUpgrade() {
     await this.adminUsersService.sendEmailPreAuthUpgrade(1, 2);
+    return { message: 'Emails sent successfully.' };
+  }
+
+  @Get('/send-email-auth-upgrade')
+  async sendEmailAuthUpgrade() {
+    await this.adminUsersService.sendEmailAuthUpgrade(1, 2);
     return { message: 'Emails sent successfully.' };
   }
 
