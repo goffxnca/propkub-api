@@ -13,6 +13,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { APP_FILTER } from '@nestjs/core';
 
+console.log('Config file loaded:', `.env.${process.env.NODE_ENV}`);
+
 @Module({
   providers: [
     {
@@ -22,7 +24,10 @@ import { APP_FILTER } from '@nestjs/core';
   ],
   imports: [
     SentryModule.forRoot(),
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: `.env.${process.env.NODE_ENV}`,
+    }),
     MongooseModule.forRoot(process.env.MONGODB_URI || ''),
     ScheduleModule.forRoot(),
     UsersModule,
