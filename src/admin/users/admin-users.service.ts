@@ -5,10 +5,7 @@ import { Model } from 'mongoose';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { AuthProvider } from '../../common/enums/auth-provider.enum';
 import { MailService } from '../../mail/mail.service';
-import {
-  EMAIL_SET_NEW_PASSWORD_UPGRADE_AUTH_PRE,
-  NO_REPLY_EMAIL,
-} from '../../common/constants';
+import { EMAIL_PRE_AUTH_UPGRADE, NO_REPLY_EMAIL } from '../../common/constants';
 import {
   USER_SAFE_PROJECTION,
   USER_SAFE_SELECT,
@@ -98,18 +95,21 @@ export class AdminUsersService {
     return safeUser!;
   }
 
-  async sendEamilSetNewPasswordPre(cidFrom: number, cidTo: number) {
+  async sendEmailPreAuthUpgrade(cidFrom: number, cidTo: number) {
     const users = await this.userModel
+      .find({ email: 'abcdefg@mail.co' })
       // .find({ cid: { $gte: cidFrom, $lte: cidTo } })
-      .find({ cid: { $gte: 44, $lte: 50 } }) // 44-50 NOT SENDING YET HIT LIMIT
+      // .find({ cid: { $gte: 44, $lte: 50 } }) // 44-50 NOT SENDING YET HIT LIMIT
       .lean();
+
+    console.log('users', users);
 
     for (const user of users) {
       console.log('user' + user.name);
       await this.mailService.sendEmail({
         to: user.email,
         from: NO_REPLY_EMAIL,
-        templateId: EMAIL_SET_NEW_PASSWORD_UPGRADE_AUTH_PRE,
+        templateId: EMAIL_PRE_AUTH_UPGRADE,
         templateData: {
           name: user.name,
         },

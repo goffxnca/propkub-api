@@ -22,8 +22,8 @@ export class MailService {
   async sendEmail(options: SendEmailOptions): Promise<void> {
     this.logger.log('Sending email...');
 
-    if (!this.envService.isProd()) {
-      this.logger.log('Sending email is skipped on non-prod env');
+    if (this.envService.isTest()) {
+      this.logger.log('Sending email is skipped on test env');
       return;
     }
 
