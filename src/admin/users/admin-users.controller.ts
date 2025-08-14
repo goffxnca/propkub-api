@@ -22,9 +22,9 @@ import { User } from '../../users/users.schema';
 export class AdminUsersController {
   constructor(private readonly adminUsersService: AdminUsersService) {}
 
-  @Get('/send-email-set-new-password-pre')
+  @Get('/send-email-pre-auth-upgrade')
   async sendEmailSetNewPasswordPre() {
-    await this.adminUsersService.sendEamilSetNewPasswordPre(1, 2);
+    await this.adminUsersService.sendEmailPreAuthUpgrade(1, 2);
     return { message: 'Emails sent successfully.' };
   }
 
