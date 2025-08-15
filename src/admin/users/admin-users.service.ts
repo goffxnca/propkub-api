@@ -99,32 +99,6 @@ export class AdminUsersService {
     return safeUser!;
   }
 
-  async sendEmailPreAuthUpgrade(cidFrom: number, cidTo: number) {
-    const users = await this.userModel
-      .find({ email: 'abcdefg@mail.co' })
-      // .find({ cid: { $gte: cidFrom, $lte: cidTo } })
-      // .find({ cid: { $gte: 44, $lte: 50 } }) // 44-50 NOT SENDING YET HIT LIMIT
-      .lean();
-
-    console.log('users', users);
-
-    for (const user of users) {
-      console.log('user' + user.name);
-      await this.mailService.sendEmail({
-        to: user.email,
-        from: NO_REPLY_EMAIL,
-        templateId: EMAIL_PRE_AUTH_UPGRADE,
-        templateData: {
-          name: user.name,
-        },
-      });
-
-      await this.userModel.findByIdAndUpdate(user._id, {
-        ___f_pre_auth_mail_sent: true,
-      });
-    }
-  }
-
   async sendEmailAuthUpgrade(cidFrom: number, cidTo: number) {
     const users = await this.userModel
       .find({ email: 'abcdefg@mail.co' })
