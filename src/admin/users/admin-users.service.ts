@@ -118,6 +118,10 @@ export class AdminUsersService {
           name: user.name,
         },
       });
+
+      await this.userModel.findByIdAndUpdate(user._id, {
+        ___f_pre_auth_mail_sent: true,
+      });
     }
   }
 
@@ -147,6 +151,10 @@ export class AdminUsersService {
           email: user.email,
           pwd: user.temp_p,
         },
+      });
+
+      await this.userModel.findByIdAndUpdate(user._id, {
+        ___f_auth_mail_sent: true,
       });
     }
   }
