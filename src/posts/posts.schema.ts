@@ -303,6 +303,12 @@ export class Post {
   @Prop()
   ___createdAt?: FirebaseTimestamp; //TODO: After seeded, we can remove this
 
+  @Prop({ default: false })
+  ___f_pre_auth_mail_sent: boolean; //TODO: Remove later
+
+  @Prop({ default: false })
+  ___f_auth_mail_sent: boolean; //TODO: Remove later
+
   // @Prop()
   // ___updatedAt?: FirebaseTimestamp; //TODO: After seeded, we can remove this
 }
