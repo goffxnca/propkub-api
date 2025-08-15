@@ -99,6 +99,12 @@ export class User {
 
   @Prop()
   ___id?: string; //TODO: Firebase Id, can be remove later
+
+  @Prop({ default: false })
+  ___f_pre_auth_mail_sent: boolean; //TODO: Remove later
+
+  @Prop({ default: false })
+  ___f_auth_mail_sent: boolean; //TODO: Remove later
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

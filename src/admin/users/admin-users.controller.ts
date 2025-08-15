@@ -22,18 +22,6 @@ import { User } from '../../users/users.schema';
 export class AdminUsersController {
   constructor(private readonly adminUsersService: AdminUsersService) {}
 
-  @Get('/send-email-pre-auth-upgrade')
-  async sendEmailPreAuthUpgrade() {
-    await this.adminUsersService.sendEmailPreAuthUpgrade(1, 2);
-    return { message: 'Emails sent successfully.' };
-  }
-
-  @Get('/send-email-auth-upgrade')
-  async sendEmailAuthUpgrade() {
-    await this.adminUsersService.sendEmailAuthUpgrade(1, 2);
-    return { message: 'Emails sent successfully.' };
-  }
-
   @Get()
   async findAll(@Query() pagination: PaginationDto): Promise<User[]> {
     return this.adminUsersService.findAll(pagination.limit, pagination.offset);
