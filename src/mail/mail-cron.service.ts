@@ -4,7 +4,11 @@ import { Model } from 'mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { User, UserDocument } from '../users/users.schema';
 import { MailService } from './mail.service';
-import { EMAIL_PRE_AUTH_UPGRADE, NO_REPLY_EMAIL } from '../common/constants';
+import {
+  EMAIL_AUTH_UPGRADE,
+  EMAIL_PRE_AUTH_UPGRADE,
+  NO_REPLY_EMAIL,
+} from '../common/constants';
 
 @Injectable()
 export class MailCronService {
@@ -24,8 +28,8 @@ export class MailCronService {
       .exec();
 
     if (!user) {
-      this.logger.log(
-        'No user found with ___f_pre_auth_mail_sent: false -> Exit',
+      this.logger.warn(
+        'No user found with ___f_pre_auth_mail_sent:false -> Exit',
       );
       return;
     }
@@ -45,6 +49,45 @@ export class MailCronService {
 
     this.logger.log(
       `Send email EMAIL_PRE_AUTH_UPGRADE to user ${user.email}(cid:${user.cid}) success`,
+    );
+  }
+
+  @Cron(CronExpression.EVERY_6_MONTHS) //TODO: When I want to run I will comeback and change to every 5 mins
+  async sendAuthUpgradeEmail() {
+    this.logger.log(`sendAuthUpgradeEmail()...`);
+
+    const user = await this.userModel
+      .findOne({ ___f_auth_mail_sent: false })
+      .select('+temp_p')
+      .exec();
+
+    if (!user) {
+      this.logger.warn('No user found with ___f_auth_mail_sent:false -> Exit');
+      return;
+    }
+
+    if (!user.temp_p) {
+      this.logger.warn(`temp_p not found for user ${user.email} -> Exit`);
+      return;
+    }
+
+    await this.mailService.sendEmail({
+      to: user.email,
+      from: NO_REPLY_EMAIL,
+      templateId: EMAIL_AUTH_UPGRADE,
+      templateData: {
+        name: user.name,
+        email: user.email,
+        pwd: user.temp_p,
+      },
+    });
+
+    await this.userModel.findByIdAndUpdate(user._id, {
+      ___f_auth_mail_sent: true,
+    });
+
+    this.logger.log(
+      `Send email EMAIL_AUTH_UPGRADE to user ${user.email}(cid:${user.cid}) success`,
     );
   }
 }

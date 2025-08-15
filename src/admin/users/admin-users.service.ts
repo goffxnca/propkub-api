@@ -6,11 +6,6 @@ import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { AuthProvider } from '../../common/enums/auth-provider.enum';
 import { MailService } from '../../mail/mail.service';
 import {
-  EMAIL_AUTH_UPGRADE,
-  EMAIL_PRE_AUTH_UPGRADE,
-  NO_REPLY_EMAIL,
-} from '../../common/constants';
-import {
   USER_SAFE_PROJECTION,
   USER_SAFE_SELECT,
 } from '../../users/constants/user-security.constants';
@@ -97,39 +92,5 @@ export class AdminUsersService {
       .findById(savedUser._id, USER_SAFE_PROJECTION)
       .exec();
     return safeUser!;
-  }
-
-  async sendEmailAuthUpgrade(cidFrom: number, cidTo: number) {
-    const users = await this.userModel
-      .find({ email: 'abcdefg@mail.co' })
-      .select('+temp_p')
-      // .find({ cid: { $gte: cidFrom, $lte: cidTo } })
-      // .find({ cid: { $gte: 44, $lte: 50 } }) // 44-50 NOT SENDING YET HIT LIMIT
-      .lean();
-
-    console.log('users', users);
-
-    for (const user of users) {
-      if (!user.temp_p) {
-        console.warn(
-          `Skip sending EMAIL_AUTH_UPGRADE to user ${user.email}, temp_p not found`,
-        );
-        continue;
-      }
-      await this.mailService.sendEmail({
-        to: user.email,
-        from: NO_REPLY_EMAIL,
-        templateId: EMAIL_AUTH_UPGRADE,
-        templateData: {
-          name: user.name,
-          email: user.email,
-          pwd: user.temp_p,
-        },
-      });
-
-      await this.userModel.findByIdAndUpdate(user._id, {
-        ___f_auth_mail_sent: true,
-      });
-    }
   }
 }
