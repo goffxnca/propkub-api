@@ -16,7 +16,11 @@ import { EnvironmentService } from '../environments/environment.service';
 import * as sanitizeHtml from 'sanitize-html';
 import { UpdatePostDto } from './dto/updatePostDto';
 import { MailService } from '../mail/mail.service';
-import { EMAIL_POST_CREATED, NO_REPLY_EMAIL } from '../common/constants';
+import {
+  EMAIL_POST_CLOSED,
+  EMAIL_POST_CREATED,
+  NO_REPLY_EMAIL,
+} from '../common/constants';
 import { UsersService } from '../users/users.service';
 import { PostActionsService } from '../postActions/postActions.service';
 import { PostActionType } from '../postActions/postActions.schema';
@@ -419,7 +423,7 @@ export class PostsService implements OnModuleInit {
       templateId: EMAIL_POST_CREATED,
       templateData: {
         recipientName: user.name,
-        postUrl: `https://propkub.com/property/${createdPost.slug}`,
+        postUrl: `${this.envService.frontendWebUrl()}/property/${createdPost.slug}`,
         postNumber: createdPost.postNumber,
         postTitle: createdPost.title,
       },
@@ -474,15 +478,32 @@ export class PostsService implements OnModuleInit {
       throw new NotFoundException(`Post with ID ${postId} not found`);
     }
 
-    const updatedPost = await this.postModel.findByIdAndUpdate(
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    const closedPost = await this.postModel.findByIdAndUpdate(
       postId,
       { status: PostStatus.CLOSED },
       { new: true },
     );
 
-    if (!updatedPost) {
+    if (!closedPost) {
       throw new NotFoundException(`Failed to close post with ID ${postId}`);
     }
+
+    this.mailService.sendEmail({
+      from: NO_REPLY_EMAIL,
+      to: user.email,
+      templateId: EMAIL_POST_CLOSED,
+      templateData: {
+        recipientName: user.name,
+        postUrl: `${this.envService.frontendWebUrl()}/property/${post.slug}`,
+        postNumber: post.postNumber,
+        postTitle: post.title,
+      },
+    });
 
     this.postActionService.create(PostActionType.CLOSE, postId, userId);
   }
