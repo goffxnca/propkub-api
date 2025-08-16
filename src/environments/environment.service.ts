@@ -6,7 +6,7 @@ export class EnvironmentService {
   constructor(private readonly configService: ConfigService) {}
 
   isDev(): boolean {
-    return this.configService.get<string>('NODE_ENV') === 'dev';
+    return this.configService.get<string>('NODE_ENV') === 'development';
   }
 
   isTest(): boolean {
@@ -14,7 +14,7 @@ export class EnvironmentService {
   }
 
   isProd(): boolean {
-    return this.configService.get<string>('NODE_ENV') === 'prod';
+    return this.configService.get<string>('NODE_ENV') === 'production';
   }
 
   apiDomain(): string {
