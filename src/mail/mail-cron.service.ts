@@ -19,7 +19,7 @@ export class MailCronService {
     private readonly mailService: MailService,
   ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_6_MONTHS)
   async sendPreAuthUpgradeEmail() {
     this.logger.log(`sendPreAuthUpgradeEmail()...`);
 
