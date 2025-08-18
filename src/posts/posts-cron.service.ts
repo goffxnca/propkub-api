@@ -37,7 +37,7 @@ export class PostCronService {
     @InjectModel(Post.name) private readonly postModel: Model<PostDocument>,
   ) {}
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_DAY_AT_NOON)
   async incrementViews() {
     this.logger.log('incrementViews()....');
 
