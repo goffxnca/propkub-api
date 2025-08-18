@@ -95,7 +95,9 @@ export class PostsService implements OnModuleInit {
     allUsersMatchedPostsCreatedBy.forEach((user) => {
       userIdMap[user.___id!] = user._id;
     });
-    console.log('userIdMap', userIdMap);
+
+    // console.log('userIdMap', userIdMap);
+
     if (count === 0) {
       const convertedPosts = (postsData as PostWithFirebaseTimestamps[]).map(
         (post, index) => {
