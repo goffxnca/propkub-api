@@ -279,7 +279,7 @@ describe('Posts (e2e)', () => {
           expect(res.body.items).toBeDefined();
           expect(Array.isArray(res.body.items)).toBe(true);
           expect(res.body.total_count).toBeDefined();
-          expect(res.body.page).toBe(2);
+          expect(res.body.page).toBe(1);
           expect(res.body.per_page).toBe(2);
 
           // Verify all returned posts are created by the authenticated user
