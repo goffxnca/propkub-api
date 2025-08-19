@@ -271,6 +271,10 @@ describe('Posts (e2e)', () => {
 
   describe('GET /posts/me', () => {
     it('should return user own posts when authenticated', () => {
+      console.log(
+        'API_KEY_FOR_NEXTJS_SERVER_VALUE',
+        process.env.API_KEY_FOR_NEXTJS_SERVER,
+      );
       return request(app.getHttpServer())
         .get('/posts/me?page=1&per_page=2')
         .set(authHeader(authToken))
