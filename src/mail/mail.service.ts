@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import * as sgMail from '@sendgrid/mail';
 import { NO_REPLY_EMAIL } from '../common/constants';
 import { EnvironmentService } from '../environments/environment.service';
