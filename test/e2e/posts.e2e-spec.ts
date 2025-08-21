@@ -3,8 +3,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { PostsService } from '../../src/posts/posts.service';
 import {
-  AreaUnit,
-  Condition,
   Post,
   PostType,
   AssetType,
