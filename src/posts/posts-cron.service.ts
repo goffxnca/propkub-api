@@ -34,7 +34,7 @@ export class PostCronService {
   private readonly logger = new Logger(PostCronService.name);
 
   constructor(
-    @InjectModel(Post.name) private readonly postModel: Model<PostDocument>,
+    @InjectModel(Post.name) private readonly postModel: Model<PostDocument>
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_NOON)
@@ -60,7 +60,7 @@ export class PostCronService {
 
       const totalPostsToIncrement = Math.max(
         1,
-        Math.floor((posts.length * PERCENT_PER_RUN) / 100),
+        Math.floor((posts.length * PERCENT_PER_RUN) / 100)
       );
 
       // 2) Equally randomly pick indexes from 1% of total posts
@@ -75,7 +75,7 @@ export class PostCronService {
         .map((idx) => posts.find((post) => post.cid === idx)!);
 
       this.logger.log(
-        `Random ${PERCENT_PER_RUN}% from all ${posts.length} posts: [${selectedPosts.map((post) => post.cid).join(', ')}] (${selectedPosts.length} CIDs)`,
+        `Random ${PERCENT_PER_RUN}% from all ${posts.length} posts: [${selectedPosts.map((post) => post.cid).join(', ')}] (${selectedPosts.length} CIDs)`
       );
 
       // 4) Increment each selected post view by a random amount (1–3)
@@ -84,11 +84,11 @@ export class PostCronService {
 
         await this.postModel.updateOne(
           { _id: post._id },
-          { $inc: { 'stats.views.post': increment } },
+          { $inc: { 'stats.views.post': increment } }
         );
 
         this.logger.log(
-          `Increment ${increment} views (${post.stats.views.post}->${post.stats.views.post + increment}) for post with CID: ${post.cid}`,
+          `Increment ${increment} views (${post.stats.views.post}->${post.stats.views.post + increment}) for post with CID: ${post.cid}`
         );
       }
 
@@ -96,20 +96,20 @@ export class PostCronService {
       const phoneViewPost = randomItem(selectedPosts);
       await this.postModel.updateOne(
         { _id: phoneViewPost._id },
-        { $inc: { 'stats.views.phone': 1 } },
+        { $inc: { 'stats.views.phone': 1 } }
       );
       this.logger.log(
-        `Increment 1 phone view (${phoneViewPost.stats.views.phone}->${phoneViewPost.stats.views.phone + 1}) for post with CID: ${phoneViewPost.cid}`,
+        `Increment 1 phone view (${phoneViewPost.stats.views.phone}->${phoneViewPost.stats.views.phone + 1}) for post with CID: ${phoneViewPost.cid}`
       );
 
       // 6) Randomly select 1 post for line view (+1)
       const lineViewPost = randomItem(selectedPosts);
       await this.postModel.updateOne(
         { _id: lineViewPost._id },
-        { $inc: { 'stats.views.line': 1 } },
+        { $inc: { 'stats.views.line': 1 } }
       );
       this.logger.log(
-        `Increment 1 line view (${lineViewPost.stats.views.line}->${lineViewPost.stats.views.line + 1}) for post with CID: ${lineViewPost.cid}`,
+        `Increment 1 line view (${lineViewPost.stats.views.line}->${lineViewPost.stats.views.line + 1}) for post with CID: ${lineViewPost.cid}`
       );
     } catch (error) {
       this.logger.error('Error occur while running incrementViews()', error);

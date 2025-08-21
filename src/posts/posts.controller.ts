@@ -10,7 +10,7 @@ import {
   UseGuards,
   Request,
   Patch,
-  HttpCode,
+  HttpCode
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post } from './posts.schema';
@@ -33,13 +33,13 @@ export class PostsController {
   @UseGuards(JwtAuthGuard)
   async getMyPosts(
     @Request() req,
-    @Query() pagination: PaginationQueryDto,
+    @Query() pagination: PaginationQueryDto
   ): Promise<PaginatedResponse<Post>> {
     const userId = req.user.userId;
     return this.postsService.findByUserId(
       userId,
       pagination.page,
-      pagination.per_page,
+      pagination.per_page
     );
   }
 
@@ -54,11 +54,11 @@ export class PostsController {
   @UseGuards(JwtAuthGuard)
   async findOneForOwner(
     @Param('id', MongoIdValidationPipe) id: string,
-    @Request() req,
+    @Request() req
   ): Promise<any> {
     const post = await this.postsService.findOneWithActionsForOwner(
       id,
-      req.user.userId,
+      req.user.userId
     );
     if (!post) {
       throw new NotFoundException(`Post with ID ${id} not found`);
@@ -82,7 +82,7 @@ export class PostsController {
   @PostRequest()
   createPost(
     @Request() req,
-    @Body() createPostDto: CreatePostDto,
+    @Body() createPostDto: CreatePostDto
   ): Promise<Post> {
     return this.postsService.create(createPostDto, req.user.userId);
   }
@@ -92,12 +92,12 @@ export class PostsController {
   async updatePost(
     @Request() req,
     @Param('id', MongoIdValidationPipe) id: string,
-    @Body() updatePostDto: UpdatePostDto,
+    @Body() updatePostDto: UpdatePostDto
   ): Promise<Post> {
     const post = await this.postsService.update(
       id,
       updatePostDto,
-      req.user.userId,
+      req.user.userId
     );
     if (!post) {
       throw new NotFoundException(`Post with ID ${id} not found`);
@@ -110,7 +110,7 @@ export class PostsController {
   @HttpCode(200)
   async closePost(
     @Request() req,
-    @Param('id', MongoIdValidationPipe) id: string,
+    @Param('id', MongoIdValidationPipe) id: string
   ): Promise<boolean> {
     await this.postsService.close(id, req.user.userId);
     return true;
@@ -119,7 +119,7 @@ export class PostsController {
   @UseGuards(ApiKeyGuard)
   @Get()
   async findAll(
-    @Query() pagination: PaginationQueryDto,
+    @Query() pagination: PaginationQueryDto
   ): Promise<PaginatedResponse<Post>> {
     return this.postsService.findAll(pagination.page, pagination.per_page);
   }
@@ -133,7 +133,7 @@ export class PostsController {
   @UseGuards(ApiKeyGuard)
   @Get('similar')
   async findSimilarPosts(
-    @Query('postId', MongoIdValidationPipe) postId: string,
+    @Query('postId', MongoIdValidationPipe) postId: string
   ): Promise<Post[]> {
     return this.postsService.findSimilarPosts(postId);
   }
@@ -142,11 +142,11 @@ export class PostsController {
   @HttpCode(200)
   async increasePostStats(
     @Param('id', MongoIdValidationPipe) id: string,
-    @Body() increasePostStatsDto: IncreasePostStatsDto,
+    @Body() increasePostStatsDto: IncreasePostStatsDto
   ): Promise<void> {
     await this.postsService.increasePostStats(
       id,
-      increasePostStatsDto.statType,
+      increasePostStatsDto.statType
     );
   }
 

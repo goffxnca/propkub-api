@@ -14,12 +14,12 @@ export const baseUser: User = {
   password: '123456',
   createdAt: new Date(),
   ___f_auth_mail_sent: false, //TODO: Remove later
-  ___f_pre_auth_mail_sent: false, //TODO: Remove later
+  ___f_pre_auth_mail_sent: false //TODO: Remove later
 };
 
 export const createUser = (overrides: Partial<User> = {}): User => {
   return {
     ...baseUser,
-    ...overrides,
+    ...overrides
   };
 };

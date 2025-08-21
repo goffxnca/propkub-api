@@ -16,14 +16,14 @@ export class LocalAuthGuard extends AuthGuard('local') {
 
     const errors = await validate(body);
     const errorMessages = errors.flatMap(({ constraints }) =>
-      Object.values(constraints!),
+      Object.values(constraints!)
     );
 
     if (errorMessages.length > 0) {
       res.status(HttpStatus.BAD_REQUEST).send({
         statusCode: HttpStatus.BAD_REQUEST,
         error: 'Bad Request',
-        message: errorMessages,
+        message: errorMessages
       });
     }
     return super.canActivate(context) as boolean;

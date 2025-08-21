@@ -10,14 +10,14 @@ export enum PostActionType {
   SUSPENSE = 'suspense',
   RESTORE = 'restore',
   SELL = 'sell',
-  CLOSE = 'close',
+  CLOSE = 'close'
 }
 
 @Schema({
   collection: 'postActions',
   timestamps: {
-    updatedAt: false,
-  },
+    updatedAt: false
+  }
 })
 export class PostActions {
   @Prop({ required: true, enum: PostActionType })

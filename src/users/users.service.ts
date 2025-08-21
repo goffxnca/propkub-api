@@ -3,7 +3,7 @@ import {
   OnModuleInit,
   ConflictException,
   Logger,
-  UnauthorizedException,
+  UnauthorizedException
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -23,7 +23,7 @@ export class UsersService implements OnModuleInit {
 
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-    private readonly envService: EnvironmentService,
+    private readonly envService: EnvironmentService
   ) {}
 
   async onModuleInit() {
@@ -52,14 +52,14 @@ export class UsersService implements OnModuleInit {
               user.emailVerified === true ? undefined : user.emailVToken,
             createdAt: new Date(
               (user.createdAt as any).seconds * 1000 +
-                (user.createdAt as any).nanoseconds / 1000000,
+                (user.createdAt as any).nanoseconds / 1000000
             ),
             createdBy: undefined,
             updatedAt: undefined,
             updatedBy: undefined,
-            tos: true,
+            tos: true
           };
-        }),
+        })
       );
 
       await this.userModel.insertMany(transformedUsers);
@@ -69,8 +69,8 @@ export class UsersService implements OnModuleInit {
       const operations = users.map((user) => ({
         updateOne: {
           filter: { _id: user._id },
-          update: { createdBy: user._id },
-        },
+          update: { createdBy: user._id }
+        }
       }));
       await this.userModel.bulkWrite(operations);
 
@@ -101,10 +101,10 @@ export class UsersService implements OnModuleInit {
     provider: AuthProvider,
     profileImg?: string,
     googleId?: string,
-    facebookId?: string,
+    facebookId?: string
   ): Promise<User> {
     this.logger.debug(
-      `Creating new user with email: ${email}, provider: ${provider}`,
+      `Creating new user with email: ${email}, provider: ${provider}`
     );
 
     const user = await this.findByEmail(email);
@@ -125,23 +125,23 @@ export class UsersService implements OnModuleInit {
       emailVToken: provider === AuthProvider.EMAIL ? uuidV4() : undefined,
       googleId,
       facebookId,
-      createdAt: new Date(),
+      createdAt: new Date()
     });
 
     const savedUser = await newUser.save();
     this.logger.log(
-      `User created successfully: ${email} (ID: ${savedUser._id})`,
+      `User created successfully: ${email} (ID: ${savedUser._id})`
     );
     return savedUser;
   }
 
   async updateLastLogin(userId: string, provider: AuthProvider) {
     this.logger.debug(
-      `Updating last login for user: ${userId}, provider: ${provider}`,
+      `Updating last login for user: ${userId}, provider: ${provider}`
     );
     await this.userModel.findByIdAndUpdate(userId, {
       lastLoginProvider: provider,
-      lastLoginAt: new Date(),
+      lastLoginAt: new Date()
     });
   }
 
@@ -150,11 +150,11 @@ export class UsersService implements OnModuleInit {
     await this.userModel.findByIdAndUpdate(userId, {
       $set: {
         googleId,
-        emailVerified: true,
+        emailVerified: true
       },
       $unset: {
-        emailVToken: 1,
-      },
+        emailVToken: 1
+      }
     });
   }
 
@@ -163,33 +163,33 @@ export class UsersService implements OnModuleInit {
     await this.userModel.findByIdAndUpdate(userId, {
       $set: {
         facebookId,
-        emailVerified: true,
+        emailVerified: true
       },
       $unset: {
-        emailVToken: 1,
-      },
+        emailVToken: 1
+      }
     });
   }
 
   async verifyEmail(vtoken: string): Promise<boolean> {
     this.logger.debug(
-      `Verifying email with token: ${vtoken.substring(0, 8)}...`,
+      `Verifying email with token: ${vtoken.substring(0, 8)}...`
     );
 
     const user = await this.userModel.findOne({
-      emailVToken: vtoken,
+      emailVToken: vtoken
     });
 
     if (!user) {
       this.logger.warn(
-        `Email verification failed: token not found - ${vtoken.substring(0, 8)}...`,
+        `Email verification failed: token not found - ${vtoken.substring(0, 8)}...`
       );
       return false;
     }
 
     if (user.emailVerified) {
       this.logger.warn(
-        `Email verification failed: email already verified - User: ${user._id}`,
+        `Email verification failed: email already verified - User: ${user._id}`
       );
       return false;
     }
@@ -209,7 +209,7 @@ export class UsersService implements OnModuleInit {
     const user = await this.findByEmail(email);
     if (!user) {
       this.logger.warn(
-        `Password reset token requested for non-existent email: ${email}`,
+        `Password reset token requested for non-existent email: ${email}`
       );
       return null;
     }
@@ -223,10 +223,10 @@ export class UsersService implements OnModuleInit {
       {
         passwordReset: {
           token: resetToken,
-          expires: expires,
+          expires: expires
         },
-        updatedAt: new Date(),
-      },
+        updatedAt: new Date()
+      }
     );
 
     this.logger.log(`Password reset token created for user: ${user._id}`);
@@ -236,7 +236,7 @@ export class UsersService implements OnModuleInit {
   async validateResetToken(token: string): Promise<boolean> {
     const user = await this.userModel.findOne({
       'passwordReset.token': token,
-      'passwordReset.expires': { $gt: new Date() },
+      'passwordReset.expires': { $gt: new Date() }
     });
 
     return !!user;
@@ -245,7 +245,7 @@ export class UsersService implements OnModuleInit {
   async resetPassword(token: string, newPassword: string): Promise<boolean> {
     const user = await this.userModel.findOne({
       'passwordReset.token': token,
-      'passwordReset.expires': { $gt: new Date() },
+      'passwordReset.expires': { $gt: new Date() }
     });
 
     if (!user) {
@@ -266,7 +266,7 @@ export class UsersService implements OnModuleInit {
   async updatePassword(
     userId: string,
     currentPassword: string,
-    newPassword: string,
+    newPassword: string
   ): Promise<boolean> {
     const user = await this.userModel.findById(userId);
 
@@ -277,11 +277,11 @@ export class UsersService implements OnModuleInit {
 
     const isPasswordValid = await bcrypt.compare(
       currentPassword,
-      user.password,
+      user.password
     );
     if (!isPasswordValid) {
       this.logger.warn(
-        `Update password failed: invalid current password for user ${userId}`,
+        `Update password failed: invalid current password for user ${userId}`
       );
       throw new UnauthorizedException('Current password is incorrect');
     }
@@ -298,7 +298,7 @@ export class UsersService implements OnModuleInit {
 
   async updateProfile(
     userId: string,
-    updateData: UpdateProfileDto,
+    updateData: UpdateProfileDto
   ): Promise<User | null> {
     this.logger.debug(`Updating profile for user: ${userId}`);
 
@@ -309,13 +309,13 @@ export class UsersService implements OnModuleInit {
           $set: {
             ...updateData,
             updatedAt: new Date(),
-            updatedBy: userId,
-          },
+            updatedBy: userId
+          }
         },
         {
           new: true,
-          select: USER_SAFE_PROJECTION,
-        },
+          select: USER_SAFE_PROJECTION
+        }
       )
       .exec();
 

@@ -6,6 +6,6 @@ import { MongoIdValidationPipe } from './pipes/mongo-id.pipe';
 @Module({
   imports: [ConfigModule],
   providers: [MongoIdValidationPipe],
-  exports: [MongoIdValidationPipe],
+  exports: [MongoIdValidationPipe]
 })
 export class CommonModule {}

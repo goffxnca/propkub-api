@@ -7,7 +7,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  ValidateNested,
+  ValidateNested
 } from 'class-validator';
 import {
   Address,
@@ -17,7 +17,7 @@ import {
   Facility,
   PostType,
   Spec,
-  TimeUnit,
+  TimeUnit
 } from '../posts.schema';
 import { Type } from 'class-transformer';
 

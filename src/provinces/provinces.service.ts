@@ -10,7 +10,7 @@ export class ProvincesService implements OnModuleInit {
   constructor(
     @InjectModel(Province.name)
     private readonly provinceModel: Model<ProvinceDocument>,
-    private readonly envService: EnvironmentService,
+    private readonly envService: EnvironmentService
   ) {}
 
   async onModuleInit() {

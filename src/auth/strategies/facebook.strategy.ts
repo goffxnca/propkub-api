@@ -11,7 +11,7 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
       clientSecret: configService.get<string>('FACEBOOK_CLIENT_SECRET') || '',
       callbackURL: configService.get<string>('FACEBOOK_CALLBACK_URL') || '',
       profileFields: ['id', 'emails', 'name', 'photos'],
-      scope: ['email'],
+      scope: ['email']
     });
   }
 
@@ -19,7 +19,7 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
     accessToken: string,
     refreshToken: string,
     profile: Profile,
-    done: Function,
+    done: Function
   ): any {
     const { id, emails, name, photos } = profile;
 
@@ -27,7 +27,7 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
       facebookId: id,
       email: emails?.[0]?.value,
       name: name?.givenName + ' ' + name?.familyName,
-      profileImg: photos?.[0]?.value,
+      profileImg: photos?.[0]?.value
     };
     done(null, user);
   }

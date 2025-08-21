@@ -14,21 +14,21 @@ async function bootstrap() {
   initializeSentry(envService.sentryDSN());
 
   app.enableCors({
-    origin: ['http://localhost:65432', 'https://propkub.com'],
+    origin: ['http://localhost:65432', 'https://propkub.com']
   });
 
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
       whitelist: true,
-      forbidNonWhitelisted: true,
-    }),
+      forbidNonWhitelisted: true
+    })
   );
 
   const config = new DocumentBuilder()
     .setTitle('PropKub API')
     .setDescription(
-      'PropKub API – Powering Property Discovery Across Thailand.',
+      'PropKub API – Powering Property Discovery Across Thailand.'
     )
     .setVersion('1.0')
     .build();

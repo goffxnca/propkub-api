@@ -3,7 +3,7 @@ import {
   NotFoundException,
   OnModuleInit,
   ConflictException,
-  ForbiddenException,
+  ForbiddenException
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -19,7 +19,7 @@ import { MailService } from '../mail/mail.service';
 import {
   EMAIL_POST_CLOSED,
   EMAIL_POST_CREATED,
-  NO_REPLY_EMAIL,
+  NO_REPLY_EMAIL
 } from '../common/constants';
 import { UsersService } from '../users/users.service';
 import { PostActionsService } from '../postActions/postActions.service';
@@ -31,7 +31,7 @@ import { SearchPostsDto } from './dto/search-posts.dto';
 import { randomOneToN } from '../common/utils/numbers';
 
 const SANITIZE_OPTIONS = {
-  allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br', 'a'],
+  allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br', 'a']
 };
 //p -> paragraph
 //em -> italic
@@ -68,7 +68,7 @@ export class PostsService implements OnModuleInit {
     private readonly envService: EnvironmentService,
     private readonly usersService: UsersService,
     private readonly mailService: MailService,
-    private readonly postActionService: PostActionsService,
+    private readonly postActionService: PostActionsService
   ) {}
 
   async onModuleInit() {
@@ -77,9 +77,7 @@ export class PostsService implements OnModuleInit {
     }
     const count = await this.postModel.estimatedDocumentCount();
     const uniqueFirebaseCreatedByIdsFromPosts = [
-      ...new Set(
-        (postsData as any[]).map((post: any) => post.createdBy.userId),
-      ),
+      ...new Set((postsData as any[]).map((post: any) => post.createdBy.userId))
     ];
     // console.log(
     //   'uniqueFirebaseCreatedByIdsFromPosts',
@@ -87,7 +85,7 @@ export class PostsService implements OnModuleInit {
     // );
     const allUsersMatchedPostsCreatedBy = await this.userModel
       .find({
-        ___id: { $in: uniqueFirebaseCreatedByIdsFromPosts },
+        ___id: { $in: uniqueFirebaseCreatedByIdsFromPosts }
       })
       .lean();
     // console.log('allUsersMatchedPostsCreatedBy', allUsersMatchedPostsCreatedBy);
@@ -104,13 +102,13 @@ export class PostsService implements OnModuleInit {
           const createdByFirebaseUserId = post.createdBy.userId;
           if (!createdByFirebaseUserId) {
             throw new Error(
-              `Pos ID ${post.id} does not contain created by firebase id`,
+              `Pos ID ${post.id} does not contain created by firebase id`
             );
           }
           const mongoUserId = userIdMap[createdByFirebaseUserId];
           if (!mongoUserId) {
             throw new Error(
-              `User with Firebase ID ${createdByFirebaseUserId} not found`,
+              `User with Firebase ID ${createdByFirebaseUserId} not found`
             );
           }
           const postStatus = post.subStatus;
@@ -126,19 +124,19 @@ export class PostsService implements OnModuleInit {
               views: {
                 post: randomOneToN(50),
                 phone: randomOneToN(100) === 99 ? randomOneToN(3) : 0,
-                line: randomOneToN(100) === 99 ? randomOneToN(3) : 0,
+                line: randomOneToN(100) === 99 ? randomOneToN(3) : 0
               },
               shares: randomOneToN(200) === 200 ? 1 : 0,
-              pins: randomOneToN(200) === 200 ? 1 : 0,
+              pins: randomOneToN(200) === 200 ? 1 : 0
             },
             rstats: {
               views: {
                 post: 0,
                 phone: 0,
-                line: 0,
+                line: 0
               },
               shares: 0,
-              pins: 0,
+              pins: 0
             },
             cid: index + 1,
             postNumber: post.id, //Already GG indexed by the old firebase ID in slug, so for old post just keep postNumber as old firebase id
@@ -151,16 +149,16 @@ export class PostsService implements OnModuleInit {
             refId: post?.refId || undefined,
             createdAt: new Date(
               post.createdAt.seconds * 1000 +
-                post.createdAt.nanoseconds / 1000000,
+                post.createdAt.nanoseconds / 1000000
             ),
             createdBy: mongoUserId,
             updatedAt: undefined,
             updatedBy: undefined,
             ___id: post.id,
-            ___createdById: post.createdBy.userId,
+            ___createdById: post.createdBy.userId
           };
           return convertedPost;
-        },
+        }
       );
       await this.postModel.insertMany(convertedPosts);
       console.log(`✅ Seeded ${convertedPosts.length} posts.`);
@@ -169,13 +167,13 @@ export class PostsService implements OnModuleInit {
 
   async findAll(
     page: number,
-    per_page: number,
+    per_page: number
   ): Promise<PaginatedResponse<Post>> {
     const baseQuery = () =>
       this.postModel
         .find()
         .select(
-          '_id title slug assetType postType thumbnail price priceUnit isStudio address specs createdAt',
+          '_id title slug assetType postType thumbnail price priceUnit isStudio address specs createdAt'
         )
         .sort({ createdAt: -1 });
     return paginate<Post>(baseQuery, { page, per_page });
@@ -188,7 +186,7 @@ export class PostsService implements OnModuleInit {
       regionId,
       provinceId,
       districtId,
-      subDistrictId,
+      subDistrictId
     } = searchDto;
 
     // Build location filter - use the most specific location filter provided
@@ -208,10 +206,10 @@ export class PostsService implements OnModuleInit {
         status: PostStatus.ACTIVE,
         assetType,
         postType,
-        ...locationFilter,
+        ...locationFilter
       })
       .select(
-        '_id title slug assetType postType thumbnail price priceUnit isStudio address specs createdAt',
+        '_id title slug assetType postType thumbnail price priceUnit isStudio address specs createdAt'
       )
       .sort({ createdAt: -1 })
       .limit(30);
@@ -233,7 +231,7 @@ export class PostsService implements OnModuleInit {
 
     return {
       ...(post as any).toObject(),
-      postActions,
+      postActions
     };
   }
 
@@ -245,7 +243,7 @@ export class PostsService implements OnModuleInit {
 
     if (post.createdBy.toString() !== userId) {
       throw new ForbiddenException(
-        'Access denied. You are not the owner of this post',
+        'Access denied. You are not the owner of this post'
       );
     }
     return post;
@@ -261,7 +259,7 @@ export class PostsService implements OnModuleInit {
 
     return {
       ...(post as any).toObject(),
-      postActions,
+      postActions
     };
   }
 
@@ -279,8 +277,8 @@ export class PostsService implements OnModuleInit {
         { $inc: { 'stats.views.post': 1, 'rstats.views.post': 1 } },
         {
           new: true,
-          populate: { path: 'createdBy', select: 'name profileImg phone line' },
-        },
+          populate: { path: 'createdBy', select: 'name profileImg phone line' }
+        }
       )
       .exec();
 
@@ -302,7 +300,7 @@ export class PostsService implements OnModuleInit {
         assetType: currentPost.assetType,
         postType: currentPost.postType,
         status: PostStatus.ACTIVE,
-        _id: { $ne: postId },
+        _id: { $ne: postId }
       })
       .select('_id title thumbnail price postType assetType slug')
       .sort({ createdAt: -1 })
@@ -313,7 +311,7 @@ export class PostsService implements OnModuleInit {
   async findByUserId(
     userId: string,
     page: number,
-    per_page: number,
+    per_page: number
   ): Promise<PaginatedResponse<Post>> {
     const baseQuery = () =>
       this.postModel.find({ createdBy: userId }).sort({ createdAt: -1 });
@@ -331,9 +329,9 @@ export class PostsService implements OnModuleInit {
           totalPhoneViews: { $sum: { $ifNull: ['$stats.views.phone', 0] } },
           totalLineViews: { $sum: { $ifNull: ['$stats.views.line', 0] } },
           totalShares: { $sum: { $ifNull: ['$stats.shares', 0] } },
-          totalPins: { $sum: { $ifNull: ['$stats.pins', 0] } },
-        },
-      },
+          totalPins: { $sum: { $ifNull: ['$stats.pins', 0] } }
+        }
+      }
     ]);
 
     const defaultStats = {
@@ -342,7 +340,7 @@ export class PostsService implements OnModuleInit {
       totalPhoneViews: 0,
       totalLineViews: 0,
       totalShares: 0,
-      totalPins: 0,
+      totalPins: 0
     };
 
     return result[0] || defaultStats;
@@ -365,12 +363,12 @@ export class PostsService implements OnModuleInit {
         break;
       case PostStatType.PHONE_VIEWS:
         updateObject = {
-          $inc: { 'stats.views.phone': 1, 'rstats.views.phone': 1 },
+          $inc: { 'stats.views.phone': 1, 'rstats.views.phone': 1 }
         };
         break;
       case PostStatType.LINE_VIEWS:
         updateObject = {
-          $inc: { 'stats.views.line': 1, 'rstats.views.line': 1 },
+          $inc: { 'stats.views.line': 1, 'rstats.views.line': 1 }
         };
         break;
       default:
@@ -389,7 +387,7 @@ export class PostsService implements OnModuleInit {
     const existingPost = await this.findByPostNumber(createPostDto.postNumber);
     if (existingPost) {
       throw new ConflictException(
-        `Post with postNumber ${createPostDto.postNumber} already exists.`,
+        `Post with postNumber ${createPostDto.postNumber} already exists.`
       );
     }
 
@@ -408,7 +406,7 @@ export class PostsService implements OnModuleInit {
       desc: sanitizedDesc,
       status: PostStatus.ACTIVE,
       createdAt: new Date(),
-      createdBy: userId,
+      createdBy: userId
     };
 
     const createdPost = await new this.postModel(userData).save();
@@ -416,7 +414,7 @@ export class PostsService implements OnModuleInit {
     this.postActionService.create(
       PostActionType.CREATE,
       createdPost.id,
-      userId,
+      userId
     );
 
     this.mailService.sendEmail({
@@ -427,8 +425,8 @@ export class PostsService implements OnModuleInit {
         recipientName: user.name,
         postUrl: `${this.envService.frontendWebUrl()}/property/${createdPost.slug}`,
         postNumber: createdPost.postNumber,
-        postTitle: createdPost.title,
-      },
+        postTitle: createdPost.title
+      }
     });
 
     return createdPost;
@@ -437,7 +435,7 @@ export class PostsService implements OnModuleInit {
   async update(
     postId: string,
     updatePostDto: UpdatePostDto,
-    userId: string,
+    userId: string
   ): Promise<Post> {
     const post = await this.findOneForOwner(postId, userId);
     if (!post) {
@@ -450,7 +448,7 @@ export class PostsService implements OnModuleInit {
     const updateData = {
       ...updatePostDto,
       updatedAt: new Date(),
-      updatedBy: userId,
+      updatedBy: userId
     };
 
     if (updatePostDto.title) {
@@ -488,7 +486,7 @@ export class PostsService implements OnModuleInit {
     const closedPost = await this.postModel.findByIdAndUpdate(
       postId,
       { status: PostStatus.CLOSED },
-      { new: true },
+      { new: true }
     );
 
     if (!closedPost) {
@@ -503,8 +501,8 @@ export class PostsService implements OnModuleInit {
         recipientName: user.name,
         postUrl: `${this.envService.frontendWebUrl()}/property/${post.slug}`,
         postNumber: post.postNumber,
-        postTitle: post.title,
-      },
+        postTitle: post.title
+      }
     });
 
     this.postActionService.create(PostActionType.CLOSE, postId, userId);

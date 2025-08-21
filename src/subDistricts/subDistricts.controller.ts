@@ -21,7 +21,9 @@ export class SubDistrictsController {
   }
 
   @Get('district/:districtId')
-  findByDistrictId(@Param('districtId') districtId: string): Promise<SubDistrict[]> {
+  findByDistrictId(
+    @Param('districtId') districtId: string
+  ): Promise<SubDistrict[]> {
     return this.subDistrictsService.findByDistrictId(districtId);
   }
-} 
+}

@@ -20,11 +20,11 @@ import { MailModule } from '../mail/email.module';
       useFactory: (config: ConfigService) => {
         return {
           secret: config.get('JWT_SECRET'),
-          signOptions: { expiresIn: '1d' },
+          signOptions: { expiresIn: '1d' }
         };
-      },
+      }
     }),
-    MailModule,
+    MailModule
   ],
   controllers: [AuthController],
   providers: [
@@ -32,7 +32,7 @@ import { MailModule } from '../mail/email.module';
     JwtStrategy,
     LocalStrategy,
     GoogleStrategy,
-    FacebookStrategy,
-  ],
+    FacebookStrategy
+  ]
 })
 export class AuthModule {}

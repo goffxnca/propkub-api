@@ -9,7 +9,7 @@ import {
   Query,
   Body,
   HttpCode,
-  HttpStatus,
+  HttpStatus
 } from '@nestjs/common';
 import { AdminUsersService } from './admin-users.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
@@ -42,7 +42,7 @@ export class AdminUsersController {
   @ApiResponse({ status: 201, description: 'User successfully created' })
   @ApiResponse({
     status: 409,
-    description: 'User with the same email already exists',
+    description: 'User with the same email already exists'
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiBody({
@@ -52,10 +52,10 @@ export class AdminUsersController {
       user: {
         value: {
           name: 'John Doe',
-          email: 'john.doe@example.com',
-        },
-      },
-    },
+          email: 'john.doe@example.com'
+        }
+      }
+    }
   })
   create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.adminUsersService.create(createUserDto);
@@ -67,7 +67,7 @@ export class AdminUsersController {
   @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({
     status: 400,
-    description: 'Invalid input data',
+    description: 'Invalid input data'
   })
   @ApiBody({
     type: UpdateUserDto,
@@ -75,14 +75,14 @@ export class AdminUsersController {
     examples: {
       user: {
         value: {
-          name: 'John Doe Updated',
-        },
-      },
-    },
+          name: 'John Doe Updated'
+        }
+      }
+    }
   })
   async update(
     @Param('id', MongoIdValidationPipe) id: string,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() updateUserDto: UpdateUserDto
   ): Promise<User> {
     const user = await this.adminUsersService.update(id, updateUserDto);
     if (!user) {

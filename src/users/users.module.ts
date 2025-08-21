@@ -7,10 +7,10 @@ import { EnvironmentModule } from '../environments/environment.module';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    EnvironmentModule,
+    EnvironmentModule
   ],
   providers: [UsersService],
   controllers: [],
-  exports: [UsersService],
+  exports: [UsersService]
 })
 export class UsersModule {}

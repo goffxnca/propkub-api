@@ -8,11 +8,11 @@ import { EnvironmentModule } from '../environments/environment.module';
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: Province.name, schema: ProvinceSchema },
+      { name: Province.name, schema: ProvinceSchema }
     ]),
-    EnvironmentModule,
+    EnvironmentModule
   ],
   providers: [ProvincesService],
-  controllers: [ProvincesController],
+  controllers: [ProvincesController]
 })
 export class ProvincesModule {}

@@ -31,12 +31,12 @@ export interface MongoQuery<T> {
  */
 export const paginate = async <T>(
   baseQuery: () => MongoQuery<T>,
-  options: PaginationOptions,
+  options: PaginationOptions
 ): Promise<PaginatedResponse<T>> => {
   // Validate pagination options automatically
   const validatedOptions = validatePaginationOptions(
     options.page,
-    options.per_page,
+    options.per_page
   );
 
   const { page, per_page } = validatedOptions;
@@ -49,14 +49,14 @@ export const paginate = async <T>(
   // Execute both queries in parallel for better performance
   const [items, total_count] = await Promise.all([
     itemsQuery.exec(),
-    countQuery.countDocuments(),
+    countQuery.countDocuments()
   ]);
 
   return {
     items,
     total_count,
     page,
-    per_page,
+    per_page
   };
 };
 
@@ -69,23 +69,23 @@ export const paginate = async <T>(
  */
 const validatePaginationOptions = (
   page: number,
-  per_page: number,
+  per_page: number
 ): PaginationOptions => {
   // Check for invalid types or negative values
   if (!Number.isInteger(page) || page < 1) {
     throw new BadRequestException(
-      `Invalid page number: ${page}. Must be a positive integer >= 1.`,
+      `Invalid page number: ${page}. Must be a positive integer >= 1.`
     );
   }
 
   if (!Number.isInteger(per_page) || per_page < 1 || per_page > 50) {
     throw new BadRequestException(
-      `Invalid per_page value: ${per_page}. Must be an integer between 1 and 50.`,
+      `Invalid per_page value: ${per_page}. Must be an integer between 1 and 50.`
     );
   }
 
   return {
     page,
-    per_page,
+    per_page
   };
 };

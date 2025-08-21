@@ -6,6 +6,6 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [ConfigModule],
   providers: [EnvironmentService],
-  exports: [EnvironmentService],
+  exports: [EnvironmentService]
 })
 export class EnvironmentModule {}

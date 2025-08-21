@@ -5,7 +5,7 @@ import { EnvironmentService } from '../environments/environment.service';
 import {
   PostActions,
   PostActionsDocument,
-  PostActionType,
+  PostActionType
 } from './postActions.schema';
 import { Post, PostDocument, PostStatus } from '../posts/posts.schema';
 import { POST_ACTIONS_FLOW } from '../common/postActionsFlow';
@@ -18,7 +18,7 @@ export class PostActionsService implements OnModuleInit {
     @InjectModel(PostActions.name)
     private readonly postActionsModel: Model<PostActionsDocument>,
 
-    private readonly envService: EnvironmentService,
+    private readonly envService: EnvironmentService
   ) {}
 
   async onModuleInit() {
@@ -38,7 +38,7 @@ export class PostActionsService implements OnModuleInit {
           postId: post._id,
           createdAt: post.createdAt,
           createdBy: post.createdBy,
-          note: '',
+          note: ''
         };
         return postActionsResult;
       });
@@ -58,7 +58,7 @@ export class PostActionsService implements OnModuleInit {
   async create(
     postAction: PostActionType,
     postId: string,
-    userId: string,
+    userId: string
   ): Promise<void> {
     const action = POST_ACTIONS_FLOW.find((paf) => paf.action === postAction);
     if (!action) {
@@ -71,7 +71,7 @@ export class PostActionsService implements OnModuleInit {
       to: action.to,
       postId: postId,
       createdBy: userId,
-      note: '',
+      note: ''
     };
 
     new this.postActionsModel(postActionData).save();

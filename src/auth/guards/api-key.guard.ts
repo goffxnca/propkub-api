@@ -2,7 +2,7 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  UnauthorizedException,
+  UnauthorizedException
 } from '@nestjs/common';
 import { EnvironmentService } from '../../environments/environment.service';
 

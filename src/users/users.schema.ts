@@ -9,7 +9,7 @@ export type UserDocument = User & Document;
 export enum UserRole {
   NORMAL = 'normal',
   AGENT = 'agent',
-  ADMIN = 'admin',
+  ADMIN = 'admin'
 }
 
 @Schema({ _id: false })

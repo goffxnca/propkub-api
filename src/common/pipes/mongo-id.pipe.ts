@@ -2,7 +2,7 @@ import {
   PipeTransform,
   Injectable,
   ArgumentMetadata,
-  BadRequestException,
+  BadRequestException
 } from '@nestjs/common';
 import { isValidObjectId } from 'mongoose';
 

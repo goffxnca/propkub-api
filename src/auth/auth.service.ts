@@ -2,7 +2,7 @@ import {
   Injectable,
   BadRequestException,
   Logger,
-  UnauthorizedException,
+  UnauthorizedException
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
@@ -12,7 +12,7 @@ import {
   EMAIL_PASSWORD_RESET,
   EMAIL_WELCOME,
   EMAIL_WELCOME_WITH_VERIFICATION,
-  NO_REPLY_EMAIL,
+  NO_REPLY_EMAIL
 } from '../common/constants';
 import { MailService } from '../mail/mail.service';
 import { EnvironmentService } from '../environments/environment.service';
@@ -28,7 +28,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly envService: EnvironmentService,
-    private readonly mailService: MailService,
+    private readonly mailService: MailService
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -37,14 +37,14 @@ export class AuthService {
 
     if (!user) {
       this.logger.debug(
-        `Authentication failed: user not found - ${truncEmail(email)}`,
+        `Authentication failed: user not found - ${truncEmail(email)}`
       );
       return null;
     }
 
     if (user.provider !== 'email') {
       this.logger.debug(
-        `Authentication failed: User with email:${truncEmail(email)} is not registered as email provider`,
+        `Authentication failed: User with email:${truncEmail(email)} is not registered as email provider`
       );
       return null;
     }
@@ -52,12 +52,12 @@ export class AuthService {
     const passwordValid = await bcrypt.compare(password, user.password);
     if (passwordValid) {
       this.logger.debug(
-        `Authentication successful for user: ${truncEmail(email)}`,
+        `Authentication successful for user: ${truncEmail(email)}`
       );
       return user;
     } else {
       this.logger.debug(
-        `Authentication failed: invalid password for user - ${truncEmail(email)}`,
+        `Authentication failed: invalid password for user - ${truncEmail(email)}`
       );
       return null;
     }
@@ -67,7 +67,7 @@ export class AuthService {
     name: string,
     email: string,
     password: string,
-    isAgent: boolean,
+    isAgent: boolean
   ) {
     this.logger.log(`Creating new user account: ${truncEmail(email)}`);
 
@@ -77,16 +77,16 @@ export class AuthService {
         email,
         password,
         isAgent ? UserRole.AGENT : UserRole.NORMAL,
-        AuthProvider.EMAIL,
+        AuthProvider.EMAIL
       );
 
       this.logger.log(
-        `User account created successfully: ${truncEmail(email)} (ID: ${user._id})`,
+        `User account created successfully: ${truncEmail(email)} (ID: ${user._id})`
       );
 
       if (!user.emailVerified) {
         this.logger.debug(
-          `Sending verification email to: ${truncEmail(email)}`,
+          `Sending verification email to: ${truncEmail(email)}`
         );
         const verificationUrl = `${this.envService.frontendWebUrl()}/auth/verify-email?vtoken=${user.emailVToken}`;
         this.mailService.sendEmail({
@@ -94,8 +94,8 @@ export class AuthService {
           to: user.email,
           templateId: EMAIL_WELCOME_WITH_VERIFICATION,
           templateData: {
-            verificationUrl,
-          },
+            verificationUrl
+          }
         });
         this.logger.debug(`Verification email sent to: ${truncEmail(email)}`);
       }
@@ -108,7 +108,7 @@ export class AuthService {
     } catch (error) {
       this.logger.warn(
         `Failed to create user account: ${truncEmail(email)}`,
-        error.stack,
+        error.stack
       );
       throw error;
     }
@@ -120,11 +120,11 @@ export class AuthService {
 
     if (result) {
       this.logger.debug(
-        `Email verification successful for token: ${truncToken(vtoken)}`,
+        `Email verification successful for token: ${truncToken(vtoken)}`
       );
     } else {
       this.logger.debug(
-        `Email verification failed for token: ${truncToken(vtoken)}`,
+        `Email verification failed for token: ${truncToken(vtoken)}`
       );
     }
 
@@ -133,14 +133,14 @@ export class AuthService {
 
   async login(user: any) {
     this.logger.debug(
-      `Generating auth token for user: ${truncEmail(user.email)} (ID: ${user.id})`,
+      `Generating auth token for user: ${truncEmail(user.email)} (ID: ${user.id})`
     );
 
     const payload = { sub: user.id };
     const accessToken = await this.jwtService.signAsync(payload);
 
     this.logger.debug(
-      `Updating last login for user: ${truncEmail(user.email)}`,
+      `Updating last login for user: ${truncEmail(user.email)}`
     );
     await this.usersService.updateLastLogin(user.id, AuthProvider.EMAIL);
 
@@ -150,7 +150,7 @@ export class AuthService {
   async loginGoogle(user: any) {
     const { email, name, googleId, profileImg } = user;
     this.logger.log(
-      `[loginGoogle()] Processing Google OAuth login for: ${truncEmail(email)}`,
+      `[loginGoogle()] Processing Google OAuth login for: ${truncEmail(email)}`
     );
 
     const existingUser = await this.usersService.findByEmail(email);
@@ -158,18 +158,18 @@ export class AuthService {
 
     if (existingUser) {
       this.logger.debug(
-        `[loginGoogle()] Existing user found for Google OAuth: ${truncEmail(email)}`,
+        `[loginGoogle()] Existing user found for Google OAuth: ${truncEmail(email)}`
       );
 
       if (!existingUser.googleId) {
         this.logger.debug(
-          `[loginGoogle()] Linking Google account to existing user: ${truncEmail(email)}`,
+          `[loginGoogle()] Linking Google account to existing user: ${truncEmail(email)}`
         );
         await this.usersService.linkGoogleId(existingUser._id, googleId);
       }
     } else {
       this.logger.debug(
-        `[loginGoogle()] Creating new user from Google OAuth: ${truncEmail(email)}`,
+        `[loginGoogle()] Creating new user from Google OAuth: ${truncEmail(email)}`
       );
 
       finalUser = await this.usersService.create(
@@ -179,17 +179,17 @@ export class AuthService {
         UserRole.NORMAL,
         AuthProvider.GOOGLE,
         profileImg,
-        googleId,
+        googleId
       );
 
       this.logger.debug(
-        `[loginGoogle()] Sending welcome email to: ${truncEmail(email)}`,
+        `[loginGoogle()] Sending welcome email to: ${truncEmail(email)}`
       );
       this.mailService.sendEmail({
         from: NO_REPLY_EMAIL,
         to: user.email,
         templateId: EMAIL_WELCOME,
-        templateData: {},
+        templateData: {}
       });
     }
 
@@ -198,12 +198,12 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(payload);
 
     this.logger.debug(
-      `[loginGoogle()] Updating last login for user: ${truncEmail(email)}`,
+      `[loginGoogle()] Updating last login for user: ${truncEmail(email)}`
     );
     await this.usersService.updateLastLogin(userId, AuthProvider.GOOGLE);
 
     this.logger.log(
-      `[loginGoogle()] Google OAuth login successful for: ${truncEmail(email)}`,
+      `[loginGoogle()] Google OAuth login successful for: ${truncEmail(email)}`
     );
     return { accessToken };
   }
@@ -211,7 +211,7 @@ export class AuthService {
   async linkGoogleAccount(oauthUser: any) {
     const { email, googleId } = oauthUser;
     this.logger.log(
-      `[linkGoogleAccount()] Processing Google account linking for: ${truncEmail(email)}`,
+      `[linkGoogleAccount()] Processing Google account linking for: ${truncEmail(email)}`
     );
 
     // Find existing user by email (should exist since this is linking mode)
@@ -219,7 +219,7 @@ export class AuthService {
 
     if (!existingUser) {
       this.logger.error(
-        `[linkGoogleAccount()] Google account linking failed: User not found for email: ${truncEmail(email)}`,
+        `[linkGoogleAccount()] Google account linking failed: User not found for email: ${truncEmail(email)}`
       );
       throw new BadRequestException('User account not found');
     }
@@ -227,16 +227,16 @@ export class AuthService {
     // Check if Google account is already linked
     if (existingUser.googleId) {
       this.logger.error(
-        `[linkGoogleAccount()] Google account linking failed: Account already linked for user: ${truncEmail(email)}`,
+        `[linkGoogleAccount()] Google account linking failed: Account already linked for user: ${truncEmail(email)}`
       );
       throw new BadRequestException(
-        'Google account is already linked to this user',
+        'Google account is already linked to this user'
       );
     }
 
     // Link the Google account
     this.logger.debug(
-      `[linkGoogleAccount()] Linking Google account to user: ${truncEmail(email)}`,
+      `[linkGoogleAccount()] Linking Google account to user: ${truncEmail(email)}`
     );
     await this.usersService.linkGoogleId(existingUser._id, googleId);
 
@@ -246,7 +246,7 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(payload);
 
     this.logger.log(
-      `[linkGoogleAccount()] Google account linking successful for: ${truncEmail(email)}`,
+      `[linkGoogleAccount()] Google account linking successful for: ${truncEmail(email)}`
     );
     return { accessToken };
   }
@@ -254,7 +254,7 @@ export class AuthService {
   async linkFacebookAccount(oauthUser: any) {
     const { email, facebookId } = oauthUser;
     this.logger.log(
-      `[linkFacebookAccount()] Processing Facebook account linking for: ${truncEmail(email)}`,
+      `[linkFacebookAccount()] Processing Facebook account linking for: ${truncEmail(email)}`
     );
 
     // Find existing user by email (should exist since this is linking mode)
@@ -262,7 +262,7 @@ export class AuthService {
 
     if (!existingUser) {
       this.logger.error(
-        `[linkFacebookAccount()] Facebook account linking failed: User not found for email: ${truncEmail(email)}`,
+        `[linkFacebookAccount()] Facebook account linking failed: User not found for email: ${truncEmail(email)}`
       );
       throw new BadRequestException('User account not found');
     }
@@ -270,16 +270,16 @@ export class AuthService {
     // Check if Facebook account is already linked
     if (existingUser.facebookId) {
       this.logger.error(
-        `[linkFacebookAccount()] Facebook account linking failed: Account already linked for user: ${truncEmail(email)}`,
+        `[linkFacebookAccount()] Facebook account linking failed: Account already linked for user: ${truncEmail(email)}`
       );
       throw new BadRequestException(
-        'Facebook account is already linked to this user',
+        'Facebook account is already linked to this user'
       );
     }
 
     // Link the Facebook account
     this.logger.debug(
-      `[linkFacebookAccount()] Linking Facebook account to user: ${truncEmail(email)}`,
+      `[linkFacebookAccount()] Linking Facebook account to user: ${truncEmail(email)}`
     );
 
     await this.usersService.linkFacebookId(existingUser._id, facebookId);
@@ -290,7 +290,7 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(payload);
 
     this.logger.log(
-      `[linkFacebookAccount()] Facebook account linking successful for: ${truncEmail(email)}`,
+      `[linkFacebookAccount()] Facebook account linking successful for: ${truncEmail(email)}`
     );
 
     return { accessToken };
@@ -299,7 +299,7 @@ export class AuthService {
   async loginFacebook(user: any) {
     const { email, name, facebookId, profileImg } = user;
     this.logger.log(
-      `[loginFacebook()] Processing Facebook OAuth login for: ${truncEmail(email)}`,
+      `[loginFacebook()] Processing Facebook OAuth login for: ${truncEmail(email)}`
     );
 
     const existingUser = await this.usersService.findByEmail(email);
@@ -307,18 +307,18 @@ export class AuthService {
 
     if (existingUser) {
       this.logger.debug(
-        `[loginFacebook()] Existing user found for Facebook OAuth: ${truncEmail(email)}`,
+        `[loginFacebook()] Existing user found for Facebook OAuth: ${truncEmail(email)}`
       );
 
       if (!existingUser.facebookId) {
         this.logger.debug(
-          `[loginFacebook()] Linking Facebook account to existing user: ${truncEmail(email)}`,
+          `[loginFacebook()] Linking Facebook account to existing user: ${truncEmail(email)}`
         );
         await this.usersService.linkFacebookId(existingUser._id, facebookId);
       }
     } else {
       this.logger.debug(
-        `[loginFacebook()] Creating new user from Facebook OAuth: ${truncEmail(email)}`,
+        `[loginFacebook()] Creating new user from Facebook OAuth: ${truncEmail(email)}`
       );
 
       finalUser = await this.usersService.create(
@@ -329,17 +329,17 @@ export class AuthService {
         AuthProvider.FACEBOOK,
         profileImg,
         undefined,
-        facebookId,
+        facebookId
       );
 
       this.logger.debug(
-        `[loginFacebook()] Sending welcome email to: ${truncEmail(email)}`,
+        `[loginFacebook()] Sending welcome email to: ${truncEmail(email)}`
       );
       this.mailService.sendEmail({
         from: NO_REPLY_EMAIL,
         to: user.email,
         templateId: EMAIL_WELCOME,
-        templateData: {},
+        templateData: {}
       });
     }
 
@@ -348,12 +348,12 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(payload);
 
     this.logger.debug(
-      `[loginFacebook()] Updating last login for user: ${truncEmail(email)}`,
+      `[loginFacebook()] Updating last login for user: ${truncEmail(email)}`
     );
     await this.usersService.updateLastLogin(userId, AuthProvider.FACEBOOK);
 
     this.logger.log(
-      `[loginFacebook()] Facebook OAuth login successful for: ${truncEmail(email)}`,
+      `[loginFacebook()] Facebook OAuth login successful for: ${truncEmail(email)}`
     );
 
     return { accessToken };
@@ -381,7 +381,7 @@ export class AuthService {
       const providerName =
         user.provider === AuthProvider.GOOGLE ? 'Google' : 'Facebook';
       return {
-        message: `This account was registered with ${providerName}`,
+        message: `This account was registered with ${providerName}`
       };
     }
 
@@ -393,7 +393,7 @@ export class AuthService {
 
     const resetUrl = `${this.envService.frontendWebUrl()}/auth/reset-password?token=${resetToken}`;
     this.logger.log(
-      `Password reset token generated for email: ${truncEmail(email)}`,
+      `Password reset token generated for email: ${truncEmail(email)}`
     );
 
     this.mailService.sendEmail({
@@ -401,8 +401,8 @@ export class AuthService {
       to: email,
       templateId: EMAIL_PASSWORD_RESET,
       templateData: {
-        resetUrl,
-      },
+        resetUrl
+      }
     });
 
     return { message };
@@ -427,13 +427,13 @@ export class AuthService {
 
     if (!success) {
       this.logger.warn(
-        `Password reset failed: Invalid or expired token ${truncToken(token)}`,
+        `Password reset failed: Invalid or expired token ${truncToken(token)}`
       );
       throw new BadRequestException('Invalid or expired reset token');
     }
 
     this.logger.log(
-      `Password reset successful for token: ${truncToken(token)}`,
+      `Password reset successful for token: ${truncToken(token)}`
     );
     return { message: 'Password has been reset successfully' };
   }
@@ -441,7 +441,7 @@ export class AuthService {
   async updatePassword(
     userId: string,
     currentPassword: string,
-    newPassword: string,
+    newPassword: string
   ) {
     this.logger.log(`Password update attempt for user: ${userId}`);
 
@@ -449,7 +449,7 @@ export class AuthService {
       const success = await this.usersService.updatePassword(
         userId,
         currentPassword,
-        newPassword,
+        newPassword
       );
 
       if (success) {
@@ -469,19 +469,19 @@ export class AuthService {
 
   async updateProfile(
     userId: string,
-    updateProfileDto: UpdateProfileDto,
+    updateProfileDto: UpdateProfileDto
   ): Promise<any> {
     this.logger.log(`Profile update attempt for user: ${userId}`);
 
     try {
       const updatedUser = await this.usersService.updateProfile(
         userId,
-        updateProfileDto,
+        updateProfileDto
       );
 
       if (!updatedUser) {
         this.logger.warn(
-          `Profile update failed: user not found for ID: ${userId}`,
+          `Profile update failed: user not found for ID: ${userId}`
         );
         throw new BadRequestException('User not found');
       }

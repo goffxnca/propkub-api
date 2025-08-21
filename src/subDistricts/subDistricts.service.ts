@@ -10,7 +10,7 @@ export class SubDistrictsService implements OnModuleInit {
   constructor(
     @InjectModel(SubDistrict.name)
     private readonly subDistrictModel: Model<SubDistrictDocument>,
-    private readonly envService: EnvironmentService,
+    private readonly envService: EnvironmentService
   ) {}
 
   async onModuleInit() {
