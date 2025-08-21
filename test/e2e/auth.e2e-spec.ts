@@ -5,7 +5,7 @@ import { User, UserRole } from '../../src/users/users.schema';
 import { SignupDto } from '../../src/auth/dto/signupDto';
 import {
   rootMongooseTestModule,
-  closeMongodConnection,
+  closeMongodConnection
 } from '../utils/mongodb-memory';
 import { AuthModule } from '../../src/auth/auth.module';
 import { getModelToken } from '@nestjs/mongoose';
@@ -25,7 +25,7 @@ describe('Auth (e2e)', () => {
     name: 'John Doe',
     email: 'john@test.com',
     password: 'password123',
-    role: UserRole.NORMAL,
+    role: UserRole.NORMAL
   };
 
   beforeAll(async () => {
@@ -33,12 +33,12 @@ describe('Auth (e2e)', () => {
       imports: [
         ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env.test' }),
         rootMongooseTestModule(),
-        AuthModule,
-      ],
+        AuthModule
+      ]
     })
       .overrideProvider(MailService)
       .useValue({
-        sendEmail: jest.fn().mockResolvedValue(undefined),
+        sendEmail: jest.fn().mockResolvedValue(undefined)
       })
       .compile();
 
@@ -47,8 +47,8 @@ describe('Auth (e2e)', () => {
       new ValidationPipe({
         transform: true,
         whitelist: true,
-        forbidNonWhitelisted: true,
-      }),
+        forbidNonWhitelisted: true
+      })
     );
     userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
     usersService = moduleFixture.get<UsersService>(UsersService);
@@ -68,7 +68,7 @@ describe('Auth (e2e)', () => {
         name: testUser.name,
         email: testUser.email,
         password: testUser.password,
-        isAgent: false,
+        isAgent: false
       };
 
       await request(app.getHttpServer())
@@ -96,7 +96,7 @@ describe('Auth (e2e)', () => {
         name: testUser.name,
         email: agentEmail,
         password: testUser.password,
-        isAgent: true,
+        isAgent: true
       };
 
       await request(app.getHttpServer())
@@ -120,7 +120,7 @@ describe('Auth (e2e)', () => {
         name: 'Duplicate User',
         email: testUser.email,
         password: testUser.password,
-        isAgent: false,
+        isAgent: false
       };
 
       return request(app.getHttpServer())
@@ -165,7 +165,7 @@ describe('Auth (e2e)', () => {
         .send({
           name: 'New User',
           email: 'not-an-email',
-          password: testUser.password,
+          password: testUser.password
         })
         .expect(400)
         .expect((res) => {
@@ -179,12 +179,12 @@ describe('Auth (e2e)', () => {
         .send({
           name: 'New User',
           email: 'new.user4@test.com',
-          password: '12345',
+          password: '12345'
         })
         .expect(400)
         .expect((res) => {
           expect(res.body.message).toContain(
-            'password must be longer than or equal to 6 characters',
+            'password must be longer than or equal to 6 characters'
           );
         });
     });
@@ -198,7 +198,7 @@ describe('Auth (e2e)', () => {
           email: 'hacker@test.com',
           password: 'password123',
           isAgent: false,
-          role: 'admin', // Non-whitelisted
+          role: 'admin' // Non-whitelisted
         })
         .expect(400)
         .expect((res) => {
@@ -297,7 +297,7 @@ describe('Auth (e2e)', () => {
     it('should create a password reset token for existing user', async () => {
       const createTokenSpy = jest.spyOn(
         usersService,
-        'createPasswordResetToken',
+        'createPasswordResetToken'
       );
       const sendEmailSpy = jest.spyOn(mailService, 'sendEmail');
 
@@ -307,7 +307,7 @@ describe('Auth (e2e)', () => {
         .expect(200);
 
       expect(response.body.message).toBe(
-        'If the email exists, a password reset link has been sent',
+        'If the email exists, a password reset link has been sent'
       );
       expect(createTokenSpy).toHaveBeenCalledWith(testUser.email);
       expect(sendEmailSpy).toHaveBeenCalled();
@@ -321,7 +321,7 @@ describe('Auth (e2e)', () => {
     it('should return same response for non-existent email', async () => {
       const createTokenSpy = jest.spyOn(
         usersService,
-        'createPasswordResetToken',
+        'createPasswordResetToken'
       );
       const sendEmailSpy = jest.spyOn(mailService, 'sendEmail');
 
@@ -331,7 +331,7 @@ describe('Auth (e2e)', () => {
         .expect(200);
 
       expect(response.body.message).toBe(
-        'If the email exists, a password reset link has been sent',
+        'If the email exists, a password reset link has been sent'
       );
       expect(createTokenSpy).not.toHaveBeenCalled();
       expect(sendEmailSpy).not.toHaveBeenCalled();
@@ -401,19 +401,19 @@ describe('Auth (e2e)', () => {
         .post('/auth/reset-password')
         .send({
           token: resetToken,
-          newPassword: newPassword,
+          newPassword: newPassword
         })
         .expect(200);
 
       expect(response.body.message).toBe(
-        'Password has been reset successfully',
+        'Password has been reset successfully'
       );
 
       const loginResponse = await request(app.getHttpServer())
         .post('/auth/login')
         .send({
           email: testUser.email,
-          password: newPassword,
+          password: newPassword
         })
         .expect(200);
 
@@ -436,7 +436,7 @@ describe('Auth (e2e)', () => {
         .post('/auth/reset-password')
         .send({
           token: invalidToken,
-          newPassword: newPassword,
+          newPassword: newPassword
         })
         .expect(400);
 
@@ -447,7 +447,7 @@ describe('Auth (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/reset-password')
         .send({
-          newPassword: newPassword,
+          newPassword: newPassword
         })
         .expect(400)
         .expect((res) => {
@@ -459,7 +459,7 @@ describe('Auth (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/reset-password')
         .send({
-          token: resetToken,
+          token: resetToken
         })
         .expect(400)
         .expect((res) => {
@@ -472,12 +472,12 @@ describe('Auth (e2e)', () => {
         .post('/auth/reset-password')
         .send({
           token: resetToken,
-          newPassword: '12345',
+          newPassword: '12345'
         })
         .expect(400)
         .expect((res) => {
           expect(res.body.message).toContain(
-            'newPassword must be longer than or equal to 6 characters',
+            'newPassword must be longer than or equal to 6 characters'
           );
         });
     });
@@ -499,7 +499,7 @@ describe('Auth (e2e)', () => {
         .post('/auth/login')
         .send({
           email: testUser.email,
-          password: testUser.password,
+          password: testUser.password
         });
 
       accessToken = loginResponse.body.accessToken;
@@ -529,7 +529,7 @@ describe('Auth (e2e)', () => {
         phone: '0812345678',
         line: '@john_property',
         profileImg:
-          'https://firebasestorage.googleapis.com/v0/b/test/o/us%2Fuser123%2Fi%2Fprofile.jpg',
+          'https://firebasestorage.googleapis.com/v0/b/test/o/us%2Fuser123%2Fi%2Fprofile.jpg'
       };
 
       const response = await request(app.getHttpServer())
@@ -558,7 +558,7 @@ describe('Auth (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           name: 'Hacker Name',
-          role: 'admin', // Dangerous non-whitelisted field
+          role: 'admin' // Dangerous non-whitelisted field
         })
         .expect(400)
         .expect((res) => {
@@ -584,7 +584,7 @@ describe('Auth (e2e)', () => {
         .post('/auth/login')
         .send({
           email: testUser.email,
-          password: testUser.password,
+          password: testUser.password
         });
 
       accessToken = loginResponse.body.accessToken;
@@ -596,12 +596,12 @@ describe('Auth (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           currentPassword: testUser.password,
-          newPassword: newPassword,
+          newPassword: newPassword
         })
         .expect(200);
 
       expect(response.body.message).toBe(
-        'Password has been updated successfully',
+        'Password has been updated successfully'
       );
 
       // Verify password was changed by trying to login with new password
@@ -609,7 +609,7 @@ describe('Auth (e2e)', () => {
         .post('/auth/login')
         .send({
           email: testUser.email,
-          password: newPassword,
+          password: newPassword
         })
         .expect(200);
 
@@ -622,7 +622,7 @@ describe('Auth (e2e)', () => {
         .set('Authorization', `Bearer ${loginResponse.body.accessToken}`)
         .send({
           currentPassword: newPassword,
-          newPassword: testUser.password,
+          newPassword: testUser.password
         })
         .expect(200);
 
@@ -638,7 +638,7 @@ describe('Auth (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           currentPassword: 'wrongPassword',
-          newPassword: newPassword,
+          newPassword: newPassword
         })
         .expect(401)
         .expect((res) => {
@@ -651,7 +651,7 @@ describe('Auth (e2e)', () => {
         .post('/auth/update-password')
         .send({
           currentPassword: testUser.password,
-          newPassword: newPassword,
+          newPassword: newPassword
         })
         .expect(401);
     });
@@ -661,12 +661,12 @@ describe('Auth (e2e)', () => {
         .post('/auth/update-password')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
-          newPassword: newPassword,
+          newPassword: newPassword
         })
         .expect(400)
         .expect((res) => {
           expect(res.body.message).toContain(
-            'currentPassword should not be empty',
+            'currentPassword should not be empty'
           );
         });
     });
@@ -676,7 +676,7 @@ describe('Auth (e2e)', () => {
         .post('/auth/update-password')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
-          currentPassword: testUser.password,
+          currentPassword: testUser.password
         })
         .expect(400)
         .expect((res) => {
@@ -690,12 +690,12 @@ describe('Auth (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           currentPassword: testUser.password,
-          newPassword: '12345',
+          newPassword: '12345'
         })
         .expect(400)
         .expect((res) => {
           expect(res.body.message).toContain(
-            'newPassword must be longer than or equal to 6 characters',
+            'newPassword must be longer than or equal to 6 characters'
           );
         });
     });
@@ -716,7 +716,7 @@ describe('Auth (e2e)', () => {
       name: 'Verify Test User',
       email: 'verify@test.com',
       password: 'password123',
-      isAgent: false,
+      isAgent: false
     };
 
     beforeAll(async () => {
@@ -726,7 +726,7 @@ describe('Auth (e2e)', () => {
         .expect(201);
 
       const newUser = await userModel.findOne({
-        email: toBeVerifiedUser.email,
+        email: toBeVerifiedUser.email
       });
       expect(newUser).not.toBeNull();
       expect(newUser?.emailVerified).toBe(false);
@@ -742,7 +742,7 @@ describe('Auth (e2e)', () => {
         });
 
       const updatedUser = await userModel.findOne({
-        email: toBeVerifiedUser.email,
+        email: toBeVerifiedUser.email
       });
       expect(updatedUser).not.toBeNull();
       expect(updatedUser?.emailVerified).toBe(true);
@@ -757,7 +757,7 @@ describe('Auth (e2e)', () => {
         .expect(400)
         .expect((res) => {
           expect(res.body.message).toBe(
-            'Invalid or expired verification token.',
+            'Invalid or expired verification token.'
           );
         });
     });
@@ -777,7 +777,7 @@ describe('Auth (e2e)', () => {
         .expect(400)
         .expect((res) => {
           expect(res.body.message).toBe(
-            'Invalid or expired verification token.',
+            'Invalid or expired verification token.'
           );
         });
     });

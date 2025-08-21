@@ -22,7 +22,7 @@ export class DistrictsController {
 
   @Get('province/:provinceId')
   findByProvinceId(
-    @Param('provinceId') provinceId: string,
+    @Param('provinceId') provinceId: string
   ): Promise<District[]> {
     return this.districtsService.findByProvinceId(provinceId);
   }

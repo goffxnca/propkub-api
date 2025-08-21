@@ -4,7 +4,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
-  ValidateNested,
+  ValidateNested
 } from 'class-validator';
 import mongoose, { Document } from 'mongoose';
 
@@ -138,19 +138,19 @@ export enum PostStatus {
   ACTIVE = 'active',
   HOLD = 'hold',
   SOLD = 'sold',
-  CLOSED = 'closed',
+  CLOSED = 'closed'
 }
 
 export enum AssetType {
   CONDO = 'condo',
   TOWNHOME = 'townhome',
   HOUSE = 'house',
-  LAND = 'land',
+  LAND = 'land'
 }
 
 export enum PostType {
   SALE = 'sale',
-  RENT = 'rent',
+  RENT = 'rent'
 }
 
 export enum AreaUnit {
@@ -158,21 +158,21 @@ export enum AreaUnit {
   SQM = 'sqm',
   SQW = 'sqw',
   NGAN = 'ngan',
-  RAI = 'rai',
+  RAI = 'rai'
 }
 
 export enum TimeUnit {
   YEAR = 'year',
   MONTH = 'month',
   WEEK = 'week',
-  DAY = 'day',
+  DAY = 'day'
 }
 
 export type PriceUnit = AreaUnit | TimeUnit;
 
 export enum Condition {
   USED = 'used',
-  NEW = 'new',
+  NEW = 'new'
 }
 
 @Schema({ _id: false })
@@ -216,20 +216,20 @@ export class Post {
     required: true,
     validate: {
       validator: (array: string[]) => array.length >= 3,
-      message: 'Images must have at least 3 item',
-    },
+      message: 'Images must have at least 3 item'
+    }
   })
   images: string[];
 
   @Prop({
     type: [Facility],
-    required: true,
+    required: true
   })
   facilities: Facility[];
 
   @Prop({
     type: [Spec],
-    required: true,
+    required: true
   })
   specs: Spec[];
 
@@ -272,7 +272,7 @@ export class Post {
   areaUnit?: AreaUnit;
 
   @Prop({
-    enum: [...Object.values(AreaUnit), ...Object.values(TimeUnit)],
+    enum: [...Object.values(AreaUnit), ...Object.values(TimeUnit)]
   })
   priceUnit?: PriceUnit;
 

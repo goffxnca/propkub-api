@@ -5,7 +5,7 @@ import { AdminUsersService } from '../../src/admin/users/admin-users.service';
 import { User, UserRole } from '../../src/users/users.schema';
 import {
   rootMongooseTestModule,
-  closeMongodConnection,
+  closeMongodConnection
 } from '../utils/mongodb-memory';
 import { AdminUsersModule } from '../../src/admin/users/admin-users.module';
 import * as bcrypt from 'bcrypt';
@@ -14,7 +14,7 @@ import { Model } from 'mongoose';
 import { AuthProvider } from '../../src/common/enums/auth-provider.enum';
 import {
   CreateUserDto,
-  UpdateUserDto,
+  UpdateUserDto
 } from '../../src/admin/users/dto/user.dto';
 import { ConfigModule } from '@nestjs/config';
 
@@ -33,22 +33,22 @@ describe('AdminUsers (e2e)', () => {
       email: johnEmail,
       password: bcrypt.hashSync('password123', 10),
       provider: AuthProvider.EMAIL,
-      role: UserRole.NORMAL,
+      role: UserRole.NORMAL
     },
     {
       name: 'Jane Smith',
       email: janeEmail,
       password: bcrypt.hashSync('password123', 10),
       provider: AuthProvider.EMAIL,
-      role: UserRole.NORMAL,
+      role: UserRole.NORMAL
     },
     {
       name: 'Jeff Foo',
       email: jeffEmail,
       password: bcrypt.hashSync('password123', 10),
       provider: AuthProvider.EMAIL,
-      role: UserRole.NORMAL,
-    },
+      role: UserRole.NORMAL
+    }
   ];
 
   beforeAll(async () => {
@@ -56,8 +56,8 @@ describe('AdminUsers (e2e)', () => {
       imports: [
         ConfigModule.forRoot({ envFilePath: '.env.test' }),
         rootMongooseTestModule(),
-        AdminUsersModule,
-      ],
+        AdminUsersModule
+      ]
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -65,8 +65,8 @@ describe('AdminUsers (e2e)', () => {
       new ValidationPipe({
         transform: true,
         whitelist: true,
-        forbidNonWhitelisted: true,
-      }),
+        forbidNonWhitelisted: true
+      })
     );
     service = moduleFixture.get<AdminUsersService>(AdminUsersService);
     userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
@@ -143,7 +143,7 @@ describe('AdminUsers (e2e)', () => {
       const createUserDto: CreateUserDto = {
         name: 'New User',
         email: 'new.user@example.com',
-        password: 'password123',
+        password: 'password123'
       };
 
       return request(app.getHttpServer())
@@ -162,7 +162,7 @@ describe('AdminUsers (e2e)', () => {
       const createUserDto: CreateUserDto = {
         name: 'Duplicate User',
         email: johnEmail,
-        password: 'password123',
+        password: 'password123'
       };
 
       return request(app.getHttpServer())
@@ -201,7 +201,7 @@ describe('AdminUsers (e2e)', () => {
         .send({
           name: 'Invalid User',
           email: 'invalid@example.com',
-          password: '12345',
+          password: '12345'
         })
         .expect(400);
     });
@@ -212,7 +212,7 @@ describe('AdminUsers (e2e)', () => {
         .send({
           name: 'Invalid User',
           email: 'not-an-email',
-          password: 'password123',
+          password: 'password123'
         })
         .expect(400);
     });
@@ -227,7 +227,7 @@ describe('AdminUsers (e2e)', () => {
       const firstUser = users.body[0];
       const userId = firstUser._id;
       const updateUserDto: UpdateUserDto = {
-        name: 'Updated Name',
+        name: 'Updated Name'
       };
 
       return request(app.getHttpServer())
@@ -269,7 +269,7 @@ describe('AdminUsers (e2e)', () => {
       const createUserDto: CreateUserDto = {
         name: 'User To Delete',
         email: 'delete.me@example.com',
-        password: 'password123',
+        password: 'password123'
       };
 
       const createResponse = await request(app.getHttpServer())

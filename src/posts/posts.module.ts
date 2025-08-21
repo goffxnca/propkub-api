@@ -14,14 +14,14 @@ import { PostCronService } from './posts-cron.service';
   imports: [
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
-      { name: Post.name, schema: PostSchema },
+      { name: Post.name, schema: PostSchema }
     ]),
     EnvironmentModule,
     UsersModule,
     MailModule,
-    PostActionsModule,
+    PostActionsModule
   ],
   providers: [PostsService, PostCronService],
-  controllers: [PostsController],
+  controllers: [PostsController]
 })
 export class PostsModule {}

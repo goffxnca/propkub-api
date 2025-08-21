@@ -8,9 +8,9 @@ import { User, UserSchema } from '../users/users.schema';
 @Module({
   imports: [
     EnvironmentModule,
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])
   ],
   providers: [MailService, MailCronService],
-  exports: [MailService],
+  exports: [MailService]
 })
 export class MailModule {}

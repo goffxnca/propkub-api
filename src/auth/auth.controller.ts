@@ -11,7 +11,7 @@ import {
   Query,
   BadRequestException,
   Logger,
-  Response,
+  Response
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signupDto';
@@ -38,7 +38,7 @@ export class AuthController {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly envService: EnvironmentService,
+    private readonly envService: EnvironmentService
   ) {}
 
   @Post('register')
@@ -52,20 +52,20 @@ export class AuthController {
   async verifyEmail(@Query() query: VerifyEmailDto) {
     const { vtoken } = query;
     this.logger.log(
-      `Email verification request with token: ${truncToken(vtoken)}`,
+      `Email verification request with token: ${truncToken(vtoken)}`
     );
 
     const success = await this.authService.verifyEmail(vtoken);
 
     if (!success) {
       this.logger.warn(
-        `Email verification failed for token: ${truncToken(vtoken)}`,
+        `Email verification failed for token: ${truncToken(vtoken)}`
       );
       throw new BadRequestException('Invalid or expired verification token.');
     }
 
     this.logger.log(
-      `Email verified successfully for token: ${truncToken(vtoken)}`,
+      `Email verified successfully for token: ${truncToken(vtoken)}`
     );
     return { message: 'Email verified successfully' };
   }
@@ -88,7 +88,7 @@ export class AuthController {
   @Get('google/redirect')
   async googleAuthRedirect(@Request() req, @Response() res, @Query() query) {
     this.logger.log(
-      `[googleAuthRedirect()] Google OAuth callback for user: ${truncEmail(req.user.email)}`,
+      `[googleAuthRedirect()] Google OAuth callback for user: ${truncEmail(req.user.email)}`
     );
 
     try {
@@ -102,15 +102,15 @@ export class AuthController {
       const { accessToken } = result;
 
       res.redirect(
-        `${this.envService.frontendWebUrl()}/auth/callback?token=${accessToken}`,
+        `${this.envService.frontendWebUrl()}/auth/callback?token=${accessToken}`
       );
     } catch (error) {
       this.logger.error(
         `[googleAuthRedirect()] Google OAuth callback error:`,
-        error,
+        error
       );
       res.redirect(
-        `${this.envService.frontendWebUrl()}/auth/callback?error=oauth_failed`,
+        `${this.envService.frontendWebUrl()}/auth/callback?error=oauth_failed`
       );
     }
   }
@@ -118,10 +118,10 @@ export class AuthController {
   private async handleGoogleWithCustomState(
     @Request() req,
     @Response() res,
-    state: string,
+    state: string
   ) {
     this.logger.log(
-      `[handleGoogleWithCustomState()] Google OAuth callback with custom state for user: ${truncEmail(req.user.email)}`,
+      `[handleGoogleWithCustomState()] Google OAuth callback with custom state for user: ${truncEmail(req.user.email)}`
     );
 
     let stateData: OAuthStateData;
@@ -129,10 +129,10 @@ export class AuthController {
       stateData = JSON.parse(state);
     } catch (error) {
       this.logger.error(
-        '[handleGoogleWithCustomState()] Google OAuth failed: Invalid state format',
+        '[handleGoogleWithCustomState()] Google OAuth failed: Invalid state format'
       );
       return res.redirect(
-        `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
+        `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`
       );
     }
 
@@ -142,10 +142,10 @@ export class AuthController {
         return this.handleGoogleLinking(req, res, stateData);
       default:
         this.logger.error(
-          `[handleGoogleWithCustomState()] Google OAuth failed: Unknown mode '${stateData.mode}'`,
+          `[handleGoogleWithCustomState()] Google OAuth failed: Unknown mode '${stateData.mode}'`
         );
         return res.redirect(
-          `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`
         );
     }
   }
@@ -153,10 +153,10 @@ export class AuthController {
   private async handleGoogleLinking(
     @Request() req,
     @Response() res,
-    stateData: OAuthStateData,
+    stateData: OAuthStateData
   ) {
     this.logger.log(
-      `[handleGoogleLinking()] Google account linking for user: ${truncEmail(req.user.email)}`,
+      `[handleGoogleLinking()] Google account linking for user: ${truncEmail(req.user.email)}`
     );
 
     const { email: currentEmail } = stateData;
@@ -164,19 +164,19 @@ export class AuthController {
     try {
       if (!currentEmail) {
         this.logger.error(
-          '[handleGoogleLinking()] Google linking failed: Missing current email parameter',
+          '[handleGoogleLinking()] Google linking failed: Missing current email parameter'
         );
         return res.redirect(
-          `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`
         );
       }
 
       if (req.user.email !== currentEmail) {
         this.logger.error(
-          `[handleGoogleLinking()] Google linking failed: Email mismatch. OAuth: ${truncEmail(req.user.email)}, Expected: ${truncEmail(currentEmail)}`,
+          `[handleGoogleLinking()] Google linking failed: Email mismatch. OAuth: ${truncEmail(req.user.email)}, Expected: ${truncEmail(currentEmail)}`
         );
         return res.redirect(
-          `${this.envService.frontendWebUrl()}/auth/callback?error=email_mismatch&expectedEmail=${encodeURIComponent(currentEmail)}&provider=google`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=email_mismatch&expectedEmail=${encodeURIComponent(currentEmail)}&provider=google`
         );
       }
 
@@ -184,22 +184,22 @@ export class AuthController {
       const { accessToken } = result;
 
       return res.redirect(
-        `${this.envService.frontendWebUrl()}/auth/callback?token=${accessToken}&success=linking&provider=google`,
+        `${this.envService.frontendWebUrl()}/auth/callback?token=${accessToken}&success=linking&provider=google`
       );
     } catch (error) {
       this.logger.error(
         `[handleGoogleLinking()] Google account linking callback error:`,
-        error,
+        error
       );
 
       if (error.message?.includes('already linked')) {
         return res.redirect(
-          `${this.envService.frontendWebUrl()}/auth/callback?error=already_linked&provider=google`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=already_linked&provider=google`
         );
       }
 
       res.redirect(
-        `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
+        `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`
       );
     }
   }
@@ -214,7 +214,7 @@ export class AuthController {
   @Get('facebook/redirect')
   async facebookAuthRedirect(@Request() req, @Response() res, @Query() query) {
     this.logger.log(
-      `[facebookAuthRedirect()] Facebook OAuth callback for user: ${truncEmail(req.user.email)}`,
+      `[facebookAuthRedirect()] Facebook OAuth callback for user: ${truncEmail(req.user.email)}`
     );
 
     try {
@@ -228,15 +228,15 @@ export class AuthController {
       const { accessToken } = result;
 
       res.redirect(
-        `${this.envService.frontendWebUrl()}/auth/callback?token=${accessToken}`,
+        `${this.envService.frontendWebUrl()}/auth/callback?token=${accessToken}`
       );
     } catch (error) {
       this.logger.error(
         `[facebookAuthRedirect()] Facebook OAuth callback error:`,
-        error,
+        error
       );
       res.redirect(
-        `${this.envService.frontendWebUrl()}/auth/callback?error=oauth_failed`,
+        `${this.envService.frontendWebUrl()}/auth/callback?error=oauth_failed`
       );
     }
   }
@@ -244,10 +244,10 @@ export class AuthController {
   private async handleFacebookWithCustomState(
     @Request() req,
     @Response() res,
-    state: string,
+    state: string
   ) {
     this.logger.log(
-      `[handleFacebookWithCustomState()] Facebook OAuth callback with custom state for user: ${truncEmail(req.user.email)}`,
+      `[handleFacebookWithCustomState()] Facebook OAuth callback with custom state for user: ${truncEmail(req.user.email)}`
     );
 
     let stateData: OAuthStateData;
@@ -255,10 +255,10 @@ export class AuthController {
       stateData = JSON.parse(state);
     } catch (error) {
       this.logger.error(
-        '[handleFacebookWithCustomState()] Facebook OAuth failed: Invalid state format',
+        '[handleFacebookWithCustomState()] Facebook OAuth failed: Invalid state format'
       );
       return res.redirect(
-        `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
+        `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`
       );
     }
 
@@ -268,10 +268,10 @@ export class AuthController {
         return this.handleFacebookLinking(req, res, stateData);
       default:
         this.logger.error(
-          `[handleFacebookWithCustomState()] Facebook OAuth failed: Unknown mode '${stateData.mode}'`,
+          `[handleFacebookWithCustomState()] Facebook OAuth failed: Unknown mode '${stateData.mode}'`
         );
         return res.redirect(
-          `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`
         );
     }
   }
@@ -279,10 +279,10 @@ export class AuthController {
   private async handleFacebookLinking(
     @Request() req,
     @Response() res,
-    stateData: OAuthStateData,
+    stateData: OAuthStateData
   ) {
     this.logger.log(
-      `[handleFacebookLinking()] Facebook account linking for user: ${truncEmail(req.user.email)}`,
+      `[handleFacebookLinking()] Facebook account linking for user: ${truncEmail(req.user.email)}`
     );
 
     const { email: currentEmail } = stateData;
@@ -290,19 +290,19 @@ export class AuthController {
     try {
       if (!currentEmail) {
         this.logger.error(
-          '[handleFacebookLinking()] Facebook linking failed: Missing current email parameter',
+          '[handleFacebookLinking()] Facebook linking failed: Missing current email parameter'
         );
         return res.redirect(
-          `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`
         );
       }
 
       if (req.user.email !== currentEmail) {
         this.logger.error(
-          `[handleFacebookLinking()] Facebook linking failed: Email mismatch. OAuth: ${truncEmail(req.user.email)}, Expected: ${truncEmail(currentEmail)}`,
+          `[handleFacebookLinking()] Facebook linking failed: Email mismatch. OAuth: ${truncEmail(req.user.email)}, Expected: ${truncEmail(currentEmail)}`
         );
         return res.redirect(
-          `${this.envService.frontendWebUrl()}/auth/callback?error=email_mismatch&expectedEmail=${encodeURIComponent(currentEmail)}&provider=facebook`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=email_mismatch&expectedEmail=${encodeURIComponent(currentEmail)}&provider=facebook`
         );
       }
 
@@ -310,22 +310,22 @@ export class AuthController {
       const { accessToken } = result;
 
       return res.redirect(
-        `${this.envService.frontendWebUrl()}/auth/callback?token=${accessToken}&success=linking&provider=facebook`,
+        `${this.envService.frontendWebUrl()}/auth/callback?token=${accessToken}&success=linking&provider=facebook`
       );
     } catch (error) {
       this.logger.error(
         `[handleFacebookLinking()] Facebook account linking callback error:`,
-        error,
+        error
       );
 
       if (error.message?.includes('already linked')) {
         return res.redirect(
-          `${this.envService.frontendWebUrl()}/auth/callback?error=already_linked&provider=facebook`,
+          `${this.envService.frontendWebUrl()}/auth/callback?error=already_linked&provider=facebook`
         );
       }
 
       res.redirect(
-        `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`,
+        `${this.envService.frontendWebUrl()}/auth/callback?error=linking_failed`
       );
     }
   }
@@ -341,7 +341,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     this.logger.log(
-      `Forgot password request for email: ${truncEmail(forgotPasswordDto.email)}`,
+      `Forgot password request for email: ${truncEmail(forgotPasswordDto.email)}`
     );
     return this.authService.sendPasswordResetEmail(forgotPasswordDto.email);
   }
@@ -350,18 +350,18 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     this.logger.log(
-      `Reset password request with token: ${truncToken(resetPasswordDto.token)}`,
+      `Reset password request with token: ${truncToken(resetPasswordDto.token)}`
     );
     return this.authService.resetPassword(
       resetPasswordDto.token,
-      resetPasswordDto.newPassword,
+      resetPasswordDto.newPassword
     );
   }
 
   @Get('validate-reset-token')
   validateResetToken(@Query() validateResetTokenDto: ValidateResetTokenDto) {
     this.logger.log(
-      `Reset token validation request: ${truncToken(validateResetTokenDto.token)}`,
+      `Reset token validation request: ${truncToken(validateResetTokenDto.token)}`
     );
     return this.authService.validateResetToken(validateResetTokenDto.token);
   }
@@ -374,7 +374,7 @@ export class AuthController {
     return this.authService.updatePassword(
       req.user.userId,
       updatePasswordDto.currentPassword,
-      updatePasswordDto.newPassword,
+      updatePasswordDto.newPassword
     );
   }
 
@@ -383,7 +383,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async updateProfile(
     @Request() req,
-    @Body() updateProfileDto: UpdateProfileDto,
+    @Body() updateProfileDto: UpdateProfileDto
   ): Promise<ProfileResponseDto> {
     this.logger.log(`Update profile request for user ID: ${req.user.userId}`);
     return this.authService.updateProfile(req.user.userId, updateProfileDto);

@@ -2,6 +2,6 @@ import { Module } from '@nestjs/common';
 import { AdminUsersModule } from './users/admin-users.module';
 
 @Module({
-  imports: [AdminUsersModule],
+  imports: [AdminUsersModule]
 })
-export class AdminModule {} 
+export class AdminModule {}

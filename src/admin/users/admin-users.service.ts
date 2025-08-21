@@ -7,14 +7,14 @@ import { AuthProvider } from '../../common/enums/auth-provider.enum';
 import { MailService } from '../../mail/mail.service';
 import {
   USER_SAFE_PROJECTION,
-  USER_SAFE_SELECT,
+  USER_SAFE_SELECT
 } from '../../users/constants/user-security.constants';
 
 @Injectable()
 export class AdminUsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    private readonly mailService: MailService,
+    private readonly mailService: MailService
   ) {}
 
   async findAll(limit?: number, offset?: number): Promise<User[]> {
@@ -44,7 +44,7 @@ export class AdminUsersService {
       const existingUser = await this.findByEmail(createUserDto.email);
       if (existingUser) {
         throw new ConflictException(
-          `User with email ${createUserDto.email} already exists`,
+          `User with email ${createUserDto.email} already exists`
         );
       }
     }
@@ -53,7 +53,7 @@ export class AdminUsersService {
       ...createUserDto,
       provider: AuthProvider.EMAIL,
       createdBy: 'admin',
-      createdAt: new Date(),
+      createdAt: new Date()
     };
 
     const createdUser = new this.userModel(userData);
@@ -72,8 +72,8 @@ export class AdminUsersService {
         { $set: updateUserDto, updatedAt: new Date() },
         {
           new: true,
-          select: USER_SAFE_SELECT,
-        },
+          select: USER_SAFE_SELECT
+        }
       )
       .exec();
   }

@@ -10,10 +10,10 @@ import { MailModule } from '../../mail/email.module';
   imports: [
     UsersModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MailModule,
+    MailModule
   ],
   controllers: [AdminUsersController],
   providers: [AdminUsersService],
-  exports: [AdminUsersService],
+  exports: [AdminUsersService]
 })
 export class AdminUsersModule {}

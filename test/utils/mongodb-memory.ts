@@ -10,9 +10,9 @@ export const rootMongooseTestModule = (options = {}) =>
       const uri = mongod.getUri();
       return {
         uri,
-        ...options,
+        ...options
       };
-    },
+    }
   });
 
 export const closeMongodConnection = async () => {

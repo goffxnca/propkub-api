@@ -4,4 +4,4 @@ export class ValidateResetTokenDto {
   @IsString()
   @IsNotEmpty()
   token: string;
-} 
+}

@@ -7,7 +7,7 @@ import { MailService } from './mail.service';
 import {
   EMAIL_AUTH_UPGRADE,
   EMAIL_PRE_AUTH_UPGRADE,
-  NO_REPLY_EMAIL,
+  NO_REPLY_EMAIL
 } from '../common/constants';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class MailCronService {
 
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-    private readonly mailService: MailService,
+    private readonly mailService: MailService
   ) {}
 
   @Cron(CronExpression.EVERY_6_MONTHS)
@@ -29,7 +29,7 @@ export class MailCronService {
 
     if (!user) {
       this.logger.warn(
-        'No user found with ___f_pre_auth_mail_sent:false -> Exit',
+        'No user found with ___f_pre_auth_mail_sent:false -> Exit'
       );
       return;
     }
@@ -39,16 +39,16 @@ export class MailCronService {
       from: NO_REPLY_EMAIL,
       templateId: EMAIL_PRE_AUTH_UPGRADE,
       templateData: {
-        name: user.name,
-      },
+        name: user.name
+      }
     });
 
     await this.userModel.findByIdAndUpdate(user._id, {
-      ___f_pre_auth_mail_sent: true,
+      ___f_pre_auth_mail_sent: true
     });
 
     this.logger.log(
-      `Send email EMAIL_PRE_AUTH_UPGRADE to user ${user.email}(cid:${user.cid}) success`,
+      `Send email EMAIL_PRE_AUTH_UPGRADE to user ${user.email}(cid:${user.cid}) success`
     );
   }
 
@@ -78,16 +78,16 @@ export class MailCronService {
       templateData: {
         name: user.name,
         email: user.email,
-        pwd: user.temp_p,
-      },
+        pwd: user.temp_p
+      }
     });
 
     await this.userModel.findByIdAndUpdate(user._id, {
-      ___f_auth_mail_sent: true,
+      ___f_auth_mail_sent: true
     });
 
     this.logger.log(
-      `Send email EMAIL_AUTH_UPGRADE to user ${user.email}(cid:${user.cid}) success`,
+      `Send email EMAIL_AUTH_UPGRADE to user ${user.email}(cid:${user.cid}) success`
     );
   }
 }

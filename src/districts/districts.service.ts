@@ -9,7 +9,7 @@ import { EnvironmentService } from '../environments/environment.service';
 export class DistrictsService implements OnModuleInit {
   constructor(
     @InjectModel(District.name) private districtModel: Model<DistrictDocument>,
-    private readonly envService: EnvironmentService,
+    private readonly envService: EnvironmentService
   ) {}
 
   async onModuleInit() {

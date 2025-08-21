@@ -40,11 +40,11 @@ export class BrevoMailService {
           ? ''
           : this.envService.isTest()
             ? '[TEST]'
-            : '[DEV]',
+            : '[DEV]'
       },
       headers: {
-        'X-Mailin-custom': 'sent-via:nestjs',
-      },
+        'X-Mailin-custom': 'sent-via:nestjs'
+      }
     };
 
     try {
@@ -52,8 +52,8 @@ export class BrevoMailService {
         headers: {
           'api-key': this.apiKey,
           'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
+          Accept: 'application/json'
+        }
       });
       this.logger.log(`Email sent successfully to ${options.to}`);
     } catch (error: any) {

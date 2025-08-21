@@ -5,7 +5,7 @@ import { INestApplication } from '@nestjs/common';
 import { SubDistrict } from '../../src/subDistricts/subDistricts.schema';
 import {
   rootMongooseTestModule,
-  closeMongodConnection,
+  closeMongodConnection
 } from '../utils/mongodb-memory';
 import { SubDistrictsModule } from '../../src/subDistricts/subDistricts.module';
 import { ConfigModule } from '@nestjs/config';
@@ -17,7 +17,7 @@ describe('SubDistricts (e2e)', () => {
   const testSubDistricts: SubDistrict[] = [
     { id: '1', name: 'Grand Palace', districtId: '1' },
     { id: '2', name: 'Wang Burapha', districtId: '1' },
-    { id: '3', name: 'Wat Ratchabophit', districtId: '1' },
+    { id: '3', name: 'Wat Ratchabophit', districtId: '1' }
   ];
 
   beforeAll(async () => {
@@ -25,8 +25,8 @@ describe('SubDistricts (e2e)', () => {
       imports: [
         ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env.test' }),
         rootMongooseTestModule(),
-        SubDistrictsModule,
-      ],
+        SubDistrictsModule
+      ]
     }).compile();
 
     app = moduleFixture.createNestApplication();

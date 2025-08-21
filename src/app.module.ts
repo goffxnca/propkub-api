@@ -19,14 +19,14 @@ console.log('Config file loaded:', `.env.${process.env.NODE_ENV}`);
   providers: [
     {
       provide: APP_FILTER,
-      useClass: SentryGlobalFilter,
-    },
+      useClass: SentryGlobalFilter
+    }
   ],
   imports: [
     SentryModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: `.env.${process.env.NODE_ENV}`,
+      envFilePath: `.env.${process.env.NODE_ENV}`
     }),
     MongooseModule.forRoot(process.env.MONGODB_URI || ''),
     ScheduleModule.forRoot(),
@@ -37,7 +37,7 @@ console.log('Config file loaded:', `.env.${process.env.NODE_ENV}`);
     SubDistrictsModule,
     PostsModule,
     PostActionsModule,
-    AdminModule,
-  ],
+    AdminModule
+  ]
 })
 export class AppModule {}

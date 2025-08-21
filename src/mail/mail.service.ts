@@ -37,9 +37,9 @@ export class MailService {
           ? ''
           : this.envService.isTest()
             ? '[TEST]'
-            : '[DEV]',
+            : '[DEV]'
       },
-      bcc: this.envService.emailBCC(),
+      bcc: this.envService.emailBCC()
     };
 
     try {

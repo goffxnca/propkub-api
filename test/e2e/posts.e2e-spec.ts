@@ -8,12 +8,12 @@ import {
   Post,
   PostType,
   AssetType,
-  PostStatus,
+  PostStatus
 } from '../../src/posts/posts.schema';
 import { createPost } from '../factory/postFactory';
 import {
   rootMongooseTestModule,
-  closeMongodConnection,
+  closeMongodConnection
 } from '../utils/mongodb-memory';
 import { PostsModule } from '../../src/posts/posts.module';
 import { ConfigModule } from '@nestjs/config';
@@ -28,7 +28,7 @@ import { createUser } from '../factory/userFactory';
 import { MailService } from '../../src/mail/mail.service';
 import {
   PostActions,
-  PostActionType,
+  PostActionType
 } from '../../src/postActions/postActions.schema';
 import { POST_ACTIONS_FLOW } from '../../src/common/postActionsFlow';
 import { PostStatType } from '../../src/posts/dto/increase-post-stats.dto';
@@ -60,8 +60,8 @@ describe('Posts (e2e)', () => {
         subDistrictId: '1',
         subDistrictLabel: 'Phra Borom Maha Ratchawang',
         regionId: '1',
-        location: { lat: 13.7563, lng: 100.5018 },
-      },
+        location: { lat: 13.7563, lng: 100.5018 }
+      }
     }),
     createPost({
       _id: new Types.ObjectId().toString(),
@@ -76,8 +76,8 @@ describe('Posts (e2e)', () => {
         subDistrictId: '1',
         subDistrictLabel: 'Phra Borom Maha Ratchawang',
         regionId: '1',
-        location: { lat: 13.7563, lng: 100.5018 },
-      },
+        location: { lat: 13.7563, lng: 100.5018 }
+      }
     }),
     createPost({
       _id: new Types.ObjectId().toString(),
@@ -92,8 +92,8 @@ describe('Posts (e2e)', () => {
         subDistrictId: '1',
         subDistrictLabel: 'Phra Borom Maha Ratchawang',
         regionId: '1',
-        location: { lat: 13.7563, lng: 100.5018 },
-      },
+        location: { lat: 13.7563, lng: 100.5018 }
+      }
     }),
     createPost({
       _id: new Types.ObjectId().toString(),
@@ -108,8 +108,8 @@ describe('Posts (e2e)', () => {
         subDistrictId: '2',
         subDistrictLabel: 'Dusit',
         regionId: '1',
-        location: { lat: 13.7763, lng: 100.5168 },
-      },
+        location: { lat: 13.7763, lng: 100.5168 }
+      }
     }),
     createPost({
       _id: new Types.ObjectId().toString(),
@@ -124,8 +124,8 @@ describe('Posts (e2e)', () => {
         subDistrictId: '2',
         subDistrictLabel: 'Dusit',
         regionId: '1',
-        location: { lat: 13.7763, lng: 100.5168 },
-      },
+        location: { lat: 13.7763, lng: 100.5168 }
+      }
     }),
     createPost({
       _id: new Types.ObjectId().toString(),
@@ -140,8 +140,8 @@ describe('Posts (e2e)', () => {
         subDistrictId: '3',
         subDistrictLabel: 'Suan Yai',
         regionId: '1',
-        location: { lat: 13.8625, lng: 100.5144 },
-      },
+        location: { lat: 13.8625, lng: 100.5144 }
+      }
     }),
     createPost({
       _id: new Types.ObjectId().toString(),
@@ -156,8 +156,8 @@ describe('Posts (e2e)', () => {
         subDistrictId: '3',
         subDistrictLabel: 'Suan Yai',
         regionId: '1',
-        location: { lat: 13.8625, lng: 100.5144 },
-      },
+        location: { lat: 13.8625, lng: 100.5144 }
+      }
     }),
     createPost({
       _id: new Types.ObjectId().toString(),
@@ -172,8 +172,8 @@ describe('Posts (e2e)', () => {
         subDistrictId: '4',
         subDistrictLabel: 'Bang Kruai',
         regionId: '1',
-        location: { lat: 13.805, lng: 100.4722 },
-      },
+        location: { lat: 13.805, lng: 100.4722 }
+      }
     }),
     createPost({
       _id: new Types.ObjectId().toString(),
@@ -188,8 +188,8 @@ describe('Posts (e2e)', () => {
         subDistrictId: '4',
         subDistrictLabel: 'Bang Kruai',
         regionId: '1',
-        location: { lat: 13.805, lng: 100.4722 },
-      },
+        location: { lat: 13.805, lng: 100.4722 }
+      }
     }),
     createPost({
       _id: new Types.ObjectId().toString(),
@@ -204,9 +204,9 @@ describe('Posts (e2e)', () => {
         subDistrictId: 's200702',
         subDistrictLabel: 'Surasak',
         regionId: 'r5',
-        location: { lat: 13.805, lng: 100.4722 },
-      },
-    }),
+        location: { lat: 13.805, lng: 100.4722 }
+      }
+    })
   ];
 
   beforeAll(async () => {
@@ -215,12 +215,12 @@ describe('Posts (e2e)', () => {
         ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env.test' }),
         rootMongooseTestModule(),
         PostsModule,
-        AuthModule,
-      ],
+        AuthModule
+      ]
     })
       .overrideProvider(MailService)
       .useValue({
-        sendEmail: jest.fn().mockResolvedValue(undefined),
+        sendEmail: jest.fn().mockResolvedValue(undefined)
       })
       .compile();
 
@@ -229,8 +229,8 @@ describe('Posts (e2e)', () => {
       new ValidationPipe({
         transform: true,
         whitelist: true,
-        forbidNonWhitelisted: true,
-      }),
+        forbidNonWhitelisted: true
+      })
     );
 
     service = moduleFixture.get<PostsService>(PostsService);
@@ -240,7 +240,7 @@ describe('Posts (e2e)', () => {
     postModel = moduleFixture.get<Model<Post>>(getModelToken(Post.name));
     userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
     postActionsModel = moduleFixture.get<Model<PostActions>>(
-      getModelToken(PostActions.name),
+      getModelToken(PostActions.name)
     );
 
     await app.init();
@@ -248,7 +248,7 @@ describe('Posts (e2e)', () => {
     const [user, token] = await createUserAndLogIn(
       createUser(),
       app,
-      usersService,
+      usersService
     );
 
     authToken = token;
@@ -479,7 +479,7 @@ describe('Posts (e2e)', () => {
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain(
-              'page must be an integer number',
+              'page must be an integer number'
             );
           });
       });
@@ -491,7 +491,7 @@ describe('Posts (e2e)', () => {
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain(
-              'per_page must be an integer number',
+              'per_page must be an integer number'
             );
           });
       });
@@ -513,7 +513,7 @@ describe('Posts (e2e)', () => {
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain(
-              'per_page must not be greater than 50',
+              'per_page must not be greater than 50'
             );
           });
       });
@@ -525,7 +525,7 @@ describe('Posts (e2e)', () => {
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain(
-              'per_page must not be less than 1',
+              'per_page must not be less than 1'
             );
           });
       });
@@ -542,7 +542,7 @@ describe('Posts (e2e)', () => {
             expect(res.body._id).toBe(firstPost._id);
             expect(res.body.title).toBe('Luxury Condo in Bangkok');
             expect(res.body.stats.views.post).toBe(
-              firstPost.stats.views.post + 1,
+              firstPost.stats.views.post + 1
             );
             expect(res.body.rstats).toBeUndefined();
           });
@@ -556,7 +556,7 @@ describe('Posts (e2e)', () => {
           .expect({
             statusCode: 404,
             message: `Post with number ${notExistingPostNumber} not found`,
-            error: 'Not Found',
+            error: 'Not Found'
           });
       });
     });
@@ -566,7 +566,7 @@ describe('Posts (e2e)', () => {
         const condoFoRentPost = mockPosts.find(
           (post) =>
             post.assetType === AssetType.CONDO &&
-            post.postType === PostType.RENT,
+            post.postType === PostType.RENT
         );
 
         if (!condoFoRentPost) {
@@ -594,7 +594,7 @@ describe('Posts (e2e)', () => {
         const townhomeForRent = mockPosts.find(
           (post) =>
             post.assetType === AssetType.TOWNHOME &&
-            post.postType === PostType.RENT,
+            post.postType === PostType.RENT
         );
 
         if (!townhomeForRent) {
@@ -704,7 +704,7 @@ describe('Posts (e2e)', () => {
           .expect({
             statusCode: 404,
             message: `Post with ID ${notExistingId} not found`,
-            error: 'Not Found',
+            error: 'Not Found'
           });
       });
 
@@ -727,7 +727,7 @@ describe('Posts (e2e)', () => {
           .expect(400)
           .expect((res) => {
             expect(res.body.message).toContain(
-              'statType must be one of the following values: shares, pins, phone_views, line_views',
+              'statType must be one of the following values: shares, pins, phone_views, line_views'
             );
           });
       });
@@ -753,7 +753,7 @@ describe('Posts (e2e)', () => {
         const [_, secondUserToken] = await createUserAndLogIn(
           secondUser,
           app,
-          usersService,
+          usersService
         );
         const firstPost = mockPosts[0]; // Owned by testUser
         return request(app.getHttpServer())
@@ -762,7 +762,7 @@ describe('Posts (e2e)', () => {
           .expect(403)
           .expect((res) => {
             expect(res.body.message).toBe(
-              'Access denied. You are not the owner of this post',
+              'Access denied. You are not the owner of this post'
             );
           });
       });
@@ -783,7 +783,7 @@ describe('Posts (e2e)', () => {
           .expect({
             statusCode: 404,
             message: `Post with ID ${notExistingId} not found`,
-            error: 'Not Found',
+            error: 'Not Found'
           });
       });
     });
@@ -801,15 +801,15 @@ describe('Posts (e2e)', () => {
       images: [
         'https://example.com/image1.jpg',
         'https://example.com/image2.jpg',
-        'https://example.com/image3.jpg',
+        'https://example.com/image3.jpg'
       ],
       facilities: [
         { id: 'pool', label: 'Swimming Pool' },
-        { id: 'gym', label: 'Gym' },
+        { id: 'gym', label: 'Gym' }
       ],
       specs: [
         { id: 'bedrooms', label: 'Bedrooms', value: 10.121 },
-        { id: 'bathrooms', label: 'Bathrooms', value: 100.111 },
+        { id: 'bathrooms', label: 'Bathrooms', value: 100.111 }
       ],
       address: {
         provinceId: '1',
@@ -821,9 +821,9 @@ describe('Posts (e2e)', () => {
         regionId: '1',
         location: {
           lat: 10.001,
-          lng: 100.101,
-        },
-      },
+          lng: 100.101
+        }
+      }
     };
 
     it('should create a new post successfully when authenticated', async () => {
@@ -842,7 +842,7 @@ describe('Posts (e2e)', () => {
       const createdPostId = response.body._id;
       const postAction = await postActionsModel
         .findOne({
-          postId: createdPostId,
+          postId: createdPostId
         })
         .sort({ createdAt: -1 });
       expect(postAction).toBeDefined();
@@ -870,7 +870,7 @@ describe('Posts (e2e)', () => {
         ...validCreatePostDto,
         postNumber: undefined,
         title: undefined,
-        price: undefined,
+        price: undefined
       };
 
       return request(app.getHttpServer())
@@ -889,7 +889,7 @@ describe('Posts (e2e)', () => {
     it('should return 400 when dangerous premium field is sent', () => {
       const hackerPost = {
         ...validCreatePostDto,
-        premium: true, // Non-whitelisted
+        premium: true // Non-whitelisted
       };
 
       return request(app.getHttpServer())
@@ -899,7 +899,7 @@ describe('Posts (e2e)', () => {
         .expect(400)
         .expect((res) => {
           expect(res.body.message).toContain(
-            'property premium should not exist',
+            'property premium should not exist'
           );
         });
     });
@@ -921,7 +921,7 @@ describe('Posts (e2e)', () => {
         .expect(409)
         .expect((res) => {
           expect(res.body.message).toContain(
-            `Post with postNumber ${postNumber} already exists`,
+            `Post with postNumber ${postNumber} already exists`
           );
         });
     });
@@ -958,7 +958,7 @@ describe('Posts (e2e)', () => {
         ...validCreatePostDto,
         postNumber: '1752294000',
         title: maliciousTitle,
-        desc: maliciousDesc,
+        desc: maliciousDesc
       };
 
       const response = await request(app.getHttpServer())
@@ -969,7 +969,7 @@ describe('Posts (e2e)', () => {
 
       // Expected sanitized title - should remove script, div tags but keep their content and preserve strong
       expect(response.body.title).toBe(
-        '<strong>Bold Title</strong>Unwanted div',
+        '<strong>Bold Title</strong>Unwanted div'
       );
       expect(response.body.title).not.toContain('<script>');
       expect(response.body.title).not.toContain('<div>');
@@ -984,12 +984,12 @@ describe('Posts (e2e)', () => {
       expect(sanitizedDesc).toContain('<em>Italic text</em>');
       expect(sanitizedDesc).toContain('<u>Underlined text</u>');
       expect(sanitizedDesc).toContain(
-        '<ol><li>First item</li><li>Second item</li></ol>',
+        '<ol><li>First item</li><li>Second item</li></ol>'
       );
       expect(sanitizedDesc).toContain('<ul><li>Banana</li><li>Mango</li></ul>');
       expect(sanitizedDesc).toContain('<br />');
       expect(sanitizedDesc).toContain(
-        '<a href="https://google.com">Google Link</a>',
+        '<a href="https://google.com">Google Link</a>'
       );
 
       // Should remove dangerous/malicious tags and scripts
@@ -1044,7 +1044,7 @@ describe('Posts (e2e)', () => {
         .send({
           assetType: AssetType.CONDO,
           postType: PostType.RENT,
-          regionId: 'r5',
+          regionId: 'r5'
         })
         .expect(200);
 
@@ -1062,7 +1062,7 @@ describe('Posts (e2e)', () => {
         .send({
           assetType: AssetType.CONDO,
           postType: PostType.RENT,
-          provinceId: 'p11',
+          provinceId: 'p11'
         })
         .expect(200);
 
@@ -1082,7 +1082,7 @@ describe('Posts (e2e)', () => {
         .send({
           assetType: AssetType.CONDO,
           postType: PostType.RENT,
-          districtId: 'd2007',
+          districtId: 'd2007'
         })
         .expect(200);
 
@@ -1103,7 +1103,7 @@ describe('Posts (e2e)', () => {
         .send({
           assetType: AssetType.CONDO,
           postType: PostType.RENT,
-          subDistrictId: 's200702',
+          subDistrictId: 's200702'
         })
         .expect(200);
 
@@ -1124,7 +1124,7 @@ describe('Posts (e2e)', () => {
         .post('/posts/search')
         .send({
           assetType: AssetType.LAND,
-          postType: PostType.RENT,
+          postType: PostType.RENT
         })
         .expect(200);
 
@@ -1179,15 +1179,15 @@ describe('Posts (e2e)', () => {
       images: [
         'https://example.com/image1_updated.jpg',
         'https://example.com/image2_updated.jpg',
-        'https://example.com/image3_updated.jpg',
+        'https://example.com/image3_updated.jpg'
       ],
       facilities: [
         { id: 'pool', label: 'Swimming Pool_updated' },
-        { id: 'gym', label: 'Gym_updated' },
+        { id: 'gym', label: 'Gym_updated' }
       ],
       specs: [
         { id: 'bedrooms', label: 'Bedrooms', value: 99 },
-        { id: 'bathrooms', label: 'Bathrooms', value: 99.99 },
+        { id: 'bathrooms', label: 'Bathrooms', value: 99.99 }
       ],
       address: {
         provinceId: '1',
@@ -1199,9 +1199,9 @@ describe('Posts (e2e)', () => {
         regionId: '1',
         location: {
           lat: 99.989,
-          lng: 999.949,
-        },
-      },
+          lng: 999.949
+        }
+      }
     };
 
     it('should update post successfully when pass all post fields and authenticated', async () => {
@@ -1217,7 +1217,7 @@ describe('Posts (e2e)', () => {
 
       expect(response.body.title).toBe(validUpdatePostDto.title);
       expect(response.body.desc).toBe(
-        '<p>Updated paragraph</p><a href="https://google.com">Updated Google Link</a>',
+        '<p>Updated paragraph</p><a href="https://google.com">Updated Google Link</a>'
       );
       expect(response.body.assetType).toBe(validUpdatePostDto.assetType);
       expect(response.body.postType).toBe(validUpdatePostDto.postType);
@@ -1225,22 +1225,22 @@ describe('Posts (e2e)', () => {
       expect(response.body.status).toBe('active');
       expect(response.body.thumbnail).toBe(validUpdatePostDto.thumbnail);
       expect(JSON.stringify(response.body.images)).toBe(
-        JSON.stringify(validUpdatePostDto.images),
+        JSON.stringify(validUpdatePostDto.images)
       );
       expect(JSON.stringify(response.body.facilities)).toBe(
-        JSON.stringify(validUpdatePostDto.facilities),
+        JSON.stringify(validUpdatePostDto.facilities)
       );
       expect(JSON.stringify(response.body.specs)).toBe(
-        JSON.stringify(validUpdatePostDto.specs),
+        JSON.stringify(validUpdatePostDto.specs)
       );
       expect(validUpdatePostDto.address.provinceLabel).toBe(
-        validUpdatePostDto.address.provinceLabel,
+        validUpdatePostDto.address.provinceLabel
       );
 
       expect(response.body.updatedBy).toBe(testUser._id.toString());
       expect(new Date(response.body.updatedAt)).toBeInstanceOf(Date);
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(
-        beforeUpdate.getTime(),
+        beforeUpdate.getTime()
       );
 
       const updatedPost = await postModel.findById(existingPost._id);
@@ -1250,13 +1250,13 @@ describe('Posts (e2e)', () => {
       const updatedPostId = response.body._id;
       const postAction = await postActionsModel
         .findOne({
-          postId: updatedPostId,
+          postId: updatedPostId
         })
         .sort({ createdAt: -1 });
       expect(postAction).toBeDefined();
 
       const expectedAction = POST_ACTIONS_FLOW.find(
-        (paf) => paf.action === PostActionType.UPDATE,
+        (paf) => paf.action === PostActionType.UPDATE
       );
       expect(expectedAction).toBeDefined();
 
@@ -1299,14 +1299,14 @@ describe('Posts (e2e)', () => {
         .expect(404)
         .expect((res) => {
           expect(res.body.message).toBe(
-            `Post with ID ${nonExistentId} not found`,
+            `Post with ID ${nonExistentId} not found`
           );
         });
     });
 
     it('should return 400 when required fields are missing', () => {
       const invalidUpdate = {
-        title: '',
+        title: ''
       };
 
       return request(app.getHttpServer())
@@ -1339,7 +1339,7 @@ describe('Posts (e2e)', () => {
       // Ensure we have an active post by updating one to ACTIVE status
       const post = await postModel.findOne({
         createdBy: testUser._id,
-        status: PostStatus.ACTIVE,
+        status: PostStatus.ACTIVE
       });
       if (!post) {
         throw new Error('No test post found');
@@ -1361,7 +1361,7 @@ describe('Posts (e2e)', () => {
       // Verify postAction was created
       const postAction = await postActionsModel
         .findOne({
-          postId: activePost._id,
+          postId: activePost._id
         })
         .sort({ createdAt: -1 });
 
@@ -1389,7 +1389,7 @@ describe('Posts (e2e)', () => {
       const [_, secondUserToken] = await createUserAndLogIn(
         secondUser,
         app,
-        usersService,
+        usersService
       );
 
       return request(app.getHttpServer())
@@ -1398,7 +1398,7 @@ describe('Posts (e2e)', () => {
         .expect(403)
         .expect((res) => {
           expect(res.body.message).toBe(
-            'Access denied. You are not the owner of this post',
+            'Access denied. You are not the owner of this post'
           );
         });
     });
@@ -1411,7 +1411,7 @@ describe('Posts (e2e)', () => {
         .expect(404)
         .expect((res) => {
           expect(res.body.message).toBe(
-            `Post with ID ${nonExistentId} not found`,
+            `Post with ID ${nonExistentId} not found`
           );
         });
     });

@@ -9,11 +9,11 @@ import { Post, PostSchema } from '../posts/posts.schema';
   imports: [
     MongooseModule.forFeature([
       { name: Post.name, schema: PostSchema },
-      { name: PostActions.name, schema: PostActionsSchema },
+      { name: PostActions.name, schema: PostActionsSchema }
     ]),
-    EnvironmentModule,
+    EnvironmentModule
   ],
   providers: [PostActionsService],
-  exports: [PostActionsService],
+  exports: [PostActionsService]
 })
 export class PostActionsModule {}
