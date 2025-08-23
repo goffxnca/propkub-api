@@ -19,7 +19,7 @@ export class MailCronService {
     private readonly mailService: MailService
   ) {}
 
-  @Cron(CronExpression.EVERY_6_MONTHS)
+  // @Cron(CronExpression.EVERY_6_MONTHS)
   async sendPreAuthUpgradeEmail() {
     this.logger.log(`sendPreAuthUpgradeEmail()...`);
 
@@ -39,7 +39,7 @@ export class MailCronService {
       from: NO_REPLY_EMAIL,
       templateId: EMAIL_PRE_AUTH_UPGRADE,
       templateData: {
-        name: user.name
+        name: user.name || user.email,
       }
     });
 
@@ -52,7 +52,7 @@ export class MailCronService {
     );
   }
 
-  @Cron(CronExpression.EVERY_6_MONTHS) //TODO: When I want to run I will comeback and change to every 5 mins
+  // @Cron(CronExpression.EVERY_6_MONTHS)
   async sendAuthUpgradeEmail() {
     this.logger.log(`sendAuthUpgradeEmail()...`);
 
@@ -76,7 +76,7 @@ export class MailCronService {
       from: NO_REPLY_EMAIL,
       templateId: EMAIL_AUTH_UPGRADE,
       templateData: {
-        name: user.name,
+        name: user.name || user.email,
         email: user.email,
         pwd: user.temp_p
       }
