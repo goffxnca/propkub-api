@@ -6,6 +6,7 @@ import { User, UserDocument } from '../users/users.schema';
 import { MailService } from './mail.service';
 import {
   EMAIL_AUTH_UPGRADE,
+  EMAIL_POST_SYSTEM_IS_UP_AGAIN,
   EMAIL_PRE_AUTH_UPGRADE,
   NO_REPLY_EMAIL
 } from '../common/constants';
@@ -88,6 +89,35 @@ export class MailCronService {
 
     this.logger.log(
       `Send email EMAIL_AUTH_UPGRADE to user ${user.email}(cid:${user.cid}) success`
+    );
+  }
+
+  // @Cron(CronExpression.EVERY_6_MONTHS)
+   async send_EMAIL_POST_SYSTEM_IS_UP_AGAIN() {
+    this.logger.log(`send_EMAIL_POST_SYSTEM_IS_UP_AGAIN()...`);
+
+    const user = await this.userModel
+      .findOne({ email: "user@mail.com" })
+      .exec();
+
+    if (!user) {
+      this.logger.warn(
+        'No user found with the provided condition -> Exit'
+      );
+      return;
+    }
+
+    await this.mailService.sendEmail({
+      to: user.email,
+      from: NO_REPLY_EMAIL,
+      templateId: EMAIL_POST_SYSTEM_IS_UP_AGAIN,
+      templateData: {
+        name: user.name || user.email,
+      }
+    });
+
+    this.logger.log(
+      `Send email EMAIL_PRE_AUTH_UPGRADE to user ${user.email}(cid:${user.cid}) success`
     );
   }
 }
