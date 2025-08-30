@@ -21,8 +21,8 @@ export class BrevoMailService {
   async sendEmail(options: SendEmailOptions): Promise<void> {
     this.logger.log('Sending brevo email...');
 
-    if (!this.envService.isProd()) {
-      this.logger.warn('Email sending skipped (non-prod environment)');
+    if (this.envService.isTest()) {
+      this.logger.log('Sending email is skipped on test env');
       return;
     }
 
