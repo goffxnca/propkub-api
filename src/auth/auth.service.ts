@@ -42,7 +42,7 @@ export class AuthService {
       return null;
     }
 
-    if (user.provider !== 'email') {
+    if (user.provider !== AuthProvider.EMAIL) {
       this.logger.debug(
         `Authentication failed: User with email:${truncEmail(email)} is not registered as email provider`
       );
