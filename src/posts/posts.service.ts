@@ -372,7 +372,7 @@ export class PostsService implements OnModuleInit {
         };
         break;
       default:
-        throw new Error(`Invalid stat type: ${statType}`);
+        throw new Error(`Invalid stat type: ${String(statType)}`);
     }
 
     await this.postModel.findByIdAndUpdate(id, updateObject).exec();
