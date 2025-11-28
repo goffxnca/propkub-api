@@ -89,7 +89,8 @@ export class AuthService {
           `Sending verification email to: ${truncEmail(email)}`
         );
         const verificationUrl = `${this.envService.frontendWebUrl()}/auth/verify-email?vtoken=${user.emailVToken}`;
-        this.mailService.sendEmail({
+
+        await this.mailService.sendEmail({
           from: NO_REPLY_EMAIL,
           to: user.email,
           templateId: EMAIL_WELCOME_WITH_VERIFICATION,
@@ -185,7 +186,8 @@ export class AuthService {
       this.logger.debug(
         `[loginGoogle()] Sending welcome email to: ${truncEmail(email)}`
       );
-      this.mailService.sendEmail({
+
+      await this.mailService.sendEmail({
         from: NO_REPLY_EMAIL,
         to: user.email,
         templateId: EMAIL_WELCOME,
@@ -341,7 +343,8 @@ export class AuthService {
       this.logger.debug(
         `[loginFacebook()] Sending welcome email to: ${truncEmail(email)}`
       );
-      this.mailService.sendEmail({
+
+      await this.mailService.sendEmail({
         from: NO_REPLY_EMAIL,
         to: user.email,
         templateId: EMAIL_WELCOME,
@@ -408,7 +411,7 @@ export class AuthService {
       `Password reset token generated for email: ${truncEmail(email)}`
     );
 
-    this.mailService.sendEmail({
+    await this.mailService.sendEmail({
       from: NO_REPLY_EMAIL,
       to: email,
       templateId: EMAIL_PASSWORD_RESET,

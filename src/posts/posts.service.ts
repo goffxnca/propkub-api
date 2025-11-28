@@ -411,13 +411,13 @@ export class PostsService implements OnModuleInit {
 
     const createdPost = await new this.postModel(userData).save();
 
-    this.postActionService.create(
+    await this.postActionService.create(
       PostActionType.CREATE,
       createdPost.id,
       userId
     );
 
-    this.mailService.sendEmail({
+    await this.mailService.sendEmail({
       from: NO_REPLY_EMAIL,
       to: user.email,
       templateId: EMAIL_POST_CREATED,
@@ -467,7 +467,7 @@ export class PostsService implements OnModuleInit {
       throw new NotFoundException(`Failed to update post with ID ${postId}`);
     }
 
-    this.postActionService.create(PostActionType.UPDATE, postId, userId);
+    await this.postActionService.create(PostActionType.UPDATE, postId, userId);
 
     return updatedPost;
   }
@@ -493,7 +493,7 @@ export class PostsService implements OnModuleInit {
       throw new NotFoundException(`Failed to close post with ID ${postId}`);
     }
 
-    this.mailService.sendEmail({
+    await this.mailService.sendEmail({
       from: NO_REPLY_EMAIL,
       to: user.email,
       templateId: EMAIL_POST_CLOSED,
@@ -505,7 +505,7 @@ export class PostsService implements OnModuleInit {
       }
     });
 
-    this.postActionService.create(PostActionType.CLOSE, postId, userId);
+    await this.postActionService.create(PostActionType.CLOSE, postId, userId);
   }
 
   async seedTest(post: Post): Promise<Post> {
