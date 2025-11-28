@@ -84,8 +84,8 @@ describe('Auth (e2e)', () => {
 
       const user = await userModel.findOne({ email: testUser.email });
       expect(user).toBeDefined();
-      expect(user?.role!).toBe(UserRole.NORMAL);
-      expect(user?.temp_p!).toBeUndefined();
+      expect(user?.role).toBe(UserRole.NORMAL);
+      expect(user?.temp_p).toBeUndefined();
     });
 
     it('should create a new agent user and return JWT token', async () => {
@@ -112,7 +112,7 @@ describe('Auth (e2e)', () => {
 
       const user = await userModel.findOne({ email: agentEmail });
       expect(user).toBeDefined();
-      expect(user?.role!).toBe(UserRole.AGENT);
+      expect(user?.role).toBe(UserRole.AGENT);
     });
 
     it('should return 409 when email already exists', () => {

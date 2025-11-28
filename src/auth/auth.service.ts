@@ -193,7 +193,13 @@ export class AuthService {
       });
     }
 
-    const userId = finalUser?._id!;
+    if (!finalUser) {
+      throw new UnauthorizedException(
+        'Failed to authenticate user with Google account'
+      );
+    }
+
+    const userId = finalUser._id;
     const payload = { sub: userId };
     const accessToken = await this.jwtService.signAsync(payload);
 
@@ -343,7 +349,13 @@ export class AuthService {
       });
     }
 
-    const userId = finalUser?._id!;
+    if (!finalUser) {
+      throw new UnauthorizedException(
+        'Failed to authenticate user with Facebook account'
+      );
+    }
+
+    const userId = finalUser._id;
     const payload = { sub: userId };
     const accessToken = await this.jwtService.signAsync(payload);
 
