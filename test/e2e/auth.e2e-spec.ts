@@ -730,7 +730,7 @@ describe('Auth (e2e)', () => {
       });
       expect(newUser).not.toBeNull();
       expect(newUser?.emailVerified).toBe(false);
-      verificationToken = newUser?.emailVToken!;
+      verificationToken = newUser?.emailVToken;
     });
 
     it('should verify email with valid token', async () => {
