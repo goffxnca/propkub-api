@@ -748,7 +748,7 @@ describe('Posts (e2e)', () => {
       it('should return 403 when user does not own the post', async () => {
         // Create a second user
         const secondUser = createUser({ email: 'jane.doe@example.com' });
-        const [_, secondUserToken] = await createUserAndLogIn(
+        const [, secondUserToken] = await createUserAndLogIn(
           secondUser,
           app,
           usersService
@@ -1346,7 +1346,7 @@ describe('Posts (e2e)', () => {
     });
 
     it('should close post successfully when authenticated and user owns the post', async () => {
-      const response = await request(app.getHttpServer())
+      await request(app.getHttpServer())
         .post(`/posts/${activePost._id}/close`)
         .set(authHeader(authToken))
         .expect(200);
@@ -1384,7 +1384,7 @@ describe('Posts (e2e)', () => {
     it('should return 403 when user does not own the post', async () => {
       // Create a second user
       const secondUser = createUser({ email: 'close.test@example.com' });
-      const [_, secondUserToken] = await createUserAndLogIn(
+      const [, secondUserToken] = await createUserAndLogIn(
         secondUser,
         app,
         usersService

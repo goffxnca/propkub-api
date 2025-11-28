@@ -19,7 +19,6 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { GoogleAuthWithStateGuard } from './guards/google-auth-with-state.guard';
-import { FacebookAuthGuard } from './guards/facebook-auth.guard';
 import { FacebookAuthWithStateGuard } from './guards/facebook-auth-with-state.guard';
 import { VerifyEmailDto } from './dto/verifyEmailDto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -127,7 +126,7 @@ export class AuthController {
     let stateData: OAuthStateData;
     try {
       stateData = JSON.parse(state);
-    } catch (error) {
+    } catch {
       this.logger.error(
         '[handleGoogleWithCustomState()] Google OAuth failed: Invalid state format'
       );
@@ -253,7 +252,7 @@ export class AuthController {
     let stateData: OAuthStateData;
     try {
       stateData = JSON.parse(state);
-    } catch (error) {
+    } catch {
       this.logger.error(
         '[handleFacebookWithCustomState()] Facebook OAuth failed: Invalid state format'
       );
