@@ -412,18 +412,13 @@ export class PostsService implements OnModuleInit {
     // - Direct API calls from Postman/curl/mobile apps
     // - Bypassing frontend validation
     // - Future frontend changes that might remove escaping
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const sanitizedTitle = sanitizeHtml(createPostDto.title, SANITIZE_OPTIONS);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const sanitizedDesc = sanitizeHtml(createPostDto.desc, SANITIZE_OPTIONS);
 
     const userData = {
       ...createPostDto,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       title: sanitizedTitle,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       slug: genSlug(sanitizedTitle, createPostDto.postNumber),
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       desc: sanitizedDesc,
       status: PostStatus.ACTIVE,
       createdAt: new Date(),
@@ -463,12 +458,10 @@ export class PostsService implements OnModuleInit {
       throw new NotFoundException(`Post with ID ${postId} not found`);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const sanitizedTitle = sanitizeHtml(
       updatePostDto.title || '',
       SANITIZE_OPTIONS
     );
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const sanitizedDesc = sanitizeHtml(
       updatePostDto.desc || '',
       SANITIZE_OPTIONS
@@ -481,12 +474,10 @@ export class PostsService implements OnModuleInit {
     };
 
     if (updatePostDto.title) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       updateData.title = sanitizedTitle;
     }
 
     if (updatePostDto.desc) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       updateData.desc = sanitizedDesc;
     }
 
