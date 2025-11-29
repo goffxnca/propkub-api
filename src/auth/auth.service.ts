@@ -109,7 +109,7 @@ export class AuthService {
     } catch (error) {
       this.logger.warn(
         `Failed to create user account: ${truncEmail(email)}`,
-        error.stack
+        (error as { stack: any }).stack
       );
       throw error;
     }
@@ -132,7 +132,7 @@ export class AuthService {
     return result;
   }
 
-  async login(user: any) {
+  async login(user: { email: string; id: string }) {
     this.logger.debug(
       `Generating auth token for user: ${truncEmail(user.email)} (ID: ${user.id})`
     );
@@ -148,7 +148,12 @@ export class AuthService {
     return { accessToken };
   }
 
-  async loginGoogle(user: any) {
+  async loginGoogle(user: {
+    email: string;
+    name: string;
+    googleId: string;
+    profileImg: string;
+  }) {
     const { email, name, googleId, profileImg } = user;
     this.logger.log(
       `[loginGoogle()] Processing Google OAuth login for: ${truncEmail(email)}`
@@ -216,7 +221,7 @@ export class AuthService {
     return { accessToken };
   }
 
-  async linkGoogleAccount(oauthUser: any) {
+  async linkGoogleAccount(oauthUser: { email: string; googleId: string }) {
     const { email, googleId } = oauthUser;
     this.logger.log(
       `[linkGoogleAccount()] Processing Google account linking for: ${truncEmail(email)}`
@@ -259,7 +264,7 @@ export class AuthService {
     return { accessToken };
   }
 
-  async linkFacebookAccount(oauthUser: any) {
+  async linkFacebookAccount(oauthUser: { email: string; facebookId: string }) {
     const { email, facebookId } = oauthUser;
     this.logger.log(
       `[linkFacebookAccount()] Processing Facebook account linking for: ${truncEmail(email)}`
@@ -304,7 +309,12 @@ export class AuthService {
     return { accessToken };
   }
 
-  async loginFacebook(user: any) {
+  async loginFacebook(user: {
+    email: string;
+    name: string;
+    facebookId: string;
+    profileImg: string;
+  }) {
     const { email, name, facebookId, profileImg } = user;
     this.logger.log(
       `[loginFacebook()] Processing Facebook OAuth login for: ${truncEmail(email)}`

@@ -1236,7 +1236,9 @@ describe('Posts (e2e)', () => {
       );
 
       expect(response.body.updatedBy).toBe(testUser._id.toString());
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       expect(new Date(response.body.updatedAt)).toBeInstanceOf(Date);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(
         beforeUpdate.getTime()
       );

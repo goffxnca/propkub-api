@@ -24,6 +24,7 @@ import { UpdatePostDto } from './dto/updatePostDto';
 import { PaginatedResponse } from '../common/utils/pagination';
 import { IncreasePostStatsDto } from './dto/increase-post-stats.dto';
 import { SearchPostsDto } from './dto/search-posts.dto';
+import { AuthRequest } from '../common/interfaces/auth-request';
 
 @Controller('posts')
 export class PostsController {
@@ -32,12 +33,11 @@ export class PostsController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   async getMyPosts(
-    @Request() req,
+    @Request() req: AuthRequest,
     @Query() pagination: PaginationQueryDto
   ): Promise<PaginatedResponse<Post>> {
-    const userId = req.user.userId;
     return this.postsService.findByUserId(
-      userId,
+      req.user.userId,
       pagination.page,
       pagination.per_page
     );
@@ -45,16 +45,17 @@ export class PostsController {
 
   @Get('me/stats')
   @UseGuards(JwtAuthGuard)
-  async getMyPostsStats(@Request() req): Promise<PostStatsResponseDto> {
-    const userId = req.user.userId;
-    return this.postsService.getUserPostsStats(userId);
+  async getMyPostsStats(
+    @Request() req: AuthRequest
+  ): Promise<PostStatsResponseDto> {
+    return this.postsService.getUserPostsStats(req.user.userId);
   }
 
   @Get(':id/me')
   @UseGuards(JwtAuthGuard)
   async findOneForOwner(
     @Param('id', MongoIdValidationPipe) id: string,
-    @Request() req
+    @Request() req: AuthRequest
   ): Promise<any> {
     const post = await this.postsService.findOneWithActionsForOwner(
       id,
@@ -81,7 +82,7 @@ export class PostsController {
   @UseGuards(JwtAuthGuard)
   @PostRequest()
   createPost(
-    @Request() req,
+    @Request() req: AuthRequest,
     @Body() createPostDto: CreatePostDto
   ): Promise<Post> {
     return this.postsService.create(createPostDto, req.user.userId);
@@ -90,7 +91,7 @@ export class PostsController {
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async updatePost(
-    @Request() req,
+    @Request() req: AuthRequest,
     @Param('id', MongoIdValidationPipe) id: string,
     @Body() updatePostDto: UpdatePostDto
   ): Promise<Post> {
@@ -109,7 +110,7 @@ export class PostsController {
   @HttpPost(':id/close')
   @HttpCode(200)
   async closePost(
-    @Request() req,
+    @Request() req: AuthRequest,
     @Param('id', MongoIdValidationPipe) id: string
   ): Promise<boolean> {
     await this.postsService.close(id, req.user.userId);

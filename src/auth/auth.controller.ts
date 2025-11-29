@@ -30,6 +30,9 @@ import { ProfileResponseDto } from './dto/profile-response.dto';
 import { truncEmail, truncToken } from '../common/utils/strings';
 import { OAuthStateData } from './interfaces/oauth-state.interface';
 import { EnvironmentService } from '../environments/environment.service';
+import { AuthRequest } from '../common/interfaces/auth-request';
+import { User } from '../users/users.schema';
+import { Response as ExpressResponse } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -72,9 +75,10 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  login(@Request() req) {
-    this.logger.log(`Login successful for user: ${truncEmail(req.user.email)}`);
-    return this.authService.login(req.user);
+  login(@Request() req: AuthRequest) {
+    const { email, id } = req.user;
+    this.logger.log(`Login successful for user: ${truncEmail(email)}`);
+    return this.authService.login({ email: email, id });
   }
 
   @UseGuards(GoogleAuthWithStateGuard)
@@ -85,7 +89,11 @@ export class AuthController {
 
   @UseGuards(GoogleAuthGuard)
   @Get('google/redirect')
-  async googleAuthRedirect(@Request() req, @Response() res, @Query() query) {
+  async googleAuthRedirect(
+    @Request() req: AuthRequest,
+    @Response() res: ExpressResponse,
+    @Query() query: { state: string }
+  ) {
     this.logger.log(
       `[googleAuthRedirect()] Google OAuth callback for user: ${truncEmail(req.user.email)}`
     );
@@ -96,8 +104,14 @@ export class AuthController {
         return this.handleGoogleWithCustomState(req, res, state);
       }
 
+      const { email, name, googleId, profileImg } = req.user;
       // Regular login/signup flow
-      const result = await this.authService.loginGoogle(req.user);
+      const result = await this.authService.loginGoogle({
+        email,
+        name,
+        googleId,
+        profileImg
+      });
       const { accessToken } = result;
 
       res.redirect(
@@ -115,8 +129,8 @@ export class AuthController {
   }
 
   private async handleGoogleWithCustomState(
-    @Request() req,
-    @Response() res,
+    @Request() req: AuthRequest,
+    @Response() res: ExpressResponse,
     state: string
   ) {
     this.logger.log(
@@ -125,7 +139,7 @@ export class AuthController {
 
     let stateData: OAuthStateData;
     try {
-      stateData = JSON.parse(state);
+      stateData = JSON.parse(state) as OAuthStateData;
     } catch {
       this.logger.error(
         '[handleGoogleWithCustomState()] Google OAuth failed: Invalid state format'
@@ -150,8 +164,8 @@ export class AuthController {
   }
 
   private async handleGoogleLinking(
-    @Request() req,
-    @Response() res,
+    @Request() req: AuthRequest,
+    @Response() res: ExpressResponse,
     stateData: OAuthStateData
   ) {
     this.logger.log(
@@ -179,7 +193,11 @@ export class AuthController {
         );
       }
 
-      const result = await this.authService.linkGoogleAccount(req.user);
+      const { email, googleId } = req.user;
+      const result = await this.authService.linkGoogleAccount({
+        email,
+        googleId
+      });
       const { accessToken } = result;
 
       return res.redirect(
@@ -191,7 +209,7 @@ export class AuthController {
         error
       );
 
-      if (error.message?.includes('already linked')) {
+      if ((error as { message: string }).message?.includes('already linked')) {
         return res.redirect(
           `${this.envService.frontendWebUrl()}/auth/callback?error=already_linked&provider=google`
         );
@@ -211,7 +229,11 @@ export class AuthController {
 
   @UseGuards(FacebookAuthWithStateGuard)
   @Get('facebook/redirect')
-  async facebookAuthRedirect(@Request() req, @Response() res, @Query() query) {
+  async facebookAuthRedirect(
+    @Request() req: AuthRequest,
+    @Response() res: ExpressResponse,
+    @Query() query: { state: string }
+  ) {
     this.logger.log(
       `[facebookAuthRedirect()] Facebook OAuth callback for user: ${truncEmail(req.user.email)}`
     );
@@ -223,7 +245,13 @@ export class AuthController {
       }
 
       // Regular login/signup flow
-      const result = await this.authService.loginFacebook(req.user);
+      const { email, name, facebookId, profileImg } = req.user;
+      const result = await this.authService.loginFacebook({
+        email,
+        name,
+        facebookId,
+        profileImg
+      });
       const { accessToken } = result;
 
       res.redirect(
@@ -241,8 +269,8 @@ export class AuthController {
   }
 
   private async handleFacebookWithCustomState(
-    @Request() req,
-    @Response() res,
+    @Request() req: AuthRequest,
+    @Response() res: ExpressResponse,
     state: string
   ) {
     this.logger.log(
@@ -251,7 +279,7 @@ export class AuthController {
 
     let stateData: OAuthStateData;
     try {
-      stateData = JSON.parse(state);
+      stateData = JSON.parse(state) as OAuthStateData;
     } catch {
       this.logger.error(
         '[handleFacebookWithCustomState()] Facebook OAuth failed: Invalid state format'
@@ -276,8 +304,8 @@ export class AuthController {
   }
 
   private async handleFacebookLinking(
-    @Request() req,
-    @Response() res,
+    @Request() req: AuthRequest,
+    @Response() res: ExpressResponse,
     stateData: OAuthStateData
   ) {
     this.logger.log(
@@ -305,7 +333,11 @@ export class AuthController {
         );
       }
 
-      const result = await this.authService.linkFacebookAccount(req.user);
+      const { email, facebookId } = req.user;
+      const result = await this.authService.linkFacebookAccount({
+        email,
+        facebookId
+      });
       const { accessToken } = result;
 
       return res.redirect(
@@ -317,7 +349,7 @@ export class AuthController {
         error
       );
 
-      if (error.message?.includes('already linked')) {
+      if ((error as { message: string }).message?.includes('already linked')) {
         return res.redirect(
           `${this.envService.frontendWebUrl()}/auth/callback?error=already_linked&provider=facebook`
         );
@@ -331,7 +363,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/profile')
-  getProfile(@Request() req): Promise<ProfileResponseDto> {
+  getProfile(@Request() req: AuthRequest): Promise<ProfileResponseDto> {
     this.logger.log(`Profile request for user ID: ${req.user.userId}`);
     return this.authService.profile(req.user.userId);
   }
@@ -368,7 +400,10 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('update-password')
   @HttpCode(HttpStatus.OK)
-  updatePassword(@Request() req, @Body() updatePasswordDto: UpdatePasswordDto) {
+  updatePassword(
+    @Request() req: AuthRequest,
+    @Body() updatePasswordDto: UpdatePasswordDto
+  ) {
     this.logger.log(`Update password request for user ID: ${req.user.userId}`);
     return this.authService.updatePassword(
       req.user.userId,
@@ -381,9 +416,9 @@ export class AuthController {
   @Patch('profile')
   @HttpCode(HttpStatus.OK)
   async updateProfile(
-    @Request() req,
+    @Request() req: AuthRequest,
     @Body() updateProfileDto: UpdateProfileDto
-  ): Promise<ProfileResponseDto> {
+  ): Promise<User> {
     this.logger.log(`Update profile request for user ID: ${req.user.userId}`);
     return this.authService.updateProfile(req.user.userId, updateProfileDto);
   }
