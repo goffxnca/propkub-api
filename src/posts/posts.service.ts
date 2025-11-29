@@ -6,7 +6,7 @@ import {
   ForbiddenException
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Document, Model, Types, UpdateQuery } from 'mongoose';
 import { Post, PostDocument, PostStatus } from './posts.schema';
 import * as postsData from './data/posts.json';
 import { CreatePostDto } from './dto/createPostDto';
@@ -23,14 +23,14 @@ import {
 } from '../common/constants';
 import { UsersService } from '../users/users.service';
 import { PostActionsService } from '../postActions/postActions.service';
-import { PostActionType } from '../postActions/postActions.schema';
+import { PostActions, PostActionType } from '../postActions/postActions.schema';
 import { paginate, PaginatedResponse } from '../common/utils/pagination';
 import { PostStatsResponseDto } from './dto/post-stats-response.dto';
 import { PostStatType } from './dto/increase-post-stats.dto';
 import { SearchPostsDto } from './dto/search-posts.dto';
 import { randomOneToN } from '../common/utils/numbers';
 
-const SANITIZE_OPTIONS = {
+const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
   allowedTags: ['p', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br', 'a']
 };
 //p -> paragraph
@@ -77,7 +77,11 @@ export class PostsService implements OnModuleInit {
     }
     const count = await this.postModel.estimatedDocumentCount();
     const uniqueFirebaseCreatedByIdsFromPosts = [
-      ...new Set((postsData as any[]).map((post: any) => post.createdBy.userId))
+      ...new Set(
+        (postsData as any[]).map(
+          (post: { createdBy: { userId: string } }) => post.createdBy.userId
+        )
+      )
     ];
     // console.log(
     //   'uniqueFirebaseCreatedByIdsFromPosts',
@@ -221,7 +225,9 @@ export class PostsService implements OnModuleInit {
     return this.postModel.findById(id).exec();
   }
 
-  async findOneWithActions(id: string): Promise<any> {
+  async findOneWithActions(
+    id: string
+  ): Promise<Post | { postActions: PostActions[] } | null> {
     const post = await this.findOne(id);
     if (!post) {
       return null;
@@ -229,8 +235,12 @@ export class PostsService implements OnModuleInit {
 
     const postActions = await this.postActionService.findByPostId(id);
 
+    const postDocumentObject = {
+      ...(post as PostDocument).toObject()
+    } as Post;
+
     return {
-      ...(post as any).toObject(),
+      ...postDocumentObject,
       postActions
     };
   }
@@ -249,16 +259,22 @@ export class PostsService implements OnModuleInit {
     return post;
   }
 
-  async findOneWithActionsForOwner(id: string, userId: string): Promise<any> {
+  async findOneWithActionsForOwner(
+    id: string,
+    userId: string
+  ): Promise<Post | { postActions: PostActions[] } | null> {
     const post = await this.findOneForOwner(id, userId);
     if (!post) {
       return null;
     }
 
     const postActions = await this.postActionService.findByPostId(id);
+    const postDocumentObject = {
+      ...(post as PostDocument).toObject()
+    } as Post;
 
     return {
-      ...(post as any).toObject(),
+      ...postDocumentObject,
       postActions
     };
   }
@@ -319,7 +335,7 @@ export class PostsService implements OnModuleInit {
   }
 
   async getUserPostsStats(userId: string): Promise<PostStatsResponseDto> {
-    const result = await this.postModel.aggregate([
+    const result: PostStatsResponseDto[] = await this.postModel.aggregate([
       { $match: { createdBy: new Types.ObjectId(userId) } },
       {
         $group: {
@@ -352,7 +368,7 @@ export class PostsService implements OnModuleInit {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
 
-    let updateObject: any = {};
+    let updateObject: UpdateQuery<PostDocument> | undefined = {};
 
     switch (statType) {
       case PostStatType.SHARES:
@@ -372,7 +388,7 @@ export class PostsService implements OnModuleInit {
         };
         break;
       default:
-        throw new Error(`Invalid stat type: ${statType}`);
+        throw new Error(`Invalid stat type: ${String(statType)}`);
     }
 
     await this.postModel.findByIdAndUpdate(id, updateObject).exec();
@@ -411,13 +427,13 @@ export class PostsService implements OnModuleInit {
 
     const createdPost = await new this.postModel(userData).save();
 
-    this.postActionService.create(
+    await this.postActionService.create(
       PostActionType.CREATE,
-      createdPost.id,
+      createdPost._id,
       userId
     );
 
-    this.mailService.sendEmail({
+    await this.mailService.sendEmail({
       from: NO_REPLY_EMAIL,
       to: user.email,
       templateId: EMAIL_POST_CREATED,
@@ -442,8 +458,14 @@ export class PostsService implements OnModuleInit {
       throw new NotFoundException(`Post with ID ${postId} not found`);
     }
 
-    const sanitizedTitle = sanitizeHtml(updatePostDto.title, SANITIZE_OPTIONS);
-    const sanitizedDesc = sanitizeHtml(updatePostDto.desc, SANITIZE_OPTIONS);
+    const sanitizedTitle = sanitizeHtml(
+      updatePostDto.title || '',
+      SANITIZE_OPTIONS
+    );
+    const sanitizedDesc = sanitizeHtml(
+      updatePostDto.desc || '',
+      SANITIZE_OPTIONS
+    );
 
     const updateData = {
       ...updatePostDto,
@@ -467,7 +489,7 @@ export class PostsService implements OnModuleInit {
       throw new NotFoundException(`Failed to update post with ID ${postId}`);
     }
 
-    this.postActionService.create(PostActionType.UPDATE, postId, userId);
+    await this.postActionService.create(PostActionType.UPDATE, postId, userId);
 
     return updatedPost;
   }
@@ -493,7 +515,7 @@ export class PostsService implements OnModuleInit {
       throw new NotFoundException(`Failed to close post with ID ${postId}`);
     }
 
-    this.mailService.sendEmail({
+    await this.mailService.sendEmail({
       from: NO_REPLY_EMAIL,
       to: user.email,
       templateId: EMAIL_POST_CLOSED,
@@ -505,7 +527,7 @@ export class PostsService implements OnModuleInit {
       }
     });
 
-    this.postActionService.create(PostActionType.CLOSE, postId, userId);
+    await this.postActionService.create(PostActionType.CLOSE, postId, userId);
   }
 
   async seedTest(post: Post): Promise<Post> {

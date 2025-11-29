@@ -19,7 +19,7 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
     accessToken: string,
     refreshToken: string,
     profile: Profile,
-    done: Function
+    done: (error: Error | null, user?: any) => void
   ): any {
     const { id, emails, name, photos } = profile;
 

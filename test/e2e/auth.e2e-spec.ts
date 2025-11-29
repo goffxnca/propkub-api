@@ -84,8 +84,8 @@ describe('Auth (e2e)', () => {
 
       const user = await userModel.findOne({ email: testUser.email });
       expect(user).toBeDefined();
-      expect(user?.role!).toBe(UserRole.NORMAL);
-      expect(user?.temp_p!).toBeUndefined();
+      expect(user?.role).toBe(UserRole.NORMAL);
+      expect(user?.temp_p).toBeUndefined();
     });
 
     it('should create a new agent user and return JWT token', async () => {
@@ -112,7 +112,7 @@ describe('Auth (e2e)', () => {
 
       const user = await userModel.findOne({ email: agentEmail });
       expect(user).toBeDefined();
-      expect(user?.role!).toBe(UserRole.AGENT);
+      expect(user?.role).toBe(UserRole.AGENT);
     });
 
     it('should return 409 when email already exists', () => {
@@ -290,7 +290,7 @@ describe('Auth (e2e)', () => {
   });
 
   describe('POST /auth/forgot-password', () => {
-    beforeEach(async () => {
+    beforeEach(() => {
       jest.clearAllMocks();
     });
 
@@ -337,7 +337,7 @@ describe('Auth (e2e)', () => {
       expect(sendEmailSpy).not.toHaveBeenCalled();
     });
 
-    it('should return 400 when email is missing', async () => {
+    it('should return 400 when email is missing', () => {
       return request(app.getHttpServer())
         .post('/auth/forgot-password')
         .send({})
@@ -347,7 +347,7 @@ describe('Auth (e2e)', () => {
         });
     });
 
-    it('should return 400 when email format is invalid', async () => {
+    it('should return 400 when email format is invalid', () => {
       return request(app.getHttpServer())
         .post('/auth/forgot-password')
         .send({ email: 'not-an-email' })
@@ -443,7 +443,7 @@ describe('Auth (e2e)', () => {
       expect(response.body.message).toBe('Invalid or expired reset token');
     });
 
-    it('should return 400 when token is missing', async () => {
+    it('should return 400 when token is missing', () => {
       return request(app.getHttpServer())
         .post('/auth/reset-password')
         .send({
@@ -455,7 +455,7 @@ describe('Auth (e2e)', () => {
         });
     });
 
-    it('should return 400 when new password is missing', async () => {
+    it('should return 400 when new password is missing', () => {
       return request(app.getHttpServer())
         .post('/auth/reset-password')
         .send({
@@ -467,7 +467,7 @@ describe('Auth (e2e)', () => {
         });
     });
 
-    it('should return 400 when new password is too short', async () => {
+    it('should return 400 when new password is too short', () => {
       return request(app.getHttpServer())
         .post('/auth/reset-password')
         .send({
@@ -552,7 +552,7 @@ describe('Auth (e2e)', () => {
       expect(user?.profileImg).toBe(updateData.profileImg);
     });
 
-    it('should return 400 when dangerous field role:admin is sent', async () => {
+    it('should return 400 when dangerous field role:admin is sent', () => {
       return request(app.getHttpServer())
         .patch('/auth/profile')
         .set('Authorization', `Bearer ${accessToken}`)
@@ -566,7 +566,7 @@ describe('Auth (e2e)', () => {
         });
     });
 
-    it('should return 401 when bad token is provided', async () => {
+    it('should return 401 when bad token is provided', () => {
       return request(app.getHttpServer())
         .patch('/auth/profile')
         .set('Authorization', 'Bearer bad-invalid-token')
@@ -632,7 +632,7 @@ describe('Auth (e2e)', () => {
       expect(updatedUser?.temp_p).toBeUndefined();
     });
 
-    it('should return 401 when current password is incorrect', async () => {
+    it('should return 401 when current password is incorrect', () => {
       return request(app.getHttpServer())
         .post('/auth/update-password')
         .set('Authorization', `Bearer ${accessToken}`)
@@ -646,7 +646,7 @@ describe('Auth (e2e)', () => {
         });
     });
 
-    it('should return 401 when not authenticated', async () => {
+    it('should return 401 when not authenticated', () => {
       return request(app.getHttpServer())
         .post('/auth/update-password')
         .send({
@@ -656,7 +656,7 @@ describe('Auth (e2e)', () => {
         .expect(401);
     });
 
-    it('should return 400 when currentPassword is missing', async () => {
+    it('should return 400 when currentPassword is missing', () => {
       return request(app.getHttpServer())
         .post('/auth/update-password')
         .set('Authorization', `Bearer ${accessToken}`)
@@ -671,7 +671,7 @@ describe('Auth (e2e)', () => {
         });
     });
 
-    it('should return 400 when newPassword is missing', async () => {
+    it('should return 400 when newPassword is missing', () => {
       return request(app.getHttpServer())
         .post('/auth/update-password')
         .set('Authorization', `Bearer ${accessToken}`)
@@ -684,7 +684,7 @@ describe('Auth (e2e)', () => {
         });
     });
 
-    it('should return 400 when newPassword is too short', async () => {
+    it('should return 400 when newPassword is too short', () => {
       return request(app.getHttpServer())
         .post('/auth/update-password')
         .set('Authorization', `Bearer ${accessToken}`)
@@ -730,7 +730,7 @@ describe('Auth (e2e)', () => {
       });
       expect(newUser).not.toBeNull();
       expect(newUser?.emailVerified).toBe(false);
-      verificationToken = newUser?.emailVToken!;
+      verificationToken = newUser?.emailVToken || '';
     });
 
     it('should verify email with valid token', async () => {
@@ -749,7 +749,7 @@ describe('Auth (e2e)', () => {
       expect(updatedUser?.emailVToken).toBeUndefined();
     });
 
-    it('should return 400 with invalid token', async () => {
+    it('should return 400 with invalid token', () => {
       const invalidToken = uuidV4();
 
       return request(app.getHttpServer())
@@ -762,7 +762,7 @@ describe('Auth (e2e)', () => {
         });
     });
 
-    it('should return 400 when token is missing', async () => {
+    it('should return 400 when token is missing', () => {
       return request(app.getHttpServer())
         .get('/auth/verify-email')
         .expect(400)
@@ -771,7 +771,7 @@ describe('Auth (e2e)', () => {
         });
     });
 
-    it('should return 400 when trying to verify already verified email', async () => {
+    it('should return 400 when trying to verify already verified email', () => {
       return request(app.getHttpServer())
         .get(`/auth/verify-email?vtoken=${verificationToken}`)
         .expect(400)

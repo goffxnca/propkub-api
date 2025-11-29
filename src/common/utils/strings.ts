@@ -33,7 +33,7 @@ export function genSlug(text: string, id: string) {
     .replaceAll('%', 'เปอร์เซนต์')
     .replaceAll('&', 'แอนด์')
     .replaceAll('/', 'ทับ')
-    .replaceAll(/[`~!@#$%^&*()_\+=\[\]{};:'"\\|\/,.<>?\s]/g, '')
+    .replaceAll(/[`~!@#$%^&*()_+=[\]{};:'"\\|/,.<>?\s]/g, '')
     .replaceAll(/\s\s+/g, '-') //remove consecutive whitespace to one dash
     .replaceAll(/-+/g, '-') //remove consecutive dashes to one dash
     .replaceAll(/^-+/g, '') //remove dash at start of string

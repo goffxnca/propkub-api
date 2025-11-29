@@ -74,6 +74,6 @@ export class PostActionsService implements OnModuleInit {
       note: ''
     };
 
-    new this.postActionsModel(postActionData).save();
+    await new this.postActionsModel(postActionData).save();
   }
 }
