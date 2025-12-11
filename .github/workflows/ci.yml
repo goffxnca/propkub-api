@@ -28,5 +28,26 @@ jobs:
       - name: Run Prettier check
         run: yarn format
 
+      - name: Create .env.test file
+        run: |
+          cat > .env.test << EOF
+          MONGODB_URI=${{ secrets.TEST_MONGODB_URI }}
+          JWT_SECRET=${{ secrets.TEST_JWT_SECRET }}
+          GOOGLE_CLIENT_ID=${{ secrets.TEST_GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.TEST_GOOGLE_CLIENT_SECRET }}
+          GOOGLE_CALLBACK_URL=${{ secrets.TEST_GOOGLE_CALLBACK_URL }}
+          FACEBOOK_CLIENT_ID=${{ secrets.TEST_FACEBOOK_CLIENT_ID }}
+          FACEBOOK_CLIENT_SECRET=${{ secrets.TEST_FACEBOOK_CLIENT_SECRET }}
+          FACEBOOK_CALLBACK_URL=${{ secrets.TEST_FACEBOOK_CALLBACK_URL }}
+          SENDGRID_API_KEY=${{ secrets.TEST_SENDGRID_API_KEY }}
+          BREVO_API_KEY=${{ secrets.TEST_BREVO_API_KEY }}
+          EMAIL_BCC=${{ secrets.TEST_EMAIL_BCC }}
+          FRONTEND_WEB_URL=${{ secrets.TEST_FRONTEND_WEB_URL }}
+          API_KEY_FOR_NEXTJS_SERVER=${{ secrets.TEST_API_KEY_FOR_NEXTJS_SERVER }}
+          SENTRY_DSN=${{ secrets.TEST_SENTRY_DSN }}
+          FOO=${{ secrets.TEST_FOO }}
+          EOF
+        shell: bash
+
       - name: Run e2e tests
         run: yarn test:e2e
