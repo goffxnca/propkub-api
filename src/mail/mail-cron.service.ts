@@ -40,7 +40,7 @@ export class MailCronService {
       from: NO_REPLY_EMAIL,
       templateId: EMAIL_PRE_AUTH_UPGRADE,
       templateData: {
-        name: user.name || user.email,
+        name: user.name || user.email
       }
     });
 
@@ -93,17 +93,15 @@ export class MailCronService {
   }
 
   // @Cron(CronExpression.EVERY_6_MONTHS)
-   async send_EMAIL_POST_SYSTEM_IS_UP_AGAIN() {
+  async send_EMAIL_POST_SYSTEM_IS_UP_AGAIN() {
     this.logger.log(`send_EMAIL_POST_SYSTEM_IS_UP_AGAIN()...`);
 
     const user = await this.userModel
-      .findOne({ email: "user@mail.com" })
+      .findOne({ email: 'user@mail.com' })
       .exec();
 
     if (!user) {
-      this.logger.warn(
-        'No user found with the provided condition -> Exit'
-      );
+      this.logger.warn('No user found with the provided condition -> Exit');
       return;
     }
 
@@ -112,7 +110,7 @@ export class MailCronService {
       from: NO_REPLY_EMAIL,
       templateId: EMAIL_POST_SYSTEM_IS_UP_AGAIN,
       templateData: {
-        name: user.name || user.email,
+        name: user.name || user.email
       }
     });
 
