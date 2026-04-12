@@ -1,3 +1,5 @@
+> ⚠️ **This repository is archived.** The API has been migrated into the [propkub monorepo](https://github.com/goffxnca/propkub) under `apps/api` to consolidate the full stack into one repo, simplifying development, contributions, and project management.
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
